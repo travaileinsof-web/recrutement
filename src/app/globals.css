@@ -44,103 +44,111 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-/* TalentForge palette — deep green primary, warm orange accent, cream background */
+/* ---------------------------------------------------------------------------
+   TalentForge palette — deep navy blue + white, with tonal blue accents.
+   The brand identity is intentionally restrained and professional:
+   primary navy for trust, white for clarity, lighter blues for depth.
+   ------------------------------------------------------------------------- */
 :root {
   --radius: 0.625rem;
 
-  /* Surfaces */
-  --background: #faf7f2; /* cream */
-  --foreground: #1a1a1a; /* near-black */
+  /* ----- Surfaces ----- */
+  --background: #ffffff;            /* pure white */
+  --foreground: #0f172a;            /* slate-900 — near-black with blue undertone */
 
   --card: #ffffff;
-  --card-foreground: #1a1a1a;
+  --card-foreground: #0f172a;
 
   --popover: #ffffff;
-  --popover-foreground: #1a1a1a;
+  --popover-foreground: #0f172a;
 
-  /* Primary — deep forest green */
-  --primary: #0f4c3a;
-  --primary-foreground: #f7f3ec;
+  /* ----- Primary — navy blue (slightly dark, as requested) ----- */
+  --primary: #1e3a8a;               /* blue-900 — navy, deep and confident */
+  --primary-foreground: #ffffff;
 
-  /* Secondary — muted green-tinted neutral */
-  --secondary: #e7efe9;
-  --secondary-foreground: #0f4c3a;
+  /* ----- Secondary — very light blue tint, for subtle backgrounds ----- */
+  --secondary: #eff6ff;             /* blue-50 */
+  --secondary-foreground: #1e3a8a;
 
-  --muted: #f1ece3;
-  --muted-foreground: #5b5b54;
+  /* ----- Muted — neutral slate, blue-tinted, for body text + surfaces ----- */
+  --muted: #f1f5f9;                 /* slate-100 */
+  --muted-foreground: #475569;      /* slate-600 */
 
-  /* Accent — warm orange */
-  --accent: #e07a2c;
+  /* ----- Accent — vivid blue for CTAs and highlights ----- */
+  --accent: #2563eb;                /* blue-600 */
   --accent-foreground: #ffffff;
 
-  --destructive: #c4332b;
+  --destructive: #dc2626;           /* red-600 — semantic, kept red for errors */
   --destructive-foreground: #ffffff;
 
-  --border: #e6dfd2;
-  --input: #efe9dd;
-  --ring: #0f4c3a;
+  --border: #dbeafe;                /* blue-100 — subtle blue border */
+  --input: #f1f5f9;                 /* slate-100 */
+  --ring: #1e3a8a;                  /* navy focus ring */
 
-  /* Chart palette aligned with brand */
-  --chart-1: #0f4c3a; /* green */
-  --chart-2: #e07a2c; /* orange */
-  --chart-3: #b08968; /* warm brown */
-  --chart-4: #6b8f71; /* sage */
-  --chart-5: #d4a017; /* gold */
+  /* ----- Chart palette — monochromatic blue, from dark to light ----- */
+  --chart-1: #1e3a8a;               /* navy */
+  --chart-2: #2563eb;               /* blue-600 */
+  --chart-3: #3b82f6;               /* blue-500 */
+  --chart-4: #60a5fa;               /* blue-400 */
+  --chart-5: #93c5fd;               /* blue-300 */
 
-  /* Sidebar */
-  --sidebar: #0f4c3a;
-  --sidebar-foreground: #f7f3ec;
-  --sidebar-primary: #e07a2c;
+  /* ----- Sidebar — deeper navy for hierarchy and depth ----- */
+  --sidebar: #1e3a8a;               /* blue-900 — same navy as primary */
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #3b82f6;       /* blue-500 — bright accent on dark navy */
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #14604a;
-  --sidebar-accent-foreground: #f7f3ec;
-  --sidebar-border: #1b5a47;
-  --sidebar-ring: #e07a2c;
+  --sidebar-accent: #1e40af;         /* blue-800 — slightly lighter for hover */
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #1d4ed8;         /* blue-700 */
+  --sidebar-ring: #60a5fa;           /* blue-400 — bright on dark */
 }
 
+/* ---------------------------------------------------------------------------
+   Dark mode — same blue identity, inverted.
+   ------------------------------------------------------------------------- */
 .dark {
-  --background: #0f1a17;
-  --foreground: #f5f1ea;
+  --background: #0f172a;            /* slate-900 */
+  --foreground: #f1f5f9;            /* slate-100 */
 
-  --card: #14241f;
-  --card-foreground: #f5f1ea;
+  --card: #1e293b;                  /* slate-800 */
+  --card-foreground: #f1f5f9;
 
-  --popover: #14241f;
-  --popover-foreground: #f5f1ea;
+  --popover: #1e293b;
+  --popover-foreground: #f1f5f9;
 
-  --primary: #1f7a5e;
-  --primary-foreground: #f5f1ea;
+  --primary: #3b82f6;               /* blue-500 — brighter on dark */
+  --primary-foreground: #ffffff;
 
-  --secondary: #1c2e28;
-  --secondary-foreground: #f5f1ea;
+  --secondary: #1e3a8a;             /* blue-900 as secondary on dark */
+  --secondary-foreground: #f1f5f9;
 
-  --muted: #1a2a25;
-  --muted-foreground: #a3b8af;
+  --muted: #1e293b;                 /* slate-800 */
+  --muted-foreground: #94a3b8;      /* slate-400 */
 
-  --accent: #e07a2c;
-  --accent-foreground: #ffffff;
+  --accent: #60a5fa;                /* blue-400 */
+  --accent-foreground: #0f172a;
 
-  --destructive: #e35d54;
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
 
-  --border: #25372f;
-  --input: #25372f;
-  --ring: #e07a2c;
+  --border: #334155;                /* slate-700 */
+  --input: #334155;
+  --ring: #3b82f6;
 
-  --chart-1: #1f7a5e;
-  --chart-2: #e07a2c;
-  --chart-3: #b08968;
-  --chart-4: #6b8f71;
-  --chart-5: #d4a017;
+  --chart-1: #3b82f6;
+  --chart-2: #60a5fa;
+  --chart-3: #93c5fd;
+  --chart-4: #bfdbfe;
+  --chart-5: #dbeafe;
 
-  --sidebar: #0a1411;
-  --sidebar-foreground: #f5f1ea;
-  --sidebar-primary: #e07a2c;
+  --sidebar: #0f172a;               /* slate-900 — almost black for depth */
+  --sidebar-foreground: #f1f5f9;
+  --sidebar-primary: #3b82f6;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #14241f;
-  --sidebar-accent-foreground: #f5f1ea;
-  --sidebar-border: #1c2e28;
-  --sidebar-ring: #e07a2c;
+  --sidebar-accent: #1e3a8a;        /* blue-900 hover on dark sidebar */
+  --sidebar-accent-foreground: #f1f5f9;
+  --sidebar-border: #1e293b;
+  --sidebar-ring: #60a5fa;
 }
 
 @layer base {
@@ -155,6 +163,11 @@
     font-family: var(--font-serif), ui-serif, Georgia, serif;
     letter-spacing: -0.01em;
   }
+  /* Subtle blue tint on selection — reinforces brand identity */
+  ::selection {
+    background-color: rgba(37, 99, 235, 0.15); /* blue-600 at 15% */
+    color: var(--foreground);
+  }
 }
 
 @layer utilities {
@@ -164,7 +177,7 @@
   .font-sans {
     font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   }
-  /* Subtle custom scrollbar for long lists/tables */
+  /* Subtle custom scrollbar for long lists/tables — blue-tinted */
   .scroll-pretty {
     scrollbar-width: thin;
     scrollbar-color: var(--border) transparent;
@@ -179,5 +192,12 @@
   }
   .scroll-pretty::-webkit-scrollbar-track {
     background-color: transparent;
+  }
+  /* Subtle blue gradient utility — for hero / accent bands */
+  .bg-brand-gradient {
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #3b82f6 100%);
+  }
+  .bg-brand-gradient-soft {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 50%, #bfdbfe 100%);
   }
 }
