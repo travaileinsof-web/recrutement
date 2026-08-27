@@ -1,0 +1,1138 @@
+# Prompt maître — Plateforme de recrutement sans comptes publics
+
+## 0. Instruction générale destinée à l’agent de développement
+
+Tu dois concevoir et implémenter une plateforme web professionnelle de recrutement destinée à publier des offres d’emploi, recevoir des propositions d’offres provenant d’entreprises externes et permettre aux candidats de postuler directement, sans création de compte public.
+
+Le produit doit être livré comme une application complète, responsive, sécurisée, maintenable et prête à être déployée. Tu dois produire une architecture cohérente de bout en bout : interface publique, tableau de bord administratif, back-end serverless, base de données PostgreSQL, gestion sécurisée des documents, notifications, validation des données, journalisation, tests et documentation.
+
+Ne transforme pas le système en réseau social, en CRM complexe ou en portail avec comptes candidats et comptes entreprises. La contrainte principale est impérative : **aucun candidat et aucune entreprise externe ne doit pouvoir créer un compte utilisateur**.
+
+Les seuls comptes avec authentification sont les comptes internes de l’organisation qui administre la plateforme. Les entreprises externes soumettent des offres via un formulaire public. Les candidats postulent via un formulaire public associé à une offre précise. La candidature doit toujours être automatiquement rattachée à l’offre depuis laquelle le candidat a cliqué sur « Postuler ».
+
+---
+
+## 1. Objectif produit
+
+Créer une plateforme de recrutement composée de trois zones fonctionnelles :
+
+| Zone | Utilisateurs | Fonction |
+| --- | --- | --- |
+| Site public | Visiteurs, candidats, entreprises externes | Consulter les offres, proposer une offre, postuler |
+| Tableau de bord interne | Administrateurs et recruteurs internes | Valider les offres, gérer les candidatures, piloter la plateforme |
+| Liens privés temporaires | Candidats et éventuellement entreprises | Suivre une candidature ou consulter une soumission sans compte |
+
+Le site public doit être accessible sans inscription. Le candidat peut consulter les offres et envoyer une candidature sans mot de passe. Une entreprise peut proposer une offre sans créer de compte. L’organisation conserve cependant toutes les données opérationnelles nécessaires : offres, soumissions, candidatures, documents, statuts, consentements et historiques.
+
+L’absence de comptes publics ne signifie pas l’absence de traçabilité. Chaque soumission et chaque candidature doivent recevoir une référence unique, un statut, une date, un historique et un lien avec les entités concernées.
+
+---
+
+## 2. Choix technologiques obligatoires et recommandés
+
+### 2.1 Choix obligatoires
+
+Le système doit utiliser les éléments suivants :
+
+| Couche | Technologie attendue |
+| --- | --- |
+| Langage | TypeScript strict |
+| Front-end | React avec Next.js App Router ou équivalent React serverless moderne |
+| Style | Tailwind CSS avec composants accessibles de type shadcn/ui ou équivalent |
+| Back-end | Fonctions serverless et endpoints typés |
+| Base de données | PostgreSQL |
+| ORM | Drizzle ORM ou Prisma, avec préférence pour Drizzle si le projet utilise déjà ce modèle |
+| Stockage des fichiers | Stockage objet privé compatible S3 ou service équivalent |
+| Validation | Zod ou bibliothèque équivalente côté client et serveur |
+| Authentification interne | SSO/OAuth existant ou authentification e-mail sécurisée pour les administrateurs uniquement |
+| Déploiement | Plateforme compatible avec fonctions serverless, variables d’environnement et PostgreSQL managé |
+
+### 2.2 Architecture de référence
+
+Utilise de préférence une architecture monolithique moderne déployée en serverless :
+
+```
+Navigateur
+   ↓
+Next.js / React — pages publiques et tableau de bord
+   ↓
+Route handlers ou procédures serverless typées
+   ↓
+Services métier
+   ↓
+Drizzle ORM / Prisma
+   ↓
+PostgreSQL managé
+   ↓
+Stockage objet privé pour CV et lettres
+```
+
+Les fonctions serverless doivent être stateless. Ne stocke pas d’état de session dans la mémoire du serveur. Toutes les données persistantes doivent être enregistrées dans PostgreSQL ou dans le stockage objet sécurisé.
+
+Le back-end doit séparer clairement les responsabilités : routes ou procédures, validation des entrées, services métier, accès aux données, génération des références, gestion des fichiers, notifications et journal d’audit.
+
+---
+
+## 3. Règles métier non négociables
+
+### 3.1 Absence de comptes publics
+
+Le système ne doit pas posséder de parcours « Inscription candidat » ni « Inscription entreprise ». Il ne doit pas demander de mot de passe aux candidats ou aux entreprises externes.
+
+Le site public doit contenir uniquement les actions suivantes :
+
+- consulter une offre ;
+
+- rechercher et filtrer les offres ;
+
+- soumettre une offre ;
+
+- postuler à une offre ;
+
+- suivre une candidature à partir d’un lien privé ou d’une référence associée à un code temporaire.
+
+### 3.2 Rattachement obligatoire d’une candidature à une offre
+
+Une candidature ne peut jamais être créée sans `job_id` ou `offer_id` valide. L’identifiant de l’offre doit être dérivé du contexte de la page de détail et non saisi manuellement par le candidat.
+
+Lorsqu’un candidat clique sur « Postuler », l’interface doit ouvrir une URL de candidature contenant l’identifiant public ou le slug de l’offre. Le serveur doit ensuite vérifier que l’offre existe, qu’elle est publiée, qu’elle accepte encore les candidatures et que la date limite n’est pas dépassée.
+
+La candidature doit conserver au minimum :
+
+```
+application.id
+application.public_reference
+application.job_id
+application.submission_id ou company_id
+application.candidate_name
+application.candidate_email
+application.candidate_phone
+application.cv_file_id
+application.cover_letter
+application.status
+application.submitted_at
+```
+
+La suppression physique d’une offre ayant reçu une candidature est interdite. L’offre doit être clôturée ou archivée afin de préserver l’historique.
+
+### 3.3 Validation des offres externes
+
+Toute offre soumise par une entreprise externe doit être créée avec le statut `PENDING_REVIEW`. Elle ne doit pas être visible publiquement avant validation par un administrateur.
+
+Un administrateur peut :
+
+- approuver et publier l’offre ;
+
+- demander une correction ;
+
+- rejeter l’offre avec un motif ;
+
+- suspendre une offre publiée ;
+
+- clôturer une offre ;
+
+- archiver une offre.
+
+### 3.4 Confidentialité des candidatures
+
+Les données des candidats et les documents joints ne doivent jamais être publiquement accessibles. Les CV et lettres de motivation doivent être stockés dans un espace privé. L’accès doit se faire via une URL signée à durée courte ou via un téléchargement contrôlé côté serveur.
+
+### 3.5 Données minimales mais suffisantes
+
+Ne crée pas de table de comptes publics. Une entreprise externe peut être représentée par une fiche de soumission ou une fiche organisationnelle non authentifiée, mais cette fiche ne doit pas devenir un compte de connexion.
+
+Un candidat peut être représenté par ses informations de candidature. Si le même candidat postule plusieurs fois, les candidatures peuvent rester séparées dans la première version. Ne crée pas automatiquement un profil candidat global sans besoin explicite.
+
+---
+
+## 4. Acteurs et autorisations
+
+### 4.1 Visiteur public
+
+Le visiteur peut consulter les offres publiées, effectuer une recherche, utiliser les filtres, ouvrir le détail d’une offre et accéder aux formulaires publics.
+
+### 4.2 Entreprise externe
+
+L’entreprise externe ne possède pas de compte. Elle peut envoyer une proposition d’offre avec ses coordonnées. Elle ne peut pas accéder au tableau de bord. Elle reçoit éventuellement un e-mail de confirmation et une référence de soumission.
+
+Dans la première version, l’entreprise ne doit pas pouvoir modifier directement son offre après envoi. Elle peut répondre à un e-mail de correction ou contacter l’équipe interne. Une fonctionnalité ultérieure pourra proposer un lien privé de modification avec expiration.
+
+### 4.3 Candidat
+
+Le candidat ne possède pas de compte. Il peut postuler à une offre, recevoir une confirmation, obtenir une référence de candidature et consulter le statut via un lien privé sécurisé ou une procédure de vérification par e-mail.
+
+### 4.4 Administrateur
+
+L’administrateur possède les droits complets : gestion des offres, soumissions, candidatures, entreprises, catégories, utilisateurs internes, paramètres, notifications, statistiques et journaux d’audit.
+
+### 4.5 Recruteur interne
+
+Le recruteur interne peut être limité à la gestion des offres et candidatures qui lui sont assignées. Il ne doit pas pouvoir modifier les paramètres sensibles, les comptes administrateurs, les règles de sécurité ou les journaux d’audit.
+
+### 4.6 Matrice de permissions
+
+| Fonction | Public | Entreprise externe | Candidat | Recruteur interne | Administrateur |
+| --- | --- | --- | --- | --- | --- |
+| Voir les offres publiées | Oui | Oui | Oui | Oui | Oui |
+| Soumettre une offre | Oui | Oui, sans compte | Non | Oui | Oui |
+| Postuler | Oui | Non | Oui, sans compte | Oui si nécessaire | Oui |
+| Voir les candidatures | Non | Non par défaut | Uniquement la sienne via lien | Oui selon attribution | Oui |
+| Modifier une offre | Non | Non par défaut | Non | Oui selon droits | Oui |
+| Valider une offre | Non | Non | Non | Selon permission | Oui |
+| Gérer les utilisateurs internes | Non | Non | Non | Non | Oui |
+| Voir l’audit complet | Non | Non | Non | Non | Oui |
+
+---
+
+## 5. Parcours principaux
+
+### 5.1 Parcours de soumission d’une offre
+
+1. L’utilisateur ouvre la page « Proposer une offre ».
+
+1. Il remplit les informations de l’entreprise et du poste.
+
+1. Le navigateur effectue une validation immédiate.
+
+1. Le serveur valide à nouveau toutes les données.
+
+1. Un contrôle anti-robot est exécuté.
+
+1. L’adresse e-mail du contact est vérifiée ou placée en attente de confirmation.
+
+1. Le système crée une soumission avec une référence du type `SUB-2026-000001`.
+
+1. Le système crée éventuellement une offre en statut `PENDING_REVIEW`.
+
+1. Un e-mail de confirmation est envoyé au contact.
+
+1. Une notification est créée pour le tableau de bord administratif.
+
+1. L’administrateur examine la soumission.
+
+1. L’offre est approuvée, corrigée ou rejetée.
+
+### 5.2 Parcours de candidature
+
+1. Le candidat ouvre la page publique d’une offre publiée.
+
+1. Il clique sur « Postuler à cette offre ».
+
+1. Le formulaire affiche le titre, l’entreprise et la référence de l’offre.
+
+1. Le serveur conserve l’identifiant de l’offre dans le contexte de soumission.
+
+1. Le candidat renseigne ses coordonnées.
+
+1. Il téléverse son CV et, si nécessaire, sa lettre de motivation.
+
+1. Il accepte la politique de confidentialité et le traitement de sa candidature.
+
+1. Le serveur vérifie que l’offre est toujours ouverte.
+
+1. Le serveur crée la candidature avec une référence du type `APP-2026-000001`.
+
+1. Le système envoie un accusé de réception.
+
+1. Un lien privé de suivi est généré et transmis au candidat.
+
+1. La candidature apparaît dans le tableau de bord interne.
+
+### 5.3 Parcours de suivi sans compte
+
+Le suivi ne doit pas permettre une recherche libre par simple numéro de référence. La solution recommandée est un lien privé à haute entropie envoyé par e-mail.
+
+Le lien doit contenir un jeton aléatoire haché en base de données. Ne stocke jamais le jeton en clair. Le jeton doit avoir une durée d’expiration configurable et pouvoir être révoqué.
+
+Le candidat qui ouvre le lien ne doit voir que :
+
+- la référence de sa candidature ;
+
+- le titre de l’offre ;
+
+- l’entreprise liée à l’offre ;
+
+- la date de dépôt ;
+
+- le statut général ;
+
+- les éventuels messages publics validés par l’équipe.
+
+Il ne doit pas voir les notes internes, les informations d’autres candidats, les données confidentielles de l’entreprise ou les documents internes.
+
+### 5.4 Parcours de traitement administratif
+
+L’administrateur consulte les nouvelles soumissions, les nouvelles candidatures et les alertes. Il ouvre une offre, vérifie ses données, consulte les pièces jointes, change son statut et laisse éventuellement une note interne.
+
+Pour chaque offre, l’administrateur doit pouvoir consulter la liste des candidatures rattachées à cette offre. Pour chaque candidature, il doit voir le candidat, les documents, l’historique des statuts, les notes internes et l’offre source.
+
+---
+
+## 6. Statuts
+
+### 6.1 Statuts d’une soumission d’offre
+
+```
+DRAFT
+SUBMITTED
+EMAIL_UNVERIFIED
+PENDING_REVIEW
+NEEDS_CORRECTION
+APPROVED
+REJECTED
+CONVERTED_TO_JOB
+CANCELLED
+```
+
+### 6.2 Statuts d’une offre publiée
+
+```
+DRAFT
+PENDING_REVIEW
+APPROVED
+PUBLISHED
+PAUSED
+CLOSED
+REJECTED
+ARCHIVED
+```
+
+### 6.3 Statuts d’une candidature
+
+```
+SUBMITTED
+RECEIVED
+UNDER_REVIEW
+SHORTLISTED
+INTERVIEW_SCHEDULED
+INTERVIEW_COMPLETED
+WAITLISTED
+ACCEPTED
+REJECTED
+WITHDRAWN
+```
+
+Le changement de statut doit être enregistré dans une table d’historique. Toute transition sensible doit créer une entrée d’audit avec l’utilisateur interne, la date, l’ancien statut, le nouveau statut et, si nécessaire, un commentaire.
+
+---
+
+## 7. Modèle de données PostgreSQL
+
+Utilise PostgreSQL avec UUID comme identifiant interne lorsque cela est pertinent. Les références publiques lisibles doivent être distinctes des identifiants internes.
+
+### 7.1 Tables principales
+
+#### `admin_users`
+
+```
+id uuid primary key
+email varchar(320) unique not null
+full_name varchar(160) not null
+role varchar not null -- ADMIN ou RECRUITER
+is_active boolean not null default true
+last_login_at timestamptz null
+created_at timestamptz not null default now()
+updated_at timestamptz not null default now()
+```
+
+#### `companies`
+
+Cette table représente les entreprises liées aux offres, mais pas des comptes de connexion publics.
+
+```
+id uuid primary key
+public_reference varchar(32) unique not null
+legal_name varchar(200) not null
+trade_name varchar(200) null
+email varchar(320) not null
+phone varchar(40) null
+website varchar(300) null
+address text null
+city varchar(120) null
+country varchar(120) null
+sector varchar(120) null
+is_verified boolean not null default false
+created_at timestamptz not null default now()
+updated_at timestamptz not null default now()
+```
+
+#### `job_submissions`
+
+```
+id uuid primary key
+public_reference varchar(32) unique not null
+company_id uuid null references companies(id)
+contact_name varchar(160) not null
+contact_email varchar(320) not null
+contact_phone varchar(40) null
+title varchar(200) not null
+description text not null
+location varchar(160) null
+contract_type varchar(80) null
+experience_level varchar(80) null
+salary_text varchar(160) null
+required_skills jsonb not null default '[]'
+deadline date null
+status varchar not null
+correction_message text null
+submitted_at timestamptz null
+reviewed_at timestamptz null
+reviewed_by uuid null references admin_users(id)
+created_at timestamptz not null default now()
+updated_at timestamptz not null default now()
+```
+
+#### `jobs`
+
+```
+id uuid primary key
+public_reference varchar(32) unique not null
+slug varchar(240) unique not null
+company_id uuid not null references companies(id)
+source_submission_id uuid null references job_submissions(id)
+title varchar(200) not null
+description text not null
+location varchar(160) null
+country varchar(120) null
+contract_type varchar(80) null
+experience_level varchar(80) null
+salary_text varchar(160) null
+skills jsonb not null default '[]'
+category varchar(120) null
+published_at timestamptz null
+application_deadline date null
+status varchar not null
+is_featured boolean not null default false
+seo_title varchar(220) null
+seo_description varchar(320) null
+created_by uuid null references admin_users(id)
+updated_by uuid null references admin_users(id)
+created_at timestamptz not null default now()
+updated_at timestamptz not null default now()
+```
+
+#### `candidates`
+
+Ne pas utiliser cette table comme un compte utilisateur. Elle peut représenter une identité minimale réutilisable uniquement si nécessaire.
+
+```
+id uuid primary key
+full_name varchar(160) not null
+email varchar(320) not null
+phone varchar(40) null
+city varchar(120) null
+country varchar(120) null
+created_at timestamptz not null default now()
+updated_at timestamptz not null default now()
+```
+
+Pour une première version encore plus stricte, les informations du candidat peuvent être conservées directement dans `applications`. Dans ce cas, ne crée pas `candidates`.
+
+#### `applications`
+
+```
+id uuid primary key
+public_reference varchar(32) unique not null
+job_id uuid not null references jobs(id)
+company_id uuid not null references companies(id)
+candidate_id uuid null references candidates(id)
+candidate_name varchar(160) not null
+candidate_email varchar(320) not null
+candidate_phone varchar(40) null
+candidate_city varchar(120) null
+cover_letter text null
+answers jsonb not null default '{}'
+status varchar not null default 'SUBMITTED'
+consent_accepted boolean not null
+consent_version varchar(40) not null
+submitted_at timestamptz not null default now()
+updated_at timestamptz not null default now()
+```
+
+La contrainte `job_id not null` est obligatoire. La relation entre `applications.job_id` et `jobs.id` doit être indexée.
+
+#### `files`
+
+```
+id uuid primary key
+application_id uuid null references applications(id)
+submission_id uuid null references job_submissions(id)
+kind varchar not null -- CV, COVER_LETTER, COMPANY_DOCUMENT
+original_name varchar(255) not null
+storage_key varchar(500) not null
+mime_type varchar(120) not null
+size_bytes bigint not null
+sha256 varchar(64) null
+is_private boolean not null default true
+created_at timestamptz not null default now()
+```
+
+#### `application_status_history`
+
+```
+id uuid primary key
+application_id uuid not null references applications(id)
+from_status varchar null
+to_status varchar not null
+changed_by uuid null references admin_users(id)
+public_message text null
+internal_note text null
+created_at timestamptz not null default now()
+```
+
+#### `access_tokens`
+
+```
+id uuid primary key
+token_hash varchar(128) unique not null
+purpose varchar not null -- APPLICATION_TRACKING, SUBMISSION_CONFIRMATION, FILE_ACCESS
+application_id uuid null references applications(id)
+submission_id uuid null references job_submissions(id)
+expires_at timestamptz not null
+revoked_at timestamptz null
+last_used_at timestamptz null
+created_at timestamptz not null default now()
+```
+
+#### `notifications`
+
+```
+id uuid primary key
+recipient_email varchar(320) not null
+type varchar not null
+subject varchar(300) not null
+payload jsonb not null default '{}'
+status varchar not null default 'PENDING'
+attempts integer not null default 0
+sent_at timestamptz null
+last_error text null
+created_at timestamptz not null default now()
+```
+
+#### `audit_logs`
+
+```
+id uuid primary key
+actor_admin_id uuid null references admin_users(id)
+action varchar not null
+entity_type varchar not null
+entity_id uuid null
+before_data jsonb null
+after_data jsonb null
+ip_hash varchar(128) null
+user_agent text null
+created_at timestamptz not null default now()
+```
+
+#### `categories` et `settings`
+
+Prévoir une table de catégories pour les secteurs, métiers et types de contrats. Prévoir une table de paramètres pour les valeurs configurables : durée des liens privés, taille maximale des CV, e-mails de notification, nom de la plateforme, coordonnées de contact, règles de publication et version de consentement.
+
+### 7.2 Index PostgreSQL
+
+Créer au minimum les index suivants :
+
+```
+jobs(status, published_at)
+jobs(category)
+jobs(location)
+jobs(contract_type)
+jobs(application_deadline)
+applications(job_id)
+applications(status)
+applications(submitted_at)
+applications(candidate_email)
+job_submissions(status)
+job_submissions(submitted_at)
+notifications(status, created_at)
+audit_logs(entity_type, entity_id, created_at)
+```
+
+Utiliser une recherche full-text PostgreSQL ou une solution de recherche adaptée pour les titres, descriptions, compétences, villes et catégories.
+
+---
+
+## 8. API et back-end serverless
+
+Toutes les opérations doivent être validées côté serveur. Les schémas de validation doivent être partagés entre le front-end et le back-end lorsque cela est sûr, mais le serveur reste l’autorité finale.
+
+### 8.1 Endpoints publics
+
+Prévoir des endpoints ou procédures équivalents aux fonctions suivantes :
+
+```
+GET  /api/public/jobs
+GET  /api/public/jobs/:slug
+POST /api/public/job-submissions
+POST /api/public/applications
+POST /api/public/upload-intent
+GET  /api/public/application-tracking/:token
+POST /api/public/resend-application-link
+```
+
+`GET /api/public/jobs` doit permettre la pagination, la recherche, le tri et les filtres. Ne retourner que les offres publiées et les champs destinés au public.
+
+`GET /api/public/jobs/:slug` doit retourner le détail public d’une offre, sans informations privées sur les candidats ou données internes.
+
+`POST /api/public/job-submissions` doit créer une soumission en attente de validation. Ajouter une protection anti-spam, une limitation de fréquence et une validation stricte.
+
+`POST /api/public/applications` doit exiger un `job_id` ou un slug signé, vérifier l’état de l’offre et créer une candidature rattachée à cette offre.
+
+### 8.2 Endpoints internes protégés
+
+```
+GET    /api/admin/dashboard
+GET    /api/admin/job-submissions
+GET    /api/admin/job-submissions/:id
+PATCH  /api/admin/job-submissions/:id/status
+GET    /api/admin/jobs
+POST   /api/admin/jobs
+GET    /api/admin/jobs/:id
+PATCH  /api/admin/jobs/:id
+DELETE /api/admin/jobs/:id -- soft delete ou archivage uniquement
+POST   /api/admin/jobs/:id/publish
+POST   /api/admin/jobs/:id/pause
+POST   /api/admin/jobs/:id/close
+GET    /api/admin/applications
+GET    /api/admin/applications/:id
+PATCH  /api/admin/applications/:id/status
+POST   /api/admin/applications/:id/notes
+GET    /api/admin/applications/:id/files/:fileId
+GET    /api/admin/audit-logs
+GET    /api/admin/settings
+PATCH  /api/admin/settings
+```
+
+Les routes internes doivent exiger une session administrateur valide. Le serveur doit appliquer l’autorisation par rôle avant toute requête métier.
+
+### 8.3 Idempotence
+
+Les opérations publiques importantes doivent être idempotentes autant que possible. Prévoir une clé d’idempotence ou une détection de doublon pour éviter qu’un double clic ne crée deux candidatures identiques.
+
+Une candidature identique peut être détectée à partir d’un ensemble prudent : offre, adresse e-mail normalisée, empreinte du fichier CV, fenêtre temporelle et éventuellement téléphone. Ne jamais bloquer abusivement un candidat réel ; afficher plutôt un message clair si une candidature semble déjà exister.
+
+### 8.4 Gestion des erreurs
+
+Retourner des erreurs structurées avec un code stable, un message compréhensible par l’interface et un détail réservé aux logs. Ne jamais exposer les stack traces, requêtes SQL, chemins de stockage ou secrets.
+
+---
+
+## 9. Interface publique et expérience utilisateur
+
+### 9.1 Direction visuelle
+
+Concevoir une interface professionnelle, sobre et rassurante, adaptée au recrutement. Utiliser une hiérarchie visuelle forte, des espaces généreux, des cartes lisibles et des formulaires guidés.
+
+La palette recommandée peut combiner un bleu nuit ou un vert profond pour la confiance, une couleur d’accent chaude pour les appels à l’action et des surfaces neutres. Prévoir un contraste accessible, des états de focus visibles et une navigation entièrement utilisable au clavier.
+
+Ne pas produire une interface générique composée uniquement de rectangles et de tableaux. Le site public doit donner une impression de plateforme fiable, locale et sérieuse. Prévoir une version responsive prioritairement pensée pour mobile.
+
+### 9.2 Pages publiques
+
+#### Accueil `/`
+
+La page d’accueil doit présenter clairement la mission de la plateforme, une barre de recherche d’offres, les catégories principales, les offres récentes, un appel à l’action « Voir les offres » et un appel à l’action « Proposer une offre ».
+
+#### Liste des offres `/offres`
+
+La page doit proposer une recherche par mots-clés, des filtres par lieu, secteur, type de contrat, niveau d’expérience et date de publication. Afficher le nombre de résultats, la pagination, les états de chargement, l’état vide et les erreurs.
+
+#### Détail d’une offre `/offres/[slug]`
+
+Afficher le titre, l’entreprise, la localisation, le type de contrat, le niveau d’expérience, les compétences, la description, la date limite, la référence de l’offre et un bouton très visible « Postuler à cette offre ».
+
+Le bouton de candidature doit transmettre le contexte exact de l’offre. L’utilisateur doit voir une confirmation visuelle du poste sélectionné avant l’envoi.
+
+#### Formulaire de proposition `/proposer-une-offre`
+
+Sections recommandées : informations de l’entreprise, informations du contact, informations du poste, critères de recrutement, date limite, pièces éventuelles, consentement et vérification anti-robot.
+
+Afficher une page de confirmation après envoi avec la référence de soumission, sans afficher de données sensibles.
+
+#### Formulaire de candidature `/offres/[slug]/postuler`
+
+Le formulaire doit afficher en permanence le titre de l’offre, l’entreprise, la référence et un résumé du poste. Le candidat renseigne ses informations, ajoute son CV, ajoute éventuellement une lettre de motivation, répond aux questions spécifiques et accepte le consentement.
+
+Afficher une barre de progression si le formulaire comporte plusieurs étapes. Conserver temporairement les valeurs non sensibles dans le navigateur si cela améliore l’expérience, mais ne stocker ni CV ni données sensibles dans `localStorage`.
+
+#### Confirmation `/candidature/confirmation`
+
+Afficher la référence de candidature, rappeler l’offre concernée, indiquer qu’un e-mail a été envoyé et présenter le lien de suivi uniquement après création réussie.
+
+#### Suivi `/suivi-candidature/[token]`
+
+Cette page doit être accessible sans compte uniquement avec un jeton valide. Elle affiche le statut public et les informations minimales autorisées. Si le jeton est expiré ou révoqué, afficher une page neutre invitant le candidat à demander un nouveau lien.
+
+#### Pages institutionnelles
+
+Prévoir les pages « À propos », « Contact », « Politique de confidentialité », « Conditions d’utilisation », « Gestion des cookies » et une page d’aide concernant les candidatures.
+
+---
+
+## 10. Tableau de bord administrateur
+
+Utiliser une structure de tableau de bord avec barre latérale persistante sur desktop et navigation compacte sur mobile.
+
+### 10.1 Navigation interne
+
+```
+Vue d’ensemble
+Soumissions d’offres
+Offres publiées
+Candidatures
+Entreprises
+Catégories
+Notifications
+Rapports
+Journal d’audit
+Paramètres
+Utilisateurs internes
+```
+
+### 10.2 Vue d’ensemble
+
+Afficher des indicateurs tels que : offres publiées, offres en attente, nouvelles candidatures, candidatures en cours d’examen, offres clôturées et soumissions récentes.
+
+Ajouter une liste d’actions prioritaires : offres à valider, candidatures non examinées, e-mails en échec et alertes de sécurité.
+
+### 10.3 Gestion des soumissions
+
+Tableau avec recherche, filtres par statut et date, pagination et actions rapides. La fiche détaillée doit afficher les informations de l’entreprise, les données de l’offre, les pièces jointes éventuelles, les événements, les commentaires et les actions de validation.
+
+### 10.4 Gestion des offres
+
+Permettre la création interne d’une offre, la modification, la publication, la mise en pause, la clôture et l’archivage. Afficher le nombre de candidatures par offre.
+
+### 10.5 Gestion des candidatures
+
+Le tableau doit afficher la référence de candidature, le nom du candidat, l’offre, l’entreprise, le statut, la date de dépôt et les actions. Les filtres doivent permettre de sélectionner une offre précise, une entreprise, un statut, une période et une localisation.
+
+La fiche candidature doit afficher :
+
+- les informations du candidat ;
+
+- le titre et la référence de l’offre ;
+
+- l’entreprise concernée ;
+
+- le CV et les documents ;
+
+- la lettre de motivation ;
+
+- les réponses aux questions ;
+
+- l’historique des statuts ;
+
+- les notes internes ;
+
+- les actions disponibles ;
+
+- les informations de consentement.
+
+### 10.6 Gestion des entreprises
+
+Ne pas en faire un portail d’entreprise. Il s’agit d’un répertoire administratif permettant de consulter les entreprises ayant soumis des offres, leur historique, leurs coordonnées et leurs offres associées.
+
+### 10.7 Journal d’audit
+
+Prévoir une interface filtrable par acteur, action, entité et période. Les entrées doivent être append-only autant que possible et ne doivent pas être modifiables depuis l’interface ordinaire.
+
+---
+
+## 11. Téléversement et stockage des fichiers
+
+Les fichiers acceptés en première version doivent être limités aux formats nécessaires, par exemple PDF et éventuellement DOCX. Refuser les exécutables, scripts, archives et formats inconnus.
+
+Appliquer :
+
+- une taille maximale configurable ;
+
+- une validation MIME côté serveur ;
+
+- une validation de l’extension ;
+
+- une génération de nom de stockage interne ;
+
+- une empreinte SHA-256 facultative ;
+
+- un stockage privé ;
+
+- une analyse antivirus si le fournisseur le permet ;
+
+- une URL signée de courte durée pour la consultation ;
+
+- un contrôle d’autorisation avant chaque téléchargement.
+
+Ne jamais utiliser le nom original comme clé de stockage. Ne jamais exposer directement le bucket ou le chemin interne.
+
+---
+
+## 12. Notifications et e-mails
+
+Prévoir une file logique de notifications dans PostgreSQL, même si l’envoi est effectué par une fonction serverless ou un fournisseur externe.
+
+### 12.1 E-mails candidats
+
+- confirmation de candidature ;
+
+- lien privé de suivi ;
+
+- changement de statut ;
+
+- demande éventuelle d’information complémentaire ;
+
+- confirmation de retrait si cette fonction est activée.
+
+### 12.2 E-mails entreprises
+
+- confirmation de soumission ;
+
+- demande de correction ;
+
+- approbation de l’offre ;
+
+- rejet de l’offre ;
+
+- notification de réception d’une candidature, si activée.
+
+### 12.3 E-mails administrateurs
+
+- nouvelle soumission ;
+
+- nouvelle candidature ;
+
+- échec d’envoi ;
+
+- anomalie de sécurité ;
+
+- volume inhabituel de soumissions.
+
+Les modèles doivent être centralisés, versionnés et configurables. Les données confidentielles ne doivent pas être intégrées inutilement dans les e-mails ; privilégier les liens sécurisés vers le tableau de bord.
+
+---
+
+## 13. Sécurité et protection des données
+
+### 13.1 Authentification interne
+
+Protéger le tableau de bord par une authentification forte. Si une authentification OAuth ou SSO est disponible, l’utiliser. Sinon, utiliser une authentification par e-mail avec lien magique ou mot de passe correctement haché, avec limitation de tentatives et possibilité de révoquer une session.
+
+Les rôles doivent être contrôlés côté serveur. Cacher un bouton dans le front-end ne constitue jamais une protection suffisante.
+
+### 13.2 Protection des formulaires publics
+
+Ajouter :
+
+- CAPTCHA ou mécanisme anti-robot ;
+
+- rate limiting par IP et par empreinte raisonnable ;
+
+- honeypot invisible ;
+
+- validation d’e-mail ;
+
+- prévention CSRF si cookies utilisés ;
+
+- limitation de taille des requêtes ;
+
+- détection des soumissions répétées ;
+
+- journalisation des anomalies ;
+
+- échappement et nettoyage des contenus affichés.
+
+### 13.3 Données personnelles
+
+Prévoir une politique de conservation configurable. Les données doivent pouvoir être exportées ou supprimées selon la politique de l’organisation et les obligations applicables.
+
+Le consentement doit être enregistré avec une version de texte et une date. Ne pas stocker de données sensibles non nécessaires au recrutement.
+
+### 13.4 Sécurité des jetons
+
+Générer les jetons avec un générateur cryptographiquement sûr. Stocker uniquement leur empreinte. Définir une expiration, une révocation et une limitation d’utilisation lorsque nécessaire.
+
+### 13.5 Secrets
+
+Ne jamais exposer les secrets dans le navigateur, le dépôt Git, les logs ou les messages d’erreur. Utiliser exclusivement des variables d’environnement gérées par la plateforme de déploiement.
+
+---
+
+## 14. Validation et règles de formulaire
+
+Tous les champs doivent avoir un schéma serveur explicite.
+
+### Offre externe
+
+Le titre doit avoir une longueur raisonnable. La description doit être suffisamment détaillée. L’e-mail doit être valide. Les valeurs de contrat, de secteur et de niveau doivent provenir de listes contrôlées ou être modérées.
+
+### Candidature
+
+Le nom et l’e-mail sont obligatoires. Le CV est obligatoire si la règle de l’offre l’exige. La taille, le type et le contenu attendu du fichier doivent être contrôlés. Le consentement est obligatoire.
+
+### Offre publiée
+
+Une offre ne peut passer à `PUBLISHED` que si les champs minimums sont complets : titre, entreprise, description, localisation ou indication de télétravail, type de contrat, date limite ou règle équivalente et canal de contact interne.
+
+---
+
+## 15. Tests à implémenter
+
+### Tests unitaires
+
+Tester la génération des références, les transitions de statut, la validation des formulaires, la normalisation des e-mails, la création et le hachage des jetons, les règles d’expiration et les contrôles de permissions.
+
+### Tests d’intégration
+
+Tester les scénarios suivants :
+
+1. soumission publique d’une offre ;
+
+1. validation administrative d’une offre ;
+
+1. publication d’une offre ;
+
+1. candidature rattachée au bon `job_id` ;
+
+1. refus d’une candidature sur une offre clôturée ;
+
+1. téléchargement sécurisé d’un CV ;
+
+1. accès refusé à un candidat aux données d’un autre candidat ;
+
+1. accès refusé à un recruteur non autorisé ;
+
+1. expiration d’un lien de suivi ;
+
+1. prévention d’une double soumission ;
+
+1. création d’un journal d’audit ;
+
+1. envoi et nouvelle tentative d’une notification.
+
+### Tests end-to-end
+
+Tester avec un navigateur les parcours complets : visiteur vers offre, offre vers candidature, entreprise vers soumission, administrateur vers validation et candidat vers suivi privé.
+
+### Accessibilité
+
+Vérifier la navigation clavier, les labels de formulaires, le contraste, les messages d’erreur, les états de focus, les lecteurs d’écran et les tailles d’écran mobile.
+
+---
+
+## 16. Structure de code recommandée
+
+```
+app/
+  page.tsx
+  offres/page.tsx
+  offres/[slug]/page.tsx
+  offres/[slug]/postuler/page.tsx
+  proposer-une-offre/page.tsx
+  candidature/confirmation/page.tsx
+  suivi-candidature/[token]/page.tsx
+  admin/
+    layout.tsx
+    page.tsx
+    soumissions/page.tsx
+    offres/page.tsx
+    candidatures/page.tsx
+    entreprises/page.tsx
+    rapports/page.tsx
+    audit/page.tsx
+    parametres/page.tsx
+  api/
+    public/
+    admin/
+components/
+  public/
+  admin/
+  forms/
+  ui/
+lib/
+  db.ts
+  auth.ts
+  permissions.ts
+  validation/
+  references.ts
+  tokens.ts
+  rate-limit.ts
+  storage.ts
+  notifications.ts
+  audit.ts
+server/
+  services/
+    jobs.service.ts
+    submissions.service.ts
+    applications.service.ts
+    files.service.ts
+    notifications.service.ts
+db/
+  schema/
+  migrations/
+  seed.ts
+emails/
+  templates/
+tests/
+  unit/
+  integration/
+  e2e/
+```
+
+Adapte la structure au framework choisi, mais conserve la séparation entre pages, composants, validations, services métier, accès aux données et infrastructure.
+
+---
+
+## 17. Déploiement et exploitation
+
+Le déploiement doit prévoir :
+
+- une base PostgreSQL managée ;
+
+- des migrations versionnées ;
+
+- des variables d’environnement séparées entre développement, préproduction et production ;
+
+- un stockage objet privé ;
+
+- un fournisseur d’e-mails ;
+
+- des logs serverless ;
+
+- une surveillance des erreurs ;
+
+- des sauvegardes PostgreSQL ;
+
+- une procédure de restauration ;
+
+- un environnement de prévisualisation ;
+
+- des contrôles avant mise en production.
+
+Variables d’environnement à prévoir :
+
+```
+DATABASE_URL
+DATABASE_DIRECT_URL si nécessaire pour les migrations
+AUTH_SECRET
+APP_URL
+STORAGE_ENDPOINT
+STORAGE_BUCKET
+STORAGE_ACCESS_KEY
+STORAGE_SECRET_KEY
+EMAIL_PROVIDER_API_KEY
+EMAIL_FROM
+CAPTCHA_SECRET_KEY
+RATE_LIMIT_SECRET
+```
+
+Ne jamais committer un fichier `.env` contenant des secrets réels.
+
+---
+
+## 18. SEO, performance et accessibilité
+
+Les offres publiées doivent être indexables avec une URL stable, un titre SEO, une description et des données structurées adaptées aux offres d’emploi si cela est pertinent pour le contexte du projet.
+
+Les pages publiques doivent charger rapidement. Utiliser le rendu serveur ou la génération adaptée pour les pages d’offres, limiter le JavaScript côté client et ne charger les composants lourds que lorsque nécessaire.
+
+Les formulaires doivent rester utilisables sur les connexions lentes. Afficher des états de chargement, éviter les doubles clics et présenter des messages d’erreur précis.
+
+---
+
+## 19. Critères d’acceptation globaux
+
+Le projet sera considéré comme correctement réalisé uniquement si les conditions suivantes sont respectées :
+
+1. Aucun candidat ne peut créer de compte.
+
+1. Aucune entreprise externe ne peut créer de compte.
+
+1. Les administrateurs internes disposent d’un accès authentifié.
+
+1. Une entreprise peut soumettre une offre via un formulaire public.
+
+1. Une offre soumise n’est pas publiée sans validation administrative.
+
+1. Un candidat peut postuler sans compte.
+
+1. Chaque candidature possède obligatoirement une référence d’offre valide.
+
+1. Une candidature ne peut pas être rattachée à une offre clôturée si cette règle est activée.
+
+1. Les CV et lettres sont privés.
+
+1. Les liens de suivi sont temporaires, révocables et non devinables.
+
+1. Les statuts des offres et candidatures sont historisés.
+
+1. Les permissions sont contrôlées côté serveur.
+
+1. Les formulaires publics sont protégés contre le spam et les abus.
+
+1. Les administrateurs peuvent rechercher et filtrer les offres et candidatures.
+
+1. La base de données est PostgreSQL et les migrations sont versionnées.
+
+1. Le back-end est compatible avec un déploiement serverless.
+
+1. Les données publiques et les données privées sont correctement séparées.
+
+1. Les tests couvrent les flux critiques et les contrôles de sécurité.
+
+1. L’interface est responsive et accessible.
+
+1. La documentation permet de lancer, migrer, tester et déployer le projet.
+
+---
+
+## 20. Ordre de réalisation conseillé
+
+Implémente le projet dans cet ordre :
+
+### Phase 1 — Fondations
+
+Initialiser le projet, configurer TypeScript, le framework React, Tailwind, PostgreSQL, l’ORM, les migrations, les variables d’environnement et la structure de code.
+
+### Phase 2 — Modèle de données
+
+Créer les tables, enums, relations, index et contraintes. Ajouter les migrations et un jeu de données de démonstration sans données personnelles réelles.
+
+### Phase 3 — Site public
+
+Créer l’accueil, la liste des offres, la recherche, les filtres, le détail d’une offre et la page de proposition d’offre.
+
+### Phase 4 — Candidatures
+
+Créer le formulaire rattaché à l’offre, le téléversement sécurisé, la confirmation, les références, les notifications et le suivi privé.
+
+### Phase 5 — Administration
+
+Créer l’authentification interne, la vue d’ensemble, la validation des offres, la gestion des candidatures, les statuts, les entreprises, les documents, les notifications et l’audit.
+
+### Phase 6 — Sécurité et qualité
+
+Ajouter rate limiting, anti-robot, contrôle des permissions, logs, tests unitaires, tests d’intégration, tests end-to-end, accessibilité et responsive design.
+
+### Phase 7 — Mise en production
+
+Configurer le fournisseur PostgreSQL, le stockage privé, les e-mails, les domaines, les variables d’environnement, les sauvegardes, les migrations de production et la surveillance.
+
+---
+
+## 21. Instructions finales à l’agent
+
+Ne crée pas de comptes candidats ou entreprises. Ne publie jamais automatiquement une offre externe sans validation. Ne permets jamais la création d’une candidature sans offre associée. Ne rends jamais un CV accessible par une URL publique permanente. Ne fais pas confiance aux contrôles uniquement effectués dans le navigateur. Ne supprime pas physiquement les offres qui possèdent des candidatures. Ne mélange pas les données d’administration et les données publiques.
+
+Avant de conclure, vérifie manuellement les parcours suivants :
+
+```
+Visiteur → recherche → offre → candidature → confirmation → suivi privé
+Entreprise externe → formulaire → soumission → validation admin → publication
+Administrateur → connexion → validation → suivi des candidatures → changement de statut
+```
+
+Le résultat attendu est une plateforme de recrutement simple pour les utilisateurs publics, mais rigoureuse, contrôlée et traçable côté administration.
+
+# Fin du prompt maître
+
+Ce document doit être utilisé comme cahier des charges principal. Toute décision d’implémentation qui contredit les contraintes « sans compte public », « PostgreSQL », « serverless » ou « candidature obligatoirement liée à une offre » doit être considérée comme incorrecte, sauf validation explicite du propriétaire du projet.

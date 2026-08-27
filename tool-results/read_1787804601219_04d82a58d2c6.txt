@@ -1,0 +1,1138 @@
+     1→     1→# Prompt maître — Plateforme de recrutement sans comptes publics
+     2→     2→
+     3→     3→## 0. Instruction générale destinée à l’agent de développement
+     4→     4→
+     5→     5→Tu dois concevoir et implémenter une plateforme web professionnelle de recrutement destinée à publier des offres d’emploi, recevoir des propositions d’offres provenant d’entreprises externes et permettre aux candidats de postuler directement, sans création de compte public.
+     6→     6→
+     7→     7→Le produit doit être livré comme une application complète, responsive, sécurisée, maintenable et prête à être déployée. Tu dois produire une architecture cohérente de bout en bout : interface publique, tableau de bord administratif, back-end serverless, base de données PostgreSQL, gestion sécurisée des documents, notifications, validation des données, journalisation, tests et documentation.
+     8→     8→
+     9→     9→Ne transforme pas le système en réseau social, en CRM complexe ou en portail avec comptes candidats et comptes entreprises. La contrainte principale est impérative : **aucun candidat et aucune entreprise externe ne doit pouvoir créer un compte utilisateur**.
+    10→    10→
+    11→    11→Les seuls comptes avec authentification sont les comptes internes de l’organisation qui administre la plateforme. Les entreprises externes soumettent des offres via un formulaire public. Les candidats postulent via un formulaire public associé à une offre précise. La candidature doit toujours être automatiquement rattachée à l’offre depuis laquelle le candidat a cliqué sur « Postuler ».
+    12→    12→
+    13→    13→---
+    14→    14→
+    15→    15→## 1. Objectif produit
+    16→    16→
+    17→    17→Créer une plateforme de recrutement composée de trois zones fonctionnelles :
+    18→    18→
+    19→    19→| Zone | Utilisateurs | Fonction |
+    20→    20→| --- | --- | --- |
+    21→    21→| Site public | Visiteurs, candidats, entreprises externes | Consulter les offres, proposer une offre, postuler |
+    22→    22→| Tableau de bord interne | Administrateurs et recruteurs internes | Valider les offres, gérer les candidatures, piloter la plateforme |
+    23→    23→| Liens privés temporaires | Candidats et éventuellement entreprises | Suivre une candidature ou consulter une soumission sans compte |
+    24→    24→
+    25→    25→Le site public doit être accessible sans inscription. Le candidat peut consulter les offres et envoyer une candidature sans mot de passe. Une entreprise peut proposer une offre sans créer de compte. L’organisation conserve cependant toutes les données opérationnelles nécessaires : offres, soumissions, candidatures, documents, statuts, consentements et historiques.
+    26→    26→
+    27→    27→L’absence de comptes publics ne signifie pas l’absence de traçabilité. Chaque soumission et chaque candidature doivent recevoir une référence unique, un statut, une date, un historique et un lien avec les entités concernées.
+    28→    28→
+    29→    29→---
+    30→    30→
+    31→    31→## 2. Choix technologiques obligatoires et recommandés
+    32→    32→
+    33→    33→### 2.1 Choix obligatoires
+    34→    34→
+    35→    35→Le système doit utiliser les éléments suivants :
+    36→    36→
+    37→    37→| Couche | Technologie attendue |
+    38→    38→| --- | --- |
+    39→    39→| Langage | TypeScript strict |
+    40→    40→| Front-end | React avec Next.js App Router ou équivalent React serverless moderne |
+    41→    41→| Style | Tailwind CSS avec composants accessibles de type shadcn/ui ou équivalent |
+    42→    42→| Back-end | Fonctions serverless et endpoints typés |
+    43→    43→| Base de données | PostgreSQL |
+    44→    44→| ORM | Drizzle ORM ou Prisma, avec préférence pour Drizzle si le projet utilise déjà ce modèle |
+    45→    45→| Stockage des fichiers | Stockage objet privé compatible S3 ou service équivalent |
+    46→    46→| Validation | Zod ou bibliothèque équivalente côté client et serveur |
+    47→    47→| Authentification interne | SSO/OAuth existant ou authentification e-mail sécurisée pour les administrateurs uniquement |
+    48→    48→| Déploiement | Plateforme compatible avec fonctions serverless, variables d’environnement et PostgreSQL managé |
+    49→    49→
+    50→    50→### 2.2 Architecture de référence
+    51→    51→
+    52→    52→Utilise de préférence une architecture monolithique moderne déployée en serverless :
+    53→    53→
+    54→    54→```
+    55→    55→Navigateur
+    56→    56→   ↓
+    57→    57→Next.js / React — pages publiques et tableau de bord
+    58→    58→   ↓
+    59→    59→Route handlers ou procédures serverless typées
+    60→    60→   ↓
+    61→    61→Services métier
+    62→    62→   ↓
+    63→    63→Drizzle ORM / Prisma
+    64→    64→   ↓
+    65→    65→PostgreSQL managé
+    66→    66→   ↓
+    67→    67→Stockage objet privé pour CV et lettres
+    68→    68→```
+    69→    69→
+    70→    70→Les fonctions serverless doivent être stateless. Ne stocke pas d’état de session dans la mémoire du serveur. Toutes les données persistantes doivent être enregistrées dans PostgreSQL ou dans le stockage objet sécurisé.
+    71→    71→
+    72→    72→Le back-end doit séparer clairement les responsabilités : routes ou procédures, validation des entrées, services métier, accès aux données, génération des références, gestion des fichiers, notifications et journal d’audit.
+    73→    73→
+    74→    74→---
+    75→    75→
+    76→    76→## 3. Règles métier non négociables
+    77→    77→
+    78→    78→### 3.1 Absence de comptes publics
+    79→    79→
+    80→    80→Le système ne doit pas posséder de parcours « Inscription candidat » ni « Inscription entreprise ». Il ne doit pas demander de mot de passe aux candidats ou aux entreprises externes.
+    81→    81→
+    82→    82→Le site public doit contenir uniquement les actions suivantes :
+    83→    83→
+    84→    84→- consulter une offre ;
+    85→    85→
+    86→    86→- rechercher et filtrer les offres ;
+    87→    87→
+    88→    88→- soumettre une offre ;
+    89→    89→
+    90→    90→- postuler à une offre ;
+    91→    91→
+    92→    92→- suivre une candidature à partir d’un lien privé ou d’une référence associée à un code temporaire.
+    93→    93→
+    94→    94→### 3.2 Rattachement obligatoire d’une candidature à une offre
+    95→    95→
+    96→    96→Une candidature ne peut jamais être créée sans `job_id` ou `offer_id` valide. L’identifiant de l’offre doit être dérivé du contexte de la page de détail et non saisi manuellement par le candidat.
+    97→    97→
+    98→    98→Lorsqu’un candidat clique sur « Postuler », l’interface doit ouvrir une URL de candidature contenant l’identifiant public ou le slug de l’offre. Le serveur doit ensuite vérifier que l’offre existe, qu’elle est publiée, qu’elle accepte encore les candidatures et que la date limite n’est pas dépassée.
+    99→    99→
+   100→   100→La candidature doit conserver au minimum :
+   101→   101→
+   102→   102→```
+   103→   103→application.id
+   104→   104→application.public_reference
+   105→   105→application.job_id
+   106→   106→application.submission_id ou company_id
+   107→   107→application.candidate_name
+   108→   108→application.candidate_email
+   109→   109→application.candidate_phone
+   110→   110→application.cv_file_id
+   111→   111→application.cover_letter
+   112→   112→application.status
+   113→   113→application.submitted_at
+   114→   114→```
+   115→   115→
+   116→   116→La suppression physique d’une offre ayant reçu une candidature est interdite. L’offre doit être clôturée ou archivée afin de préserver l’historique.
+   117→   117→
+   118→   118→### 3.3 Validation des offres externes
+   119→   119→
+   120→   120→Toute offre soumise par une entreprise externe doit être créée avec le statut `PENDING_REVIEW`. Elle ne doit pas être visible publiquement avant validation par un administrateur.
+   121→   121→
+   122→   122→Un administrateur peut :
+   123→   123→
+   124→   124→- approuver et publier l’offre ;
+   125→   125→
+   126→   126→- demander une correction ;
+   127→   127→
+   128→   128→- rejeter l’offre avec un motif ;
+   129→   129→
+   130→   130→- suspendre une offre publiée ;
+   131→   131→
+   132→   132→- clôturer une offre ;
+   133→   133→
+   134→   134→- archiver une offre.
+   135→   135→
+   136→   136→### 3.4 Confidentialité des candidatures
+   137→   137→
+   138→   138→Les données des candidats et les documents joints ne doivent jamais être publiquement accessibles. Les CV et lettres de motivation doivent être stockés dans un espace privé. L’accès doit se faire via une URL signée à durée courte ou via un téléchargement contrôlé côté serveur.
+   139→   139→
+   140→   140→### 3.5 Données minimales mais suffisantes
+   141→   141→
+   142→   142→Ne crée pas de table de comptes publics. Une entreprise externe peut être représentée par une fiche de soumission ou une fiche organisationnelle non authentifiée, mais cette fiche ne doit pas devenir un compte de connexion.
+   143→   143→
+   144→   144→Un candidat peut être représenté par ses informations de candidature. Si le même candidat postule plusieurs fois, les candidatures peuvent rester séparées dans la première version. Ne crée pas automatiquement un profil candidat global sans besoin explicite.
+   145→   145→
+   146→   146→---
+   147→   147→
+   148→   148→## 4. Acteurs et autorisations
+   149→   149→
+   150→   150→### 4.1 Visiteur public
+   151→   151→
+   152→   152→Le visiteur peut consulter les offres publiées, effectuer une recherche, utiliser les filtres, ouvrir le détail d’une offre et accéder aux formulaires publics.
+   153→   153→
+   154→   154→### 4.2 Entreprise externe
+   155→   155→
+   156→   156→L’entreprise externe ne possède pas de compte. Elle peut envoyer une proposition d’offre avec ses coordonnées. Elle ne peut pas accéder au tableau de bord. Elle reçoit éventuellement un e-mail de confirmation et une référence de soumission.
+   157→   157→
+   158→   158→Dans la première version, l’entreprise ne doit pas pouvoir modifier directement son offre après envoi. Elle peut répondre à un e-mail de correction ou contacter l’équipe interne. Une fonctionnalité ultérieure pourra proposer un lien privé de modification avec expiration.
+   159→   159→
+   160→   160→### 4.3 Candidat
+   161→   161→
+   162→   162→Le candidat ne possède pas de compte. Il peut postuler à une offre, recevoir une confirmation, obtenir une référence de candidature et consulter le statut via un lien privé sécurisé ou une procédure de vérification par e-mail.
+   163→   163→
+   164→   164→### 4.4 Administrateur
+   165→   165→
+   166→   166→L’administrateur possède les droits complets : gestion des offres, soumissions, candidatures, entreprises, catégories, utilisateurs internes, paramètres, notifications, statistiques et journaux d’audit.
+   167→   167→
+   168→   168→### 4.5 Recruteur interne
+   169→   169→
+   170→   170→Le recruteur interne peut être limité à la gestion des offres et candidatures qui lui sont assignées. Il ne doit pas pouvoir modifier les paramètres sensibles, les comptes administrateurs, les règles de sécurité ou les journaux d’audit.
+   171→   171→
+   172→   172→### 4.6 Matrice de permissions
+   173→   173→
+   174→   174→| Fonction | Public | Entreprise externe | Candidat | Recruteur interne | Administrateur |
+   175→   175→| --- | --- | --- | --- | --- | --- |
+   176→   176→| Voir les offres publiées | Oui | Oui | Oui | Oui | Oui |
+   177→   177→| Soumettre une offre | Oui | Oui, sans compte | Non | Oui | Oui |
+   178→   178→| Postuler | Oui | Non | Oui, sans compte | Oui si nécessaire | Oui |
+   179→   179→| Voir les candidatures | Non | Non par défaut | Uniquement la sienne via lien | Oui selon attribution | Oui |
+   180→   180→| Modifier une offre | Non | Non par défaut | Non | Oui selon droits | Oui |
+   181→   181→| Valider une offre | Non | Non | Non | Selon permission | Oui |
+   182→   182→| Gérer les utilisateurs internes | Non | Non | Non | Non | Oui |
+   183→   183→| Voir l’audit complet | Non | Non | Non | Non | Oui |
+   184→   184→
+   185→   185→---
+   186→   186→
+   187→   187→## 5. Parcours principaux
+   188→   188→
+   189→   189→### 5.1 Parcours de soumission d’une offre
+   190→   190→
+   191→   191→1. L’utilisateur ouvre la page « Proposer une offre ».
+   192→   192→
+   193→   193→1. Il remplit les informations de l’entreprise et du poste.
+   194→   194→
+   195→   195→1. Le navigateur effectue une validation immédiate.
+   196→   196→
+   197→   197→1. Le serveur valide à nouveau toutes les données.
+   198→   198→
+   199→   199→1. Un contrôle anti-robot est exécuté.
+   200→   200→
+   201→   201→1. L’adresse e-mail du contact est vérifiée ou placée en attente de confirmation.
+   202→   202→
+   203→   203→1. Le système crée une soumission avec une référence du type `SUB-2026-000001`.
+   204→   204→
+   205→   205→1. Le système crée éventuellement une offre en statut `PENDING_REVIEW`.
+   206→   206→
+   207→   207→1. Un e-mail de confirmation est envoyé au contact.
+   208→   208→
+   209→   209→1. Une notification est créée pour le tableau de bord administratif.
+   210→   210→
+   211→   211→1. L’administrateur examine la soumission.
+   212→   212→
+   213→   213→1. L’offre est approuvée, corrigée ou rejetée.
+   214→   214→
+   215→   215→### 5.2 Parcours de candidature
+   216→   216→
+   217→   217→1. Le candidat ouvre la page publique d’une offre publiée.
+   218→   218→
+   219→   219→1. Il clique sur « Postuler à cette offre ».
+   220→   220→
+   221→   221→1. Le formulaire affiche le titre, l’entreprise et la référence de l’offre.
+   222→   222→
+   223→   223→1. Le serveur conserve l’identifiant de l’offre dans le contexte de soumission.
+   224→   224→
+   225→   225→1. Le candidat renseigne ses coordonnées.
+   226→   226→
+   227→   227→1. Il téléverse son CV et, si nécessaire, sa lettre de motivation.
+   228→   228→
+   229→   229→1. Il accepte la politique de confidentialité et le traitement de sa candidature.
+   230→   230→
+   231→   231→1. Le serveur vérifie que l’offre est toujours ouverte.
+   232→   232→
+   233→   233→1. Le serveur crée la candidature avec une référence du type `APP-2026-000001`.
+   234→   234→
+   235→   235→1. Le système envoie un accusé de réception.
+   236→   236→
+   237→   237→1. Un lien privé de suivi est généré et transmis au candidat.
+   238→   238→
+   239→   239→1. La candidature apparaît dans le tableau de bord interne.
+   240→   240→
+   241→   241→### 5.3 Parcours de suivi sans compte
+   242→   242→
+   243→   243→Le suivi ne doit pas permettre une recherche libre par simple numéro de référence. La solution recommandée est un lien privé à haute entropie envoyé par e-mail.
+   244→   244→
+   245→   245→Le lien doit contenir un jeton aléatoire haché en base de données. Ne stocke jamais le jeton en clair. Le jeton doit avoir une durée d’expiration configurable et pouvoir être révoqué.
+   246→   246→
+   247→   247→Le candidat qui ouvre le lien ne doit voir que :
+   248→   248→
+   249→   249→- la référence de sa candidature ;
+   250→   250→
+   251→   251→- le titre de l’offre ;
+   252→   252→
+   253→   253→- l’entreprise liée à l’offre ;
+   254→   254→
+   255→   255→- la date de dépôt ;
+   256→   256→
+   257→   257→- le statut général ;
+   258→   258→
+   259→   259→- les éventuels messages publics validés par l’équipe.
+   260→   260→
+   261→   261→Il ne doit pas voir les notes internes, les informations d’autres candidats, les données confidentielles de l’entreprise ou les documents internes.
+   262→   262→
+   263→   263→### 5.4 Parcours de traitement administratif
+   264→   264→
+   265→   265→L’administrateur consulte les nouvelles soumissions, les nouvelles candidatures et les alertes. Il ouvre une offre, vérifie ses données, consulte les pièces jointes, change son statut et laisse éventuellement une note interne.
+   266→   266→
+   267→   267→Pour chaque offre, l’administrateur doit pouvoir consulter la liste des candidatures rattachées à cette offre. Pour chaque candidature, il doit voir le candidat, les documents, l’historique des statuts, les notes internes et l’offre source.
+   268→   268→
+   269→   269→---
+   270→   270→
+   271→   271→## 6. Statuts
+   272→   272→
+   273→   273→### 6.1 Statuts d’une soumission d’offre
+   274→   274→
+   275→   275→```
+   276→   276→DRAFT
+   277→   277→SUBMITTED
+   278→   278→EMAIL_UNVERIFIED
+   279→   279→PENDING_REVIEW
+   280→   280→NEEDS_CORRECTION
+   281→   281→APPROVED
+   282→   282→REJECTED
+   283→   283→CONVERTED_TO_JOB
+   284→   284→CANCELLED
+   285→   285→```
+   286→   286→
+   287→   287→### 6.2 Statuts d’une offre publiée
+   288→   288→
+   289→   289→```
+   290→   290→DRAFT
+   291→   291→PENDING_REVIEW
+   292→   292→APPROVED
+   293→   293→PUBLISHED
+   294→   294→PAUSED
+   295→   295→CLOSED
+   296→   296→REJECTED
+   297→   297→ARCHIVED
+   298→   298→```
+   299→   299→
+   300→   300→### 6.3 Statuts d’une candidature
+   301→   301→
+   302→   302→```
+   303→   303→SUBMITTED
+   304→   304→RECEIVED
+   305→   305→UNDER_REVIEW
+   306→   306→SHORTLISTED
+   307→   307→INTERVIEW_SCHEDULED
+   308→   308→INTERVIEW_COMPLETED
+   309→   309→WAITLISTED
+   310→   310→ACCEPTED
+   311→   311→REJECTED
+   312→   312→WITHDRAWN
+   313→   313→```
+   314→   314→
+   315→   315→Le changement de statut doit être enregistré dans une table d’historique. Toute transition sensible doit créer une entrée d’audit avec l’utilisateur interne, la date, l’ancien statut, le nouveau statut et, si nécessaire, un commentaire.
+   316→   316→
+   317→   317→---
+   318→   318→
+   319→   319→## 7. Modèle de données PostgreSQL
+   320→   320→
+   321→   321→Utilise PostgreSQL avec UUID comme identifiant interne lorsque cela est pertinent. Les références publiques lisibles doivent être distinctes des identifiants internes.
+   322→   322→
+   323→   323→### 7.1 Tables principales
+   324→   324→
+   325→   325→#### `admin_users`
+   326→   326→
+   327→   327→```
+   328→   328→id uuid primary key
+   329→   329→email varchar(320) unique not null
+   330→   330→full_name varchar(160) not null
+   331→   331→role varchar not null -- ADMIN ou RECRUITER
+   332→   332→is_active boolean not null default true
+   333→   333→last_login_at timestamptz null
+   334→   334→created_at timestamptz not null default now()
+   335→   335→updated_at timestamptz not null default now()
+   336→   336→```
+   337→   337→
+   338→   338→#### `companies`
+   339→   339→
+   340→   340→Cette table représente les entreprises liées aux offres, mais pas des comptes de connexion publics.
+   341→   341→
+   342→   342→```
+   343→   343→id uuid primary key
+   344→   344→public_reference varchar(32) unique not null
+   345→   345→legal_name varchar(200) not null
+   346→   346→trade_name varchar(200) null
+   347→   347→email varchar(320) not null
+   348→   348→phone varchar(40) null
+   349→   349→website varchar(300) null
+   350→   350→address text null
+   351→   351→city varchar(120) null
+   352→   352→country varchar(120) null
+   353→   353→sector varchar(120) null
+   354→   354→is_verified boolean not null default false
+   355→   355→created_at timestamptz not null default now()
+   356→   356→updated_at timestamptz not null default now()
+   357→   357→```
+   358→   358→
+   359→   359→#### `job_submissions`
+   360→   360→
+   361→   361→```
+   362→   362→id uuid primary key
+   363→   363→public_reference varchar(32) unique not null
+   364→   364→company_id uuid null references companies(id)
+   365→   365→contact_name varchar(160) not null
+   366→   366→contact_email varchar(320) not null
+   367→   367→contact_phone varchar(40) null
+   368→   368→title varchar(200) not null
+   369→   369→description text not null
+   370→   370→location varchar(160) null
+   371→   371→contract_type varchar(80) null
+   372→   372→experience_level varchar(80) null
+   373→   373→salary_text varchar(160) null
+   374→   374→required_skills jsonb not null default '[]'
+   375→   375→deadline date null
+   376→   376→status varchar not null
+   377→   377→correction_message text null
+   378→   378→submitted_at timestamptz null
+   379→   379→reviewed_at timestamptz null
+   380→   380→reviewed_by uuid null references admin_users(id)
+   381→   381→created_at timestamptz not null default now()
+   382→   382→updated_at timestamptz not null default now()
+   383→   383→```
+   384→   384→
+   385→   385→#### `jobs`
+   386→   386→
+   387→   387→```
+   388→   388→id uuid primary key
+   389→   389→public_reference varchar(32) unique not null
+   390→   390→slug varchar(240) unique not null
+   391→   391→company_id uuid not null references companies(id)
+   392→   392→source_submission_id uuid null references job_submissions(id)
+   393→   393→title varchar(200) not null
+   394→   394→description text not null
+   395→   395→location varchar(160) null
+   396→   396→country varchar(120) null
+   397→   397→contract_type varchar(80) null
+   398→   398→experience_level varchar(80) null
+   399→   399→salary_text varchar(160) null
+   400→   400→skills jsonb not null default '[]'
+   401→   401→category varchar(120) null
+   402→   402→published_at timestamptz null
+   403→   403→application_deadline date null
+   404→   404→status varchar not null
+   405→   405→is_featured boolean not null default false
+   406→   406→seo_title varchar(220) null
+   407→   407→seo_description varchar(320) null
+   408→   408→created_by uuid null references admin_users(id)
+   409→   409→updated_by uuid null references admin_users(id)
+   410→   410→created_at timestamptz not null default now()
+   411→   411→updated_at timestamptz not null default now()
+   412→   412→```
+   413→   413→
+   414→   414→#### `candidates`
+   415→   415→
+   416→   416→Ne pas utiliser cette table comme un compte utilisateur. Elle peut représenter une identité minimale réutilisable uniquement si nécessaire.
+   417→   417→
+   418→   418→```
+   419→   419→id uuid primary key
+   420→   420→full_name varchar(160) not null
+   421→   421→email varchar(320) not null
+   422→   422→phone varchar(40) null
+   423→   423→city varchar(120) null
+   424→   424→country varchar(120) null
+   425→   425→created_at timestamptz not null default now()
+   426→   426→updated_at timestamptz not null default now()
+   427→   427→```
+   428→   428→
+   429→   429→Pour une première version encore plus stricte, les informations du candidat peuvent être conservées directement dans `applications`. Dans ce cas, ne crée pas `candidates`.
+   430→   430→
+   431→   431→#### `applications`
+   432→   432→
+   433→   433→```
+   434→   434→id uuid primary key
+   435→   435→public_reference varchar(32) unique not null
+   436→   436→job_id uuid not null references jobs(id)
+   437→   437→company_id uuid not null references companies(id)
+   438→   438→candidate_id uuid null references candidates(id)
+   439→   439→candidate_name varchar(160) not null
+   440→   440→candidate_email varchar(320) not null
+   441→   441→candidate_phone varchar(40) null
+   442→   442→candidate_city varchar(120) null
+   443→   443→cover_letter text null
+   444→   444→answers jsonb not null default '{}'
+   445→   445→status varchar not null default 'SUBMITTED'
+   446→   446→consent_accepted boolean not null
+   447→   447→consent_version varchar(40) not null
+   448→   448→submitted_at timestamptz not null default now()
+   449→   449→updated_at timestamptz not null default now()
+   450→   450→```
+   451→   451→
+   452→   452→La contrainte `job_id not null` est obligatoire. La relation entre `applications.job_id` et `jobs.id` doit être indexée.
+   453→   453→
+   454→   454→#### `files`
+   455→   455→
+   456→   456→```
+   457→   457→id uuid primary key
+   458→   458→application_id uuid null references applications(id)
+   459→   459→submission_id uuid null references job_submissions(id)
+   460→   460→kind varchar not null -- CV, COVER_LETTER, COMPANY_DOCUMENT
+   461→   461→original_name varchar(255) not null
+   462→   462→storage_key varchar(500) not null
+   463→   463→mime_type varchar(120) not null
+   464→   464→size_bytes bigint not null
+   465→   465→sha256 varchar(64) null
+   466→   466→is_private boolean not null default true
+   467→   467→created_at timestamptz not null default now()
+   468→   468→```
+   469→   469→
+   470→   470→#### `application_status_history`
+   471→   471→
+   472→   472→```
+   473→   473→id uuid primary key
+   474→   474→application_id uuid not null references applications(id)
+   475→   475→from_status varchar null
+   476→   476→to_status varchar not null
+   477→   477→changed_by uuid null references admin_users(id)
+   478→   478→public_message text null
+   479→   479→internal_note text null
+   480→   480→created_at timestamptz not null default now()
+   481→   481→```
+   482→   482→
+   483→   483→#### `access_tokens`
+   484→   484→
+   485→   485→```
+   486→   486→id uuid primary key
+   487→   487→token_hash varchar(128) unique not null
+   488→   488→purpose varchar not null -- APPLICATION_TRACKING, SUBMISSION_CONFIRMATION, FILE_ACCESS
+   489→   489→application_id uuid null references applications(id)
+   490→   490→submission_id uuid null references job_submissions(id)
+   491→   491→expires_at timestamptz not null
+   492→   492→revoked_at timestamptz null
+   493→   493→last_used_at timestamptz null
+   494→   494→created_at timestamptz not null default now()
+   495→   495→```
+   496→   496→
+   497→   497→#### `notifications`
+   498→   498→
+   499→   499→```
+   500→   500→id uuid primary key
+   501→   501→recipient_email varchar(320) not null
+   502→   502→type varchar not null
+   503→   503→subject varchar(300) not null
+   504→   504→payload jsonb not null default '{}'
+   505→   505→status varchar not null default 'PENDING'
+   506→   506→attempts integer not null default 0
+   507→   507→sent_at timestamptz null
+   508→   508→last_error text null
+   509→   509→created_at timestamptz not null default now()
+   510→   510→```
+   511→   511→
+   512→   512→#### `audit_logs`
+   513→   513→
+   514→   514→```
+   515→   515→id uuid primary key
+   516→   516→actor_admin_id uuid null references admin_users(id)
+   517→   517→action varchar not null
+   518→   518→entity_type varchar not null
+   519→   519→entity_id uuid null
+   520→   520→before_data jsonb null
+   521→   521→after_data jsonb null
+   522→   522→ip_hash varchar(128) null
+   523→   523→user_agent text null
+   524→   524→created_at timestamptz not null default now()
+   525→   525→```
+   526→   526→
+   527→   527→#### `categories` et `settings`
+   528→   528→
+   529→   529→Prévoir une table de catégories pour les secteurs, métiers et types de contrats. Prévoir une table de paramètres pour les valeurs configurables : durée des liens privés, taille maximale des CV, e-mails de notification, nom de la plateforme, coordonnées de contact, règles de publication et version de consentement.
+   530→   530→
+   531→   531→### 7.2 Index PostgreSQL
+   532→   532→
+   533→   533→Créer au minimum les index suivants :
+   534→   534→
+   535→   535→```
+   536→   536→jobs(status, published_at)
+   537→   537→jobs(category)
+   538→   538→jobs(location)
+   539→   539→jobs(contract_type)
+   540→   540→jobs(application_deadline)
+   541→   541→applications(job_id)
+   542→   542→applications(status)
+   543→   543→applications(submitted_at)
+   544→   544→applications(candidate_email)
+   545→   545→job_submissions(status)
+   546→   546→job_submissions(submitted_at)
+   547→   547→notifications(status, created_at)
+   548→   548→audit_logs(entity_type, entity_id, created_at)
+   549→   549→```
+   550→   550→
+   551→   551→Utiliser une recherche full-text PostgreSQL ou une solution de recherche adaptée pour les titres, descriptions, compétences, villes et catégories.
+   552→   552→
+   553→   553→---
+   554→   554→
+   555→   555→## 8. API et back-end serverless
+   556→   556→
+   557→   557→Toutes les opérations doivent être validées côté serveur. Les schémas de validation doivent être partagés entre le front-end et le back-end lorsque cela est sûr, mais le serveur reste l’autorité finale.
+   558→   558→
+   559→   559→### 8.1 Endpoints publics
+   560→   560→
+   561→   561→Prévoir des endpoints ou procédures équivalents aux fonctions suivantes :
+   562→   562→
+   563→   563→```
+   564→   564→GET  /api/public/jobs
+   565→   565→GET  /api/public/jobs/:slug
+   566→   566→POST /api/public/job-submissions
+   567→   567→POST /api/public/applications
+   568→   568→POST /api/public/upload-intent
+   569→   569→GET  /api/public/application-tracking/:token
+   570→   570→POST /api/public/resend-application-link
+   571→   571→```
+   572→   572→
+   573→   573→`GET /api/public/jobs` doit permettre la pagination, la recherche, le tri et les filtres. Ne retourner que les offres publiées et les champs destinés au public.
+   574→   574→
+   575→   575→`GET /api/public/jobs/:slug` doit retourner le détail public d’une offre, sans informations privées sur les candidats ou données internes.
+   576→   576→
+   577→   577→`POST /api/public/job-submissions` doit créer une soumission en attente de validation. Ajouter une protection anti-spam, une limitation de fréquence et une validation stricte.
+   578→   578→
+   579→   579→`POST /api/public/applications` doit exiger un `job_id` ou un slug signé, vérifier l’état de l’offre et créer une candidature rattachée à cette offre.
+   580→   580→
+   581→   581→### 8.2 Endpoints internes protégés
+   582→   582→
+   583→   583→```
+   584→   584→GET    /api/admin/dashboard
+   585→   585→GET    /api/admin/job-submissions
+   586→   586→GET    /api/admin/job-submissions/:id
+   587→   587→PATCH  /api/admin/job-submissions/:id/status
+   588→   588→GET    /api/admin/jobs
+   589→   589→POST   /api/admin/jobs
+   590→   590→GET    /api/admin/jobs/:id
+   591→   591→PATCH  /api/admin/jobs/:id
+   592→   592→DELETE /api/admin/jobs/:id -- soft delete ou archivage uniquement
+   593→   593→POST   /api/admin/jobs/:id/publish
+   594→   594→POST   /api/admin/jobs/:id/pause
+   595→   595→POST   /api/admin/jobs/:id/close
+   596→   596→GET    /api/admin/applications
+   597→   597→GET    /api/admin/applications/:id
+   598→   598→PATCH  /api/admin/applications/:id/status
+   599→   599→POST   /api/admin/applications/:id/notes
+   600→   600→GET    /api/admin/applications/:id/files/:fileId
+   601→   601→GET    /api/admin/audit-logs
+   602→   602→GET    /api/admin/settings
+   603→   603→PATCH  /api/admin/settings
+   604→   604→```
+   605→   605→
+   606→   606→Les routes internes doivent exiger une session administrateur valide. Le serveur doit appliquer l’autorisation par rôle avant toute requête métier.
+   607→   607→
+   608→   608→### 8.3 Idempotence
+   609→   609→
+   610→   610→Les opérations publiques importantes doivent être idempotentes autant que possible. Prévoir une clé d’idempotence ou une détection de doublon pour éviter qu’un double clic ne crée deux candidatures identiques.
+   611→   611→
+   612→   612→Une candidature identique peut être détectée à partir d’un ensemble prudent : offre, adresse e-mail normalisée, empreinte du fichier CV, fenêtre temporelle et éventuellement téléphone. Ne jamais bloquer abusivement un candidat réel ; afficher plutôt un message clair si une candidature semble déjà exister.
+   613→   613→
+   614→   614→### 8.4 Gestion des erreurs
+   615→   615→
+   616→   616→Retourner des erreurs structurées avec un code stable, un message compréhensible par l’interface et un détail réservé aux logs. Ne jamais exposer les stack traces, requêtes SQL, chemins de stockage ou secrets.
+   617→   617→
+   618→   618→---
+   619→   619→
+   620→   620→## 9. Interface publique et expérience utilisateur
+   621→   621→
+   622→   622→### 9.1 Direction visuelle
+   623→   623→
+   624→   624→Concevoir une interface professionnelle, sobre et rassurante, adaptée au recrutement. Utiliser une hiérarchie visuelle forte, des espaces généreux, des cartes lisibles et des formulaires guidés.
+   625→   625→
+   626→   626→La palette recommandée peut combiner un bleu nuit ou un vert profond pour la confiance, une couleur d’accent chaude pour les appels à l’action et des surfaces neutres. Prévoir un contraste accessible, des états de focus visibles et une navigation entièrement utilisable au clavier.
+   627→   627→
+   628→   628→Ne pas produire une interface générique composée uniquement de rectangles et de tableaux. Le site public doit donner une impression de plateforme fiable, locale et sérieuse. Prévoir une version responsive prioritairement pensée pour mobile.
+   629→   629→
+   630→   630→### 9.2 Pages publiques
+   631→   631→
+   632→   632→#### Accueil `/`
+   633→   633→
+   634→   634→La page d’accueil doit présenter clairement la mission de la plateforme, une barre de recherche d’offres, les catégories principales, les offres récentes, un appel à l’action « Voir les offres » et un appel à l’action « Proposer une offre ».
+   635→   635→
+   636→   636→#### Liste des offres `/offres`
+   637→   637→
+   638→   638→La page doit proposer une recherche par mots-clés, des filtres par lieu, secteur, type de contrat, niveau d’expérience et date de publication. Afficher le nombre de résultats, la pagination, les états de chargement, l’état vide et les erreurs.
+   639→   639→
+   640→   640→#### Détail d’une offre `/offres/[slug]`
+   641→   641→
+   642→   642→Afficher le titre, l’entreprise, la localisation, le type de contrat, le niveau d’expérience, les compétences, la description, la date limite, la référence de l’offre et un bouton très visible « Postuler à cette offre ».
+   643→   643→
+   644→   644→Le bouton de candidature doit transmettre le contexte exact de l’offre. L’utilisateur doit voir une confirmation visuelle du poste sélectionné avant l’envoi.
+   645→   645→
+   646→   646→#### Formulaire de proposition `/proposer-une-offre`
+   647→   647→
+   648→   648→Sections recommandées : informations de l’entreprise, informations du contact, informations du poste, critères de recrutement, date limite, pièces éventuelles, consentement et vérification anti-robot.
+   649→   649→
+   650→   650→Afficher une page de confirmation après envoi avec la référence de soumission, sans afficher de données sensibles.
+   651→   651→
+   652→   652→#### Formulaire de candidature `/offres/[slug]/postuler`
+   653→   653→
+   654→   654→Le formulaire doit afficher en permanence le titre de l’offre, l’entreprise, la référence et un résumé du poste. Le candidat renseigne ses informations, ajoute son CV, ajoute éventuellement une lettre de motivation, répond aux questions spécifiques et accepte le consentement.
+   655→   655→
+   656→   656→Afficher une barre de progression si le formulaire comporte plusieurs étapes. Conserver temporairement les valeurs non sensibles dans le navigateur si cela améliore l’expérience, mais ne stocker ni CV ni données sensibles dans `localStorage`.
+   657→   657→
+   658→   658→#### Confirmation `/candidature/confirmation`
+   659→   659→
+   660→   660→Afficher la référence de candidature, rappeler l’offre concernée, indiquer qu’un e-mail a été envoyé et présenter le lien de suivi uniquement après création réussie.
+   661→   661→
+   662→   662→#### Suivi `/suivi-candidature/[token]`
+   663→   663→
+   664→   664→Cette page doit être accessible sans compte uniquement avec un jeton valide. Elle affiche le statut public et les informations minimales autorisées. Si le jeton est expiré ou révoqué, afficher une page neutre invitant le candidat à demander un nouveau lien.
+   665→   665→
+   666→   666→#### Pages institutionnelles
+   667→   667→
+   668→   668→Prévoir les pages « À propos », « Contact », « Politique de confidentialité », « Conditions d’utilisation », « Gestion des cookies » et une page d’aide concernant les candidatures.
+   669→   669→
+   670→   670→---
+   671→   671→
+   672→   672→## 10. Tableau de bord administrateur
+   673→   673→
+   674→   674→Utiliser une structure de tableau de bord avec barre latérale persistante sur desktop et navigation compacte sur mobile.
+   675→   675→
+   676→   676→### 10.1 Navigation interne
+   677→   677→
+   678→   678→```
+   679→   679→Vue d’ensemble
+   680→   680→Soumissions d’offres
+   681→   681→Offres publiées
+   682→   682→Candidatures
+   683→   683→Entreprises
+   684→   684→Catégories
+   685→   685→Notifications
+   686→   686→Rapports
+   687→   687→Journal d’audit
+   688→   688→Paramètres
+   689→   689→Utilisateurs internes
+   690→   690→```
+   691→   691→
+   692→   692→### 10.2 Vue d’ensemble
+   693→   693→
+   694→   694→Afficher des indicateurs tels que : offres publiées, offres en attente, nouvelles candidatures, candidatures en cours d’examen, offres clôturées et soumissions récentes.
+   695→   695→
+   696→   696→Ajouter une liste d’actions prioritaires : offres à valider, candidatures non examinées, e-mails en échec et alertes de sécurité.
+   697→   697→
+   698→   698→### 10.3 Gestion des soumissions
+   699→   699→
+   700→   700→Tableau avec recherche, filtres par statut et date, pagination et actions rapides. La fiche détaillée doit afficher les informations de l’entreprise, les données de l’offre, les pièces jointes éventuelles, les événements, les commentaires et les actions de validation.
+   701→   701→
+   702→   702→### 10.4 Gestion des offres
+   703→   703→
+   704→   704→Permettre la création interne d’une offre, la modification, la publication, la mise en pause, la clôture et l’archivage. Afficher le nombre de candidatures par offre.
+   705→   705→
+   706→   706→### 10.5 Gestion des candidatures
+   707→   707→
+   708→   708→Le tableau doit afficher la référence de candidature, le nom du candidat, l’offre, l’entreprise, le statut, la date de dépôt et les actions. Les filtres doivent permettre de sélectionner une offre précise, une entreprise, un statut, une période et une localisation.
+   709→   709→
+   710→   710→La fiche candidature doit afficher :
+   711→   711→
+   712→   712→- les informations du candidat ;
+   713→   713→
+   714→   714→- le titre et la référence de l’offre ;
+   715→   715→
+   716→   716→- l’entreprise concernée ;
+   717→   717→
+   718→   718→- le CV et les documents ;
+   719→   719→
+   720→   720→- la lettre de motivation ;
+   721→   721→
+   722→   722→- les réponses aux questions ;
+   723→   723→
+   724→   724→- l’historique des statuts ;
+   725→   725→
+   726→   726→- les notes internes ;
+   727→   727→
+   728→   728→- les actions disponibles ;
+   729→   729→
+   730→   730→- les informations de consentement.
+   731→   731→
+   732→   732→### 10.6 Gestion des entreprises
+   733→   733→
+   734→   734→Ne pas en faire un portail d’entreprise. Il s’agit d’un répertoire administratif permettant de consulter les entreprises ayant soumis des offres, leur historique, leurs coordonnées et leurs offres associées.
+   735→   735→
+   736→   736→### 10.7 Journal d’audit
+   737→   737→
+   738→   738→Prévoir une interface filtrable par acteur, action, entité et période. Les entrées doivent être append-only autant que possible et ne doivent pas être modifiables depuis l’interface ordinaire.
+   739→   739→
+   740→   740→---
+   741→   741→
+   742→   742→## 11. Téléversement et stockage des fichiers
+   743→   743→
+   744→   744→Les fichiers acceptés en première version doivent être limités aux formats nécessaires, par exemple PDF et éventuellement DOCX. Refuser les exécutables, scripts, archives et formats inconnus.
+   745→   745→
+   746→   746→Appliquer :
+   747→   747→
+   748→   748→- une taille maximale configurable ;
+   749→   749→
+   750→   750→- une validation MIME côté serveur ;
+   751→   751→
+   752→   752→- une validation de l’extension ;
+   753→   753→
+   754→   754→- une génération de nom de stockage interne ;
+   755→   755→
+   756→   756→- une empreinte SHA-256 facultative ;
+   757→   757→
+   758→   758→- un stockage privé ;
+   759→   759→
+   760→   760→- une analyse antivirus si le fournisseur le permet ;
+   761→   761→
+   762→   762→- une URL signée de courte durée pour la consultation ;
+   763→   763→
+   764→   764→- un contrôle d’autorisation avant chaque téléchargement.
+   765→   765→
+   766→   766→Ne jamais utiliser le nom original comme clé de stockage. Ne jamais exposer directement le bucket ou le chemin interne.
+   767→   767→
+   768→   768→---
+   769→   769→
+   770→   770→## 12. Notifications et e-mails
+   771→   771→
+   772→   772→Prévoir une file logique de notifications dans PostgreSQL, même si l’envoi est effectué par une fonction serverless ou un fournisseur externe.
+   773→   773→
+   774→   774→### 12.1 E-mails candidats
+   775→   775→
+   776→   776→- confirmation de candidature ;
+   777→   777→
+   778→   778→- lien privé de suivi ;
+   779→   779→
+   780→   780→- changement de statut ;
+   781→   781→
+   782→   782→- demande éventuelle d’information complémentaire ;
+   783→   783→
+   784→   784→- confirmation de retrait si cette fonction est activée.
+   785→   785→
+   786→   786→### 12.2 E-mails entreprises
+   787→   787→
+   788→   788→- confirmation de soumission ;
+   789→   789→
+   790→   790→- demande de correction ;
+   791→   791→
+   792→   792→- approbation de l’offre ;
+   793→   793→
+   794→   794→- rejet de l’offre ;
+   795→   795→
+   796→   796→- notification de réception d’une candidature, si activée.
+   797→   797→
+   798→   798→### 12.3 E-mails administrateurs
+   799→   799→
+   800→   800→- nouvelle soumission ;
+   801→   801→
+   802→   802→- nouvelle candidature ;
+   803→   803→
+   804→   804→- échec d’envoi ;
+   805→   805→
+   806→   806→- anomalie de sécurité ;
+   807→   807→
+   808→   808→- volume inhabituel de soumissions.
+   809→   809→
+   810→   810→Les modèles doivent être centralisés, versionnés et configurables. Les données confidentielles ne doivent pas être intégrées inutilement dans les e-mails ; privilégier les liens sécurisés vers le tableau de bord.
+   811→   811→
+   812→   812→---
+   813→   813→
+   814→   814→## 13. Sécurité et protection des données
+   815→   815→
+   816→   816→### 13.1 Authentification interne
+   817→   817→
+   818→   818→Protéger le tableau de bord par une authentification forte. Si une authentification OAuth ou SSO est disponible, l’utiliser. Sinon, utiliser une authentification par e-mail avec lien magique ou mot de passe correctement haché, avec limitation de tentatives et possibilité de révoquer une session.
+   819→   819→
+   820→   820→Les rôles doivent être contrôlés côté serveur. Cacher un bouton dans le front-end ne constitue jamais une protection suffisante.
+   821→   821→
+   822→   822→### 13.2 Protection des formulaires publics
+   823→   823→
+   824→   824→Ajouter :
+   825→   825→
+   826→   826→- CAPTCHA ou mécanisme anti-robot ;
+   827→   827→
+   828→   828→- rate limiting par IP et par empreinte raisonnable ;
+   829→   829→
+   830→   830→- honeypot invisible ;
+   831→   831→
+   832→   832→- validation d’e-mail ;
+   833→   833→
+   834→   834→- prévention CSRF si cookies utilisés ;
+   835→   835→
+   836→   836→- limitation de taille des requêtes ;
+   837→   837→
+   838→   838→- détection des soumissions répétées ;
+   839→   839→
+   840→   840→- journalisation des anomalies ;
+   841→   841→
+   842→   842→- échappement et nettoyage des contenus affichés.
+   843→   843→
+   844→   844→### 13.3 Données personnelles
+   845→   845→
+   846→   846→Prévoir une politique de conservation configurable. Les données doivent pouvoir être exportées ou supprimées selon la politique de l’organisation et les obligations applicables.
+   847→   847→
+   848→   848→Le consentement doit être enregistré avec une version de texte et une date. Ne pas stocker de données sensibles non nécessaires au recrutement.
+   849→   849→
+   850→   850→### 13.4 Sécurité des jetons
+   851→   851→
+   852→   852→Générer les jetons avec un générateur cryptographiquement sûr. Stocker uniquement leur empreinte. Définir une expiration, une révocation et une limitation d’utilisation lorsque nécessaire.
+   853→   853→
+   854→   854→### 13.5 Secrets
+   855→   855→
+   856→   856→Ne jamais exposer les secrets dans le navigateur, le dépôt Git, les logs ou les messages d’erreur. Utiliser exclusivement des variables d’environnement gérées par la plateforme de déploiement.
+   857→   857→
+   858→   858→---
+   859→   859→
+   860→   860→## 14. Validation et règles de formulaire
+   861→   861→
+   862→   862→Tous les champs doivent avoir un schéma serveur explicite.
+   863→   863→
+   864→   864→### Offre externe
+   865→   865→
+   866→   866→Le titre doit avoir une longueur raisonnable. La description doit être suffisamment détaillée. L’e-mail doit être valide. Les valeurs de contrat, de secteur et de niveau doivent provenir de listes contrôlées ou être modérées.
+   867→   867→
+   868→   868→### Candidature
+   869→   869→
+   870→   870→Le nom et l’e-mail sont obligatoires. Le CV est obligatoire si la règle de l’offre l’exige. La taille, le type et le contenu attendu du fichier doivent être contrôlés. Le consentement est obligatoire.
+   871→   871→
+   872→   872→### Offre publiée
+   873→   873→
+   874→   874→Une offre ne peut passer à `PUBLISHED` que si les champs minimums sont complets : titre, entreprise, description, localisation ou indication de télétravail, type de contrat, date limite ou règle équivalente et canal de contact interne.
+   875→   875→
+   876→   876→---
+   877→   877→
+   878→   878→## 15. Tests à implémenter
+   879→   879→
+   880→   880→### Tests unitaires
+   881→   881→
+   882→   882→Tester la génération des références, les transitions de statut, la validation des formulaires, la normalisation des e-mails, la création et le hachage des jetons, les règles d’expiration et les contrôles de permissions.
+   883→   883→
+   884→   884→### Tests d’intégration
+   885→   885→
+   886→   886→Tester les scénarios suivants :
+   887→   887→
+   888→   888→1. soumission publique d’une offre ;
+   889→   889→
+   890→   890→1. validation administrative d’une offre ;
+   891→   891→
+   892→   892→1. publication d’une offre ;
+   893→   893→
+   894→   894→1. candidature rattachée au bon `job_id` ;
+   895→   895→
+   896→   896→1. refus d’une candidature sur une offre clôturée ;
+   897→   897→
+   898→   898→1. téléchargement sécurisé d’un CV ;
+   899→   899→
+   900→   900→1. accès refusé à un candidat aux données d’un autre candidat ;
+   901→   901→
+   902→   902→1. accès refusé à un recruteur non autorisé ;
+   903→   903→
+   904→   904→1. expiration d’un lien de suivi ;
+   905→   905→
+   906→   906→1. prévention d’une double soumission ;
+   907→   907→
+   908→   908→1. création d’un journal d’audit ;
+   909→   909→
+   910→   910→1. envoi et nouvelle tentative d’une notification.
+   911→   911→
+   912→   912→### Tests end-to-end
+   913→   913→
+   914→   914→Tester avec un navigateur les parcours complets : visiteur vers offre, offre vers candidature, entreprise vers soumission, administrateur vers validation et candidat vers suivi privé.
+   915→   915→
+   916→   916→### Accessibilité
+   917→   917→
+   918→   918→Vérifier la navigation clavier, les labels de formulaires, le contraste, les messages d’erreur, les états de focus, les lecteurs d’écran et les tailles d’écran mobile.
+   919→   919→
+   920→   920→---
+   921→   921→
+   922→   922→## 16. Structure de code recommandée
+   923→   923→
+   924→   924→```
+   925→   925→app/
+   926→   926→  page.tsx
+   927→   927→  offres/page.tsx
+   928→   928→  offres/[slug]/page.tsx
+   929→   929→  offres/[slug]/postuler/page.tsx
+   930→   930→  proposer-une-offre/page.tsx
+   931→   931→  candidature/confirmation/page.tsx
+   932→   932→  suivi-candidature/[token]/page.tsx
+   933→   933→  admin/
+   934→   934→    layout.tsx
+   935→   935→    page.tsx
+   936→   936→    soumissions/page.tsx
+   937→   937→    offres/page.tsx
+   938→   938→    candidatures/page.tsx
+   939→   939→    entreprises/page.tsx
+   940→   940→    rapports/page.tsx
+   941→   941→    audit/page.tsx
+   942→   942→    parametres/page.tsx
+   943→   943→  api/
+   944→   944→    public/
+   945→   945→    admin/
+   946→   946→components/
+   947→   947→  public/
+   948→   948→  admin/
+   949→   949→  forms/
+   950→   950→  ui/
+   951→   951→lib/
+   952→   952→  db.ts
+   953→   953→  auth.ts
+   954→   954→  permissions.ts
+   955→   955→  validation/
+   956→   956→  references.ts
+   957→   957→  tokens.ts
+   958→   958→  rate-limit.ts
+   959→   959→  storage.ts
+   960→   960→  notifications.ts
+   961→   961→  audit.ts
+   962→   962→server/
+   963→   963→  services/
+   964→   964→    jobs.service.ts
+   965→   965→    submissions.service.ts
+   966→   966→    applications.service.ts
+   967→   967→    files.service.ts
+   968→   968→    notifications.service.ts
+   969→   969→db/
+   970→   970→  schema/
+   971→   971→  migrations/
+   972→   972→  seed.ts
+   973→   973→emails/
+   974→   974→  templates/
+   975→   975→tests/
+   976→   976→  unit/
+   977→   977→  integration/
+   978→   978→  e2e/
+   979→   979→```
+   980→   980→
+   981→   981→Adapte la structure au framework choisi, mais conserve la séparation entre pages, composants, validations, services métier, accès aux données et infrastructure.
+   982→   982→
+   983→   983→---
+   984→   984→
+   985→   985→## 17. Déploiement et exploitation
+   986→   986→
+   987→   987→Le déploiement doit prévoir :
+   988→   988→
+   989→   989→- une base PostgreSQL managée ;
+   990→   990→
+   991→   991→- des migrations versionnées ;
+   992→   992→
+   993→   993→- des variables d’environnement séparées entre développement, préproduction et production ;
+   994→   994→
+   995→   995→- un stockage objet privé ;
+   996→   996→
+   997→   997→- un fournisseur d’e-mails ;
+   998→   998→
+   999→   999→- des logs serverless ;
+  1000→  1000→
+  1001→  1001→- une surveillance des erreurs ;
+  1002→  1002→
+  1003→  1003→- des sauvegardes PostgreSQL ;
+  1004→  1004→
+  1005→  1005→- une procédure de restauration ;
+  1006→  1006→
+  1007→  1007→- un environnement de prévisualisation ;
+  1008→  1008→
+  1009→  1009→- des contrôles avant mise en production.
+  1010→  1010→
+  1011→  1011→Variables d’environnement à prévoir :
+  1012→  1012→
+  1013→  1013→```
+  1014→  1014→DATABASE_URL
+  1015→  1015→DATABASE_DIRECT_URL si nécessaire pour les migrations
+  1016→  1016→AUTH_SECRET
+  1017→  1017→APP_URL
+  1018→  1018→STORAGE_ENDPOINT
+  1019→  1019→STORAGE_BUCKET
+  1020→  1020→STORAGE_ACCESS_KEY
+  1021→  1021→STORAGE_SECRET_KEY
+  1022→  1022→EMAIL_PROVIDER_API_KEY
+  1023→  1023→EMAIL_FROM
+  1024→  1024→CAPTCHA_SECRET_KEY
+  1025→  1025→RATE_LIMIT_SECRET
+  1026→  1026→```
+  1027→  1027→
+  1028→  1028→Ne jamais committer un fichier `.env` contenant des secrets réels.
+  1029→  1029→
+  1030→  1030→---
+  1031→  1031→
+  1032→  1032→## 18. SEO, performance et accessibilité
+  1033→  1033→
+  1034→  1034→Les offres publiées doivent être indexables avec une URL stable, un titre SEO, une description et des données structurées adaptées aux offres d’emploi si cela est pertinent pour le contexte du projet.
+  1035→  1035→
+  1036→  1036→Les pages publiques doivent charger rapidement. Utiliser le rendu serveur ou la génération adaptée pour les pages d’offres, limiter le JavaScript côté client et ne charger les composants lourds que lorsque nécessaire.
+  1037→  1037→
+  1038→  1038→Les formulaires doivent rester utilisables sur les connexions lentes. Afficher des états de chargement, éviter les doubles clics et présenter des messages d’erreur précis.
+  1039→  1039→
+  1040→  1040→---
+  1041→  1041→
+  1042→  1042→## 19. Critères d’acceptation globaux
+  1043→  1043→
+  1044→  1044→Le projet sera considéré comme correctement réalisé uniquement si les conditions suivantes sont respectées :
+  1045→  1045→
+  1046→  1046→1. Aucun candidat ne peut créer de compte.
+  1047→  1047→
+  1048→  1048→1. Aucune entreprise externe ne peut créer de compte.
+  1049→  1049→
+  1050→  1050→1. Les administrateurs internes disposent d’un accès authentifié.
+  1051→  1051→
+  1052→  1052→1. Une entreprise peut soumettre une offre via un formulaire public.
+  1053→  1053→
+  1054→  1054→1. Une offre soumise n’est pas publiée sans validation administrative.
+  1055→  1055→
+  1056→  1056→1. Un candidat peut postuler sans compte.
+  1057→  1057→
+  1058→  1058→1. Chaque candidature possède obligatoirement une référence d’offre valide.
+  1059→  1059→
+  1060→  1060→1. Une candidature ne peut pas être rattachée à une offre clôturée si cette règle est activée.
+  1061→  1061→
+  1062→  1062→1. Les CV et lettres sont privés.
+  1063→  1063→
+  1064→  1064→1. Les liens de suivi sont temporaires, révocables et non devinables.
+  1065→  1065→
+  1066→  1066→1. Les statuts des offres et candidatures sont historisés.
+  1067→  1067→
+  1068→  1068→1. Les permissions sont contrôlées côté serveur.
+  1069→  1069→
+  1070→  1070→1. Les formulaires publics sont protégés contre le spam et les abus.
+  1071→  1071→
+  1072→  1072→1. Les administrateurs peuvent rechercher et filtrer les offres et candidatures.
+  1073→  1073→
+  1074→  1074→1. La base de données est PostgreSQL et les migrations sont versionnées.
+  1075→  1075→
+  1076→  1076→1. Le back-end est compatible avec un déploiement serverless.
+  1077→  1077→
+  1078→  1078→1. Les données publiques et les données privées sont correctement séparées.
+  1079→  1079→
+  1080→  1080→1. Les tests couvrent les flux critiques et les contrôles de sécurité.
+  1081→  1081→
+  1082→  1082→1. L’interface est responsive et accessible.
+  1083→  1083→
+  1084→  1084→1. La documentation permet de lancer, migrer, tester et déployer le projet.
+  1085→  1085→
+  1086→  1086→---
+  1087→  1087→
+  1088→  1088→## 20. Ordre de réalisation conseillé
+  1089→  1089→
+  1090→  1090→Implémente le projet dans cet ordre :
+  1091→  1091→
+  1092→  1092→### Phase 1 — Fondations
+  1093→  1093→
+  1094→  1094→Initialiser le projet, configurer TypeScript, le framework React, Tailwind, PostgreSQL, l’ORM, les migrations, les variables d’environnement et la structure de code.
+  1095→  1095→
+  1096→  1096→### Phase 2 — Modèle de données
+  1097→  1097→
+  1098→  1098→Créer les tables, enums, relations, index et contraintes. Ajouter les migrations et un jeu de données de démonstration sans données personnelles réelles.
+  1099→  1099→
+  1100→  1100→### Phase 3 — Site public
+  1101→  1101→
+  1102→  1102→Créer l’accueil, la liste des offres, la recherche, les filtres, le détail d’une offre et la page de proposition d’offre.
+  1103→  1103→
+  1104→  1104→### Phase 4 — Candidatures
+  1105→  1105→
+  1106→  1106→Créer le formulaire rattaché à l’offre, le téléversement sécurisé, la confirmation, les références, les notifications et le suivi privé.
+  1107→  1107→
+  1108→  1108→### Phase 5 — Administration
+  1109→  1109→
+  1110→  1110→Créer l’authentification interne, la vue d’ensemble, la validation des offres, la gestion des candidatures, les statuts, les entreprises, les documents, les notifications et l’audit.
+  1111→  1111→
+  1112→  1112→### Phase 6 — Sécurité et qualité
+  1113→  1113→
+  1114→  1114→Ajouter rate limiting, anti-robot, contrôle des permissions, logs, tests unitaires, tests d’intégration, tests end-to-end, accessibilité et responsive design.
+  1115→  1115→
+  1116→  1116→### Phase 7 — Mise en production
+  1117→  1117→
+  1118→  1118→Configurer le fournisseur PostgreSQL, le stockage privé, les e-mails, les domaines, les variables d’environnement, les sauvegardes, les migrations de production et la surveillance.
+  1119→  1119→
+  1120→  1120→---
+  1121→  1121→
+  1122→  1122→## 21. Instructions finales à l’agent
+  1123→  1123→
+  1124→  1124→Ne crée pas de comptes candidats ou entreprises. Ne publie jamais automatiquement une offre externe sans validation. Ne permets jamais la création d’une candidature sans offre associée. Ne rends jamais un CV accessible par une URL publique permanente. Ne fais pas confiance aux contrôles uniquement effectués dans le navigateur. Ne supprime pas physiquement les offres qui possèdent des candidatures. Ne mélange pas les données d’administration et les données publiques.
+  1125→  1125→
+  1126→  1126→Avant de conclure, vérifie manuellement les parcours suivants :
+  1127→  1127→
+  1128→  1128→```
+  1129→  1129→Visiteur → recherche → offre → candidature → confirmation → suivi privé
+  1130→  1130→Entreprise externe → formulaire → soumission → validation admin → publication
+  1131→  1131→Administrateur → connexion → validation → suivi des candidatures → changement de statut
+  1132→  1132→```
+  1133→  1133→
+  1134→  1134→Le résultat attendu est une plateforme de recrutement simple pour les utilisateurs publics, mais rigoureuse, contrôlée et traçable côté administration.
+  1135→  1135→
+  1136→  1136→# Fin du prompt maître
+  1137→  1137→
+  1138→  1138→Ce document doit être utilisé comme cahier des charges principal. Toute décision d’implémentation qui contredit les contraintes « sans compte public », « PostgreSQL », « serverless » ou « candidature obligatoirement liée à une offre » doit être considérée comme incorrecte, sauf validation explicite du propriétaire du projet.

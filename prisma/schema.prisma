@@ -1,0 +1,267 @@
+// Prisma schema for the recruitment platform (no public accounts).
+// Adapted to SQLite (the available managed DB in this environment),
+// while preserving the data model, references, indexes, and constraints
+// mandated by the project specification.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums (encoded as String because SQLite has no native enums)
+// ---------------------------------------------------------------------------
+
+// Admin roles
+model AdminUser {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  fullName     String
+  role         String    @default("ADMIN") // ADMIN | RECRUITER
+  isActive     Boolean   @default(true)
+  passwordHash String?
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  jobSubmissionsReviewed JobSubmission[] @relation("JobSubmissionReviewer")
+  jobsCreated            Job[]            @relation("JobCreator")
+  jobsUpdated            Job[]            @relation("JobUpdater")
+  applicationStatusLogs  ApplicationStatusHistory[]
+  auditLogs              AuditLog[]
+  accessTokens           AccessToken[]
+}
+
+model Company {
+  id              String   @id @default(cuid())
+  publicReference String   @unique
+  legalName       String
+  tradeName       String?
+  email           String
+  phone           String?
+  website         String?
+  address         String?
+  city            String?
+  country         String?
+  sector          String?
+  isVerified      Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  submissions JobSubmission[] @relation("JobSubmissionCompany")
+  jobs        Job[]
+  applications Application[]
+}
+
+model JobSubmission {
+  id                String    @id @default(cuid())
+  publicReference   String    @unique
+  companyId         String?
+  company           Company?        @relation("JobSubmissionCompany", fields: [companyId], references: [id])
+  contactName       String
+  contactEmail      String
+  contactPhone      String?
+  title             String
+  description       String
+  location          String?
+  contractType      String?
+  experienceLevel   String?
+  salaryText        String?
+  requiredSkills    String    @default("[]") // JSON-encoded array
+  deadline          DateTime?
+  status            String    @default("PENDING_REVIEW")
+  // SUBMITTED | EMAIL_UNVERIFIED | PENDING_REVIEW | NEEDS_CORRECTION |
+  // APPROVED | REJECTED | CONVERTED_TO_JOB | CANCELLED
+  correctionMessage String?
+  honeypot          String?
+  submittedAt       DateTime?
+  reviewedAt        DateTime?
+  reviewedById      String?
+  reviewer          AdminUser? @relation("JobSubmissionReviewer", fields: [reviewedById], references: [id])
+  jobId             String?
+  job               Job?
+  files             File[]
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([status])
+  @@index([submittedAt])
+  @@index([contactEmail])
+}
+
+model Job {
+  id                  String    @id @default(cuid())
+  publicReference     String    @unique
+  slug                String    @unique
+  companyId           String
+  company             Company   @relation(fields: [companyId], references: [id])
+  sourceSubmissionId  String?    @unique
+  sourceSubmission    JobSubmission? @relation(fields: [sourceSubmissionId], references: [id])
+  title               String
+  description         String
+  location            String?
+  country             String?
+  contractType        String?
+  experienceLevel     String?
+  salaryText          String?
+  skills              String    @default("[]") // JSON-encoded array
+  category            String?
+  publishedAt         DateTime?
+  applicationDeadline  DateTime?
+  status              String    @default("DRAFT")
+  // DRAFT | PENDING_REVIEW | APPROVED | PUBLISHED | PAUSED | CLOSED | REJECTED | ARCHIVED
+  isFeatured          Boolean   @default(false)
+  seoTitle            String?
+  seoDescription      String?
+  createdById         String?
+  createdBy           AdminUser? @relation("JobCreator", fields: [createdById], references: [id])
+  updatedById         String?
+  updatedBy           AdminUser? @relation("JobUpdater", fields: [updatedById], references: [id])
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  applications Application[]
+
+  @@index([status, publishedAt])
+  @@index([category])
+  @@index([location])
+  @@index([contractType])
+  @@index([applicationDeadline])
+}
+
+model Application {
+  id              String    @id @default(cuid())
+  publicReference String    @unique
+  jobId           String
+  job             Job       @relation(fields: [jobId], references: [id])
+  companyId       String
+  company         Company   @relation(fields: [companyId], references: [id])
+  candidateName   String
+  candidateEmail  String
+  candidatePhone  String?
+  candidateCity   String?
+  coverLetter     String?
+  answers         String    @default("{}") // JSON-encoded object
+  status          String    @default("SUBMITTED")
+  // SUBMITTED | RECEIVED | UNDER_REVIEW | SHORTLISTED | INTERVIEW_SCHEDULED |
+  // INTERVIEW_COMPLETED | WAITLISTED | ACCEPTED | REJECTED | WITHDRAWN
+  consentAccepted Boolean
+  consentVersion  String
+  idempotencyKey  String?
+  submittedAt     DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  files         File[]
+  statusHistory ApplicationStatusHistory[]
+  accessTokens  AccessToken[]
+
+  @@index([jobId])
+  @@index([status])
+  @@index([submittedAt])
+  @@index([candidateEmail])
+  @@index([idempotencyKey])
+}
+
+model File {
+  id            String    @id @default(cuid())
+  applicationId String?
+  application   Application? @relation(fields: [applicationId], references: [id])
+  submissionId  String?
+  submission    JobSubmission? @relation(fields: [submissionId], references: [id])
+  kind          String    // CV | COVER_LETTER | COMPANY_DOCUMENT
+  originalName  String
+  storageKey    String
+  mimeType      String
+  sizeBytes     Int
+  sha256        String?
+  isPrivate     Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+
+  @@index([applicationId])
+  @@index([submissionId])
+}
+
+model ApplicationStatusHistory {
+  id            String    @id @default(cuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  fromStatus    String?
+  toStatus      String
+  changedById   String?
+  changedBy     AdminUser?  @relation(fields: [changedById], references: [id])
+  publicMessage String?
+  internalNote  String?
+  createdAt     DateTime  @default(now())
+
+  @@index([applicationId])
+}
+
+model AccessToken {
+  id            String    @id @default(cuid())
+  tokenHash     String    @unique
+  purpose       String    // APPLICATION_TRACKING | SUBMISSION_CONFIRMATION | FILE_ACCESS | ADMIN_SESSION
+  applicationId String?
+  application   Application? @relation(fields: [applicationId], references: [id])
+  submissionId  String?
+  adminUserId   String?
+  adminUser     AdminUser? @relation(fields: [adminUserId], references: [id])
+  expiresAt     DateTime
+  revokedAt     DateTime?
+  lastUsedAt    DateTime?
+  createdAt     DateTime  @default(now())
+
+  @@index([purpose])
+  @@index([adminUserId])
+}
+
+model Notification {
+  id             String    @id @default(cuid())
+  recipientEmail String
+  type           String
+  subject        String
+  payload        String    @default("{}") // JSON-encoded object
+  status         String    @default("PENDING") // PENDING | SENT | FAILED
+  attempts      Int       @default(0)
+  sentAt        DateTime?
+  lastError     String?
+  createdAt     DateTime  @default(now())
+
+  @@index([status, createdAt])
+  @@index([recipientEmail])
+}
+
+model AuditLog {
+  id            String    @id @default(cuid())
+  actorAdminId  String?
+  actor         AdminUser? @relation(fields: [actorAdminId], references: [id])
+  action        String
+  entityType    String
+  entityId      String?
+  beforeData    String? // JSON-encoded
+  afterData     String? // JSON-encoded
+  ipHash        String?
+  userAgent     String?
+  createdAt     DateTime  @default(now())
+
+  @@index([entityType, entityId, createdAt])
+  @@index([actorAdminId])
+  @@index([action])
+}
+
+model Category {
+  id    String @id @default(cuid())
+  name  String @unique
+  type  String // SECTOR | CONTRACT_TYPE | EXPERIENCE_LEVEL | JOB_CATEGORY
+  createdAt DateTime @default(now())
+}
+
+model Setting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+  updatedAt DateTime @updatedAt
+}

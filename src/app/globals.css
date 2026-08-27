@@ -1,0 +1,183 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-playfair);
+  --font-mono: var(--font-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* TalentForge palette — deep green primary, warm orange accent, cream background */
+:root {
+  --radius: 0.625rem;
+
+  /* Surfaces */
+  --background: #faf7f2; /* cream */
+  --foreground: #1a1a1a; /* near-black */
+
+  --card: #ffffff;
+  --card-foreground: #1a1a1a;
+
+  --popover: #ffffff;
+  --popover-foreground: #1a1a1a;
+
+  /* Primary — deep forest green */
+  --primary: #0f4c3a;
+  --primary-foreground: #f7f3ec;
+
+  /* Secondary — muted green-tinted neutral */
+  --secondary: #e7efe9;
+  --secondary-foreground: #0f4c3a;
+
+  --muted: #f1ece3;
+  --muted-foreground: #5b5b54;
+
+  /* Accent — warm orange */
+  --accent: #e07a2c;
+  --accent-foreground: #ffffff;
+
+  --destructive: #c4332b;
+  --destructive-foreground: #ffffff;
+
+  --border: #e6dfd2;
+  --input: #efe9dd;
+  --ring: #0f4c3a;
+
+  /* Chart palette aligned with brand */
+  --chart-1: #0f4c3a; /* green */
+  --chart-2: #e07a2c; /* orange */
+  --chart-3: #b08968; /* warm brown */
+  --chart-4: #6b8f71; /* sage */
+  --chart-5: #d4a017; /* gold */
+
+  /* Sidebar */
+  --sidebar: #0f4c3a;
+  --sidebar-foreground: #f7f3ec;
+  --sidebar-primary: #e07a2c;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #14604a;
+  --sidebar-accent-foreground: #f7f3ec;
+  --sidebar-border: #1b5a47;
+  --sidebar-ring: #e07a2c;
+}
+
+.dark {
+  --background: #0f1a17;
+  --foreground: #f5f1ea;
+
+  --card: #14241f;
+  --card-foreground: #f5f1ea;
+
+  --popover: #14241f;
+  --popover-foreground: #f5f1ea;
+
+  --primary: #1f7a5e;
+  --primary-foreground: #f5f1ea;
+
+  --secondary: #1c2e28;
+  --secondary-foreground: #f5f1ea;
+
+  --muted: #1a2a25;
+  --muted-foreground: #a3b8af;
+
+  --accent: #e07a2c;
+  --accent-foreground: #ffffff;
+
+  --destructive: #e35d54;
+  --destructive-foreground: #ffffff;
+
+  --border: #25372f;
+  --input: #25372f;
+  --ring: #e07a2c;
+
+  --chart-1: #1f7a5e;
+  --chart-2: #e07a2c;
+  --chart-3: #b08968;
+  --chart-4: #6b8f71;
+  --chart-5: #d4a017;
+
+  --sidebar: #0a1411;
+  --sidebar-foreground: #f5f1ea;
+  --sidebar-primary: #e07a2c;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #14241f;
+  --sidebar-accent-foreground: #f5f1ea;
+  --sidebar-border: #1c2e28;
+  --sidebar-ring: #e07a2c;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif), ui-serif, Georgia, serif;
+    letter-spacing: -0.01em;
+  }
+}
+
+@layer utilities {
+  .font-serif {
+    font-family: var(--font-serif), ui-serif, Georgia, serif;
+  }
+  .font-sans {
+    font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  }
+  /* Subtle custom scrollbar for long lists/tables */
+  .scroll-pretty {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .scroll-pretty::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .scroll-pretty::-webkit-scrollbar-thumb {
+    background-color: var(--border);
+    border-radius: 8px;
+  }
+  .scroll-pretty::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+}
