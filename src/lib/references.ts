@@ -24,19 +24,29 @@ async function nextSequence(kind: RefKind): Promise<number> {
   const pattern = `${prefix}-${year}-`
 
   // Look up the highest existing sequence number for this kind+year.
-  const model =
-    kind === 'application'
-      ? db.application
-      : kind === 'submission'
-      ? db.jobSubmission
-      : kind === 'job'
-      ? db.job
-      : db.company
-
-  const records = await model.findMany({
-    where: { publicReference: { startsWith: pattern } },
-    select: { publicReference: true },
-  })
+  // Branch per model to keep TypeScript happy with the union of model types.
+  let records: { publicReference: string }[]
+  if (kind === 'application') {
+    records = await db.application.findMany({
+      where: { publicReference: { startsWith: pattern } },
+      select: { publicReference: true },
+    })
+  } else if (kind === 'submission') {
+    records = await db.jobSubmission.findMany({
+      where: { publicReference: { startsWith: pattern } },
+      select: { publicReference: true },
+    })
+  } else if (kind === 'job') {
+    records = await db.job.findMany({
+      where: { publicReference: { startsWith: pattern } },
+      select: { publicReference: true },
+    })
+  } else {
+    records = await db.company.findMany({
+      where: { publicReference: { startsWith: pattern } },
+      select: { publicReference: true },
+    })
+  }
 
   let max = 0
   for (const r of records) {

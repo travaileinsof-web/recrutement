@@ -76,13 +76,13 @@ async function main() {
     },
   ]
 
-  const companies = []
+  const companies: Array<{ id: string; legalName: string }> = []
   for (const c of companiesData) {
     const ref = await generateCompanyRef()
     const company = await db.company.create({
       data: { ...c, publicReference: ref, isVerified: true },
     })
-    companies.push(company)
+    companies.push({ id: company.id, legalName: company.legalName })
     console.log(`  ✓ Company: ${company.legalName} (${ref})`)
   }
 

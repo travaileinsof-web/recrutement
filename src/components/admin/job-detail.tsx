@@ -116,7 +116,7 @@ export function JobDetail({ id }: { id: string }) {
       setSeoTitle(j.seoTitle ?? '')
       setSeoDescription(j.seoDescription ?? '')
       setSkills(parseSkills(j.skills))
-    } else {
+    } else if (!jobRes.ok) {
       toast.error(jobRes.message)
     }
     if (compRes.ok) setCompanies(compRes.data.items)

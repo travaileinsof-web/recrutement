@@ -62,7 +62,6 @@ export function JobsFilters({
       router.push(buildHref(params, { search: search || null }))
     }, 350)
     return () => clearTimeout(t)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search])
 
   return (

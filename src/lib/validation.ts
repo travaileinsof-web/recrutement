@@ -97,7 +97,7 @@ export const JobSubmissionSchema = z.object({
 
   // Consent
   consent: z.literal(true, {
-    errorMap: () => ({ message: 'Vous devez accepter les conditions' }),
+    message: 'Vous devez accepter les conditions',
   }),
 })
 
@@ -113,7 +113,7 @@ export const ApplicationSchema = z.object({
   coverLetter: z.string().max(20_000).optional().or(z.literal('')),
   answers: z.record(z.string(), z.string().max(2_000)).default({}),
   consent: z.literal(true, {
-    errorMap: () => ({ message: 'Consentement obligatoire' }),
+    message: 'Consentement obligatoire',
   }),
   idempotencyKey: z.string().max(120).optional().or(z.literal('')),
   websiteCheck: z.string().max(0, 'Champ anti-robot').optional().or(z.literal('')),

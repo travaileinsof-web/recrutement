@@ -62,7 +62,7 @@ export function SubmissionForm() {
     watch,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(JobSubmissionSchema),
+    resolver: zodResolver(JobSubmissionSchema) as never,
     defaultValues: {
       legalName: '',
       tradeName: '',

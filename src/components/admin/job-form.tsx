@@ -60,7 +60,7 @@ export function JobForm() {
     watch,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(AdminJobSchema),
+    resolver: zodResolver(AdminJobSchema) as never,
     defaultValues: {
       title: '',
       companyId: '',

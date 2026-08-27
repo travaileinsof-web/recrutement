@@ -42,7 +42,7 @@ export function ApplyForm({ job }: { job: PublicJob }) {
     watch,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(ApplicationSchema.omit({ jobId: true, answers: true })),
+    resolver: zodResolver(ApplicationSchema.omit({ jobId: true, answers: true })) as never,
     defaultValues: {
       candidateName: '',
       candidateEmail: '',
