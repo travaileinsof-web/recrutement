@@ -8,7 +8,17 @@ import { z } from 'zod'
 export const dynamic = 'force-dynamic'
 
 const PatchSchema = z.object({
-  status: z.string(),
+  status: z.enum([
+    'DRAFT',
+    'SUBMITTED',
+    'EMAIL_UNVERIFIED',
+    'PENDING_REVIEW',
+    'NEEDS_CORRECTION',
+    'APPROVED',
+    'REJECTED',
+    'CONVERTED_TO_JOB',
+    'CANCELLED',
+  ]),
   correctionMessage: z.string().optional(),
 })
 

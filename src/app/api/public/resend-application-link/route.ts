@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     }
 
     const ip = clientIp(req)
-    const rl = rateLimit(`resend:${ip}`, 3, 60 * 60 * 1000)
+    const rl = await rateLimit(`resend:${ip}`, 3, 60 * 60 * 1000)
     if (!rl.ok) return jsonError('RATE_LIMIT', 'Trop de demandes. Réessayez plus tard.', 429)
 
     const app = await db.application.findFirst({

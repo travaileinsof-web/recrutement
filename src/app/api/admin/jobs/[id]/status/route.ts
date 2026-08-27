@@ -6,7 +6,18 @@ import { z } from 'zod'
 
 export const dynamic = 'force-dynamic'
 
-const Schema = z.object({ status: z.string() })
+const Schema = z.object({
+  status: z.enum([
+    'DRAFT',
+    'PENDING_REVIEW',
+    'APPROVED',
+    'PUBLISHED',
+    'PAUSED',
+    'CLOSED',
+    'REJECTED',
+    'ARCHIVED',
+  ]),
+})
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {

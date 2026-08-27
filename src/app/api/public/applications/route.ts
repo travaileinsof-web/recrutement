@@ -51,6 +51,7 @@ export async function POST(req: NextRequest) {
       consent: fields.consent === 'true' || fields.consent === 'on',
       idempotencyKey: fields.idempotencyKey || undefined,
       websiteCheck: fields.websiteCheck || undefined,
+      captchaToken: fields.captchaToken || undefined,
     }
 
     const ip = clientIp(req)
@@ -61,6 +62,9 @@ export async function POST(req: NextRequest) {
     if (e?.message === 'HONEYPOT_TRIGGERED') {
       // Pretend success to confuse bots
       return jsonOk({ publicReference: 'APP-HIDDEN-000000', applicationId: 'rejected', trackingToken: '' })
+    }
+    if (e?.message === 'CAPTCHA_FAILED') {
+      return jsonError('CAPTCHA_FAILED', 'Vérification anti-robot échouée', 422)
     }
     if (e?.message === 'RATE_LIMIT_EXCEEDED') {
       return jsonError('RATE_LIMIT', 'Trop de candidatures. Réessayez plus tard.', 429)

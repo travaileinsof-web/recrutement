@@ -95,6 +95,9 @@ export const JobSubmissionSchema = z.object({
     .optional()
     .or(z.literal('')),
 
+  // Optional CAPTCHA token (Cloudflare Turnstile). Verified server-side.
+  captchaToken: z.string().optional().or(z.literal('')),
+
   // Consent
   consent: z.literal(true, {
     message: 'Vous devez accepter les conditions',
@@ -117,6 +120,7 @@ export const ApplicationSchema = z.object({
   }),
   idempotencyKey: z.string().max(120).optional().or(z.literal('')),
   websiteCheck: z.string().max(0, 'Champ anti-robot').optional().or(z.literal('')),
+  captchaToken: z.string().optional().or(z.literal('')),
 })
 export type ApplicationInput = z.infer<typeof ApplicationSchema>
 

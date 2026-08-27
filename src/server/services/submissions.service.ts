@@ -1,11 +1,16 @@
 // Service: job submissions (public submit + admin review)
 import { db } from '@/lib/db'
 import { generateSubmissionRef, generateCompanyRef } from '@/lib/references'
-import { normalizeEmail, normalizePhone, parseJsonArray } from '@/lib/normalize'
+import { normalizeEmail, normalizePhone } from '@/lib/normalize'
 import { JobSubmissionSchema } from '@/lib/validation'
 import { audit } from '@/lib/audit'
 import { enqueueNotification } from '@/lib/notifications'
 import { rateLimit } from '@/lib/rate-limit'
+import { encodeStringArrayField, decodeStringArrayField } from '@/lib/db-compat'
+import { verifyTurnstileToken } from '@/lib/captcha'
+
+// Works for both SQLite (string) and PostgreSQL (enum).
+type SubmissionStatus = string
 
 export async function submitJobOffer(input: unknown, ip: string, userAgent?: string | null) {
   const data = JobSubmissionSchema.parse(input)
@@ -13,8 +18,12 @@ export async function submitJobOffer(input: unknown, ip: string, userAgent?: str
   // Honeypot: websiteCheck must be empty (already enforced by Zod, but double-check)
   if (data.websiteCheck) throw new Error('HONEYPOT_TRIGGERED')
 
+  // CAPTCHA verification (optional — only active if TURNSTILE_* env vars are set)
+  const captcha = await verifyTurnstileToken(data.captchaToken, ip)
+  if (!captcha.success) throw new Error('CAPTCHA_FAILED')
+
   // Rate limit: max 5 submissions per IP per hour
-  const rl = rateLimit(`submission:${ip}`, 5, 60 * 60 * 1000)
+  const rl = await rateLimit(`submission:${ip}`, 5, 60 * 60 * 1000)
   if (!rl.ok) throw new Error('RATE_LIMIT_EXCEEDED')
 
   // Find or create company based on email
@@ -51,7 +60,7 @@ export async function submitJobOffer(input: unknown, ip: string, userAgent?: str
       contractType: data.contractType || null,
       experienceLevel: data.experienceLevel || null,
       salaryText: data.salaryText || null,
-      requiredSkills: JSON.stringify(data.requiredSkills ?? []),
+      requiredSkills: encodeStringArrayField(data.requiredSkills) as any,
       deadline: data.deadline ? new Date(data.deadline) : null,
       status: 'PENDING_REVIEW',
       honeypot: data.websiteCheck || null,
@@ -100,7 +109,7 @@ export async function adminListSubmissions(filters: {
   const pageSize = Math.min(100, Math.max(1, filters.pageSize ?? 20))
   const where = {
     AND: [
-      filters.status ? { status: filters.status } : {},
+      filters.status ? { status: filters.status as SubmissionStatus } : {},
       filters.search
         ? {
             OR: [
@@ -134,13 +143,13 @@ export async function adminGetSubmission(id: string) {
   if (!s) return null
   return {
     ...s,
-    requiredSkills: parseJsonArray<string>(s.requiredSkills),
+    requiredSkills: decodeStringArrayField<string>(s.requiredSkills),
   }
 }
 
 export async function adminSetSubmissionStatus(
   id: string,
-  status: string,
+  status: SubmissionStatus,
   adminId: string,
   correctionMessage?: string,
 ) {

@@ -22,6 +22,9 @@ export async function POST(req: NextRequest) {
       // Pretend success to confuse bots
       return jsonOk({ publicReference: 'SUB-HIDDEN-000000', id: 'rejected' })
     }
+    if (e?.message === 'CAPTCHA_FAILED') {
+      return jsonError('CAPTCHA_FAILED', 'Vérification anti-robot échouée', 422)
+    }
     if (e?.message === 'RATE_LIMIT_EXCEEDED') {
       return jsonError('RATE_LIMIT', 'Trop de soumissions. Réessayez plus tard.', 429)
     }

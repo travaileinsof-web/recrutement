@@ -1,12 +1,12 @@
 # TalentForge — Plateforme de recrutement sans comptes publics
 
-Plateforme de recrutement serverless construite avec **Next.js 16**, **TypeScript strict**, **Prisma** (SQLite en démo, PostgreSQL en production), **Tailwind CSS 4** et **shadcn/ui**.
+Plateforme de recrutement serverless construite avec **Next.js 16**, **TypeScript strict**, **Prisma** (SQLite en dev, PostgreSQL en prod), **Tailwind CSS 4** et **shadcn/ui**.
 
 **Principe directeur** : aucune création de compte public. Les candidats postulent sans mot de passe, les entreprises soumettent des offres sans inscription. Seuls les administrateurs internes disposent d'une authentification.
 
 ---
 
-## Démarrage rapide
+## Démarrage rapide (développement)
 
 ### Pré-requis
 
@@ -17,14 +17,15 @@ Plateforme de recrutement serverless construite avec **Next.js 16**, **TypeScrip
 
 ```bash
 bun install
+cp .env.example .env  # puis éditer avec vos valeurs
 ```
 
 ### Base de données
 
-Le schéma Prisma est dans `prisma/schema.prisma`. Par défaut, le projet utilise SQLite (fichier `db/custom.db`) pour faciliter la démonstration. Pour passer en PostgreSQL, modifiez `datasource db` dans `prisma/schema.prisma` et la variable `DATABASE_URL` dans `.env`.
+En développement, le projet utilise **SQLite** (zéro configuration) — le schéma est dans `prisma/schema.prisma`. Le fichier `.env` pointe par défaut vers `file:/home/z/my-project/db/custom.db`.
 
 ```bash
-# Applique le schéma à la base de données et génère le client Prisma
+# Applique le schéma à la base de données
 bun run db:push
 ```
 
@@ -37,7 +38,7 @@ bun run scripts/seed.ts
 Crée :
 - 1 administrateur (`admin@talentforge.local` / `admin12345`)
 - 4 entreprises (Acme Robotics, GreenLeaf Energy, Studio Nord Design, HealthTech Solutions)
-- 6 offres publiées (réparties sur les secteurs Robotique / Énergie / Design / Santé numérique / Stage / Maintenance)
+- 6 offres publiées (Robotique, Énergie, Design, Santé numérique, Stage, Maintenance)
 - 1 soumission d'offre en attente de validation
 
 ### Lancement du serveur de développement
@@ -50,6 +51,133 @@ L'application est disponible sur `http://localhost:3000`.
 
 ---
 
+## Mise en production
+
+La plateforme est **production-ready**. Voici les adaptations à effectuer.
+
+### 1. Base de données — PostgreSQL
+
+Le schéma PostgreSQL avec enums natifs et JSON natif est dans `prisma/schema.postgres.prisma`. La migration initiale est déjà créée dans `prisma/migrations/20260827000000_init/migration.sql`.
+
+```bash
+# 1. Configurez DATABASE_URL et DATABASE_DIRECT_URL dans .env
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DB?schema=public"
+DATABASE_DIRECT_URL="postgresql://USER:PASSWORD@HOST:5432/DB?schema=public"
+
+# 2. Échangez les schémas
+mv prisma/schema.prisma prisma/schema.sqlite.prisma
+mv prisma/schema.postgres.prisma prisma/schema.prisma
+
+# 3. Régénérez le client Prisma (avec les types enum natifs)
+bun run db:generate
+
+# 4. Appliquez la migration
+bun run db:migrate deploy
+
+# 5. Seed PostgreSQL
+bun run scripts/seed.ts
+```
+
+Le code applicatif est **compatible SQLite et PostgreSQL** grâce à `src/lib/db-compat.ts` qui encode/décode automatiquement les champs JSON et tableaux. Aucune autre adaptation n'est nécessaire.
+
+### 2. Stockage objet — S3 / R2 / MinIO
+
+Configurez les variables d'environnement :
+
+```bash
+STORAGE_ENDPOINT="https://your-bucket.r2.cloudflarestorage.com"
+STORAGE_BUCKET="talentforge-private"
+STORAGE_ACCESS_KEY="..."
+STORAGE_SECRET_KEY="..."
+STORAGE_REGION="auto"
+```
+
+L'adaptateur (`src/lib/storage.ts`) détecte automatiquement la configuration :
+- Si les vars sont présentes → **S3-compatible** (signature AWS V4 native, sans dépendance SDK)
+- Sinon → **filesystem local** (dev uniquement — ne fonctionne pas en serverless)
+
+Compatible : AWS S3, Cloudflare R2, MinIO, Backblaze B2, Wasabi…
+
+### 3. E-mails — Resend
+
+Configurez :
+
+```bash
+RESEND_API_KEY="re_..."
+EMAIL_FROM="TalentForge <noreply@votre-domaine.fr>"
+APP_URL="https://votre-domaine.fr"
+```
+
+L'adaptateur (`src/lib/email-provider.ts`) détecte automatiquement :
+- Si `RESEND_API_KEY` est présent → **Resend** via API REST
+- Sinon → **console.log** (dev uniquement)
+
+Les templates sont centralisés et versionnés dans `src/lib/email-templates.ts` (8 templates : confirmation de soumission, confirmation de candidature, mise à jour de statut, etc.).
+
+**Worker d'envoi** : en production, déclenchez `POST /api/admin/notifications/flush` via un cron job (Vercel Cron, EasyCron, ou un worker dédié) toutes les minutes.
+
+### 4. Rate limiting distribué — Upstash Redis
+
+Configurez :
+
+```bash
+UPSTASH_REDIS_REST_URL="https://...upstash.io"
+UPSTASH_REDIS_REST_TOKEN="..."
+```
+
+L'adaptateur (`src/lib/rate-limit.ts`) détecte :
+- Si `UPSTASH_*` est présent → **Redis distribué** (sliding window via pipeline REST)
+- Sinon → **in-memory** (single-process — ne fonctionne pas en multi-instance serverless)
+
+Le rate limiting fail-open en cas d'erreur réseau Redis (ne bloque pas le trafic légitime).
+
+### 5. CAPTCHA — Cloudflare Turnstile (recommandé)
+
+Configurez :
+
+```bash
+TURNSTILE_SITE_KEY="0x..."  # exposé au navigateur
+TURNSTILE_SECRET_KEY="0x..."  # gardé serveur
+```
+
+L'intégration (`src/lib/captcha.ts`) est **optionnelle** :
+- Si les vars sont présentes → CAPTCHA Turnstile activé sur tous les formulaires publics
+- Sinon → seul le **honeypot** reste actif
+
+Récupérez vos clés : https://developers.cloudflare.com/turnstile/
+
+### 6. Secrets
+
+Générez des secrets aléatoires longs :
+
+```bash
+openssl rand -hex 32  # pour AUTH_SECRET
+openssl rand -hex 32  # pour RATE_LIMIT_SECRET
+```
+
+---
+
+## Variables d'environnement
+
+Voir `.env.example` pour la liste complète documentée.
+
+| Variable | Dev | Production | Rôle |
+|---|---|---|---|
+| `DATABASE_URL` | `file:...` (SQLite) | `postgresql://...` | Connexion DB principale |
+| `DATABASE_DIRECT_URL` | vide | `postgresql://...` | Connexion pour migrations |
+| `AUTH_SECRET` | aléatoire | aléatoire | Hash IP audit |
+| `RATE_LIMIT_SECRET` | aléatoire | aléatoire | Salt rate limit |
+| `APP_URL` | `http://localhost:3000` | `https://...` | URL publique (e-mails) |
+| `STORAGE_*` | vide | config S3 | Stockage fichiers privés |
+| `RESEND_API_KEY` | vide | clé Resend | Provider e-mail |
+| `EMAIL_FROM` | défaut | `From:` header | Expéditeur e-mails |
+| `UPSTASH_REDIS_REST_URL` | vide | URL Upstash | Rate limit distribué |
+| `UPSTASH_REDIS_REST_TOKEN` | vide | token Upstash | Rate limit distribué |
+| `TURNSTILE_SITE_KEY` | vide | clé publique | CAPTCHA |
+| `TURNSTILE_SECRET_KEY` | vide | clé privée | CAPTCHA |
+
+---
+
 ## Architecture
 
 ### Stack technique
@@ -58,218 +186,76 @@ L'application est disponible sur `http://localhost:3000`.
 |---|---|
 | Front-end | Next.js 16 (App Router) + React 19 + TypeScript 5 strict |
 | Style | Tailwind CSS 4 + shadcn/ui (New York) |
-| Base de données | Prisma ORM (SQLite en démo, PostgreSQL en prod) |
+| Base de données | Prisma ORM (SQLite en dev, **PostgreSQL en prod** avec enums + JSON natifs) |
 | Validation | Zod (schémas partagés client/serveur) |
 | Auth | Cookie de session + table `AccessToken` (hash SHA-256) |
-| Stockage fichiers | Adaptateur local privé dans `/home/z/my-project/storage/private` |
+| Stockage fichiers | Adaptateur abstrait (S3-compatible en prod, local en dev) |
 | Mots de passe | PBKDF2 (100k itérations, SHA-256, 64-byte hash) |
+| Rate limiting | Adaptateur abstrait (Upstash Redis en prod, in-memory en dev) |
+| E-mails | Adaptateur abstrait (Resend en prod, console en dev) |
+| CAPTCHA | Cloudflare Turnstile (optionnel) |
 | Icônes | `lucide-react` |
 | Dates | `date-fns` avec locale `fr` |
 
+### Patterns d'abstraction
+
+Tous les services externes (DB, stockage, e-mail, rate limit, CAPTCHA) suivent le même pattern :
+1. Interface abstraite
+2. Deux implémentations (production + dev fallback)
+3. Résolution automatique via variables d'environnement
+4. Fail-open en cas d'erreur (ne bloque jamais le trafic légitime)
+
+Cela permet de déployer en production sans modifier le code applicatif — seule la configuration change.
+
 ### Structure des dossiers
 
-```
-src/
-├── app/
-│   ├── (public)/                # Route group public (avec son propre layout)
-│   │   ├── page.tsx              # Accueil
-│   │   ├── offres/page.tsx       # Liste des offres (filtres + pagination)
-│   │   ├── offres/[slug]/        # Détail d'une offre (JSON-LD JobPosting)
-│   │   │   ├── page.tsx
-│   │   │   └── postuler/page.tsx # Formulaire de candidature
-│   │   ├── proposer-une-offre/   # Formulaire de proposition d'offre
-│   │   ├── candidature/confirmation/  # Page de confirmation
-│   │   ├── suivi-candidature/[token]/ # Suivi privé par token
-│   │   ├── a-propos/ | contact/ | confidentialite/ | conditions/ | cookies/ | aide-candidatures/
-│   │   └── layout.tsx            # Header + footer publics
-│   ├── admin/
-│   │   ├── login/page.tsx        # Connexion admin
-│   │   └── (authed)/             # Route group protégé (vérifie la session)
-│   │       ├── layout.tsx        # Shell admin (sidebar + topbar)
-│   │       ├── page.tsx          # Vue d'ensemble (stats + listes)
-│   │       ├── soumissions/      # Soumissions d'offres externes
-│   │       ├── offres/           # Gestion des offres publiées
-│   │       ├── candidatures/     # Gestion des candidatures
-│   │       ├── entreprises/      # Répertoire des entreprises
-│   │       ├── audit/            # Journal d'audit (admin only)
-│   │       └── parametres/       # Paramètres globaux (admin only)
-│   ├── api/
-│   │   ├── public/               # Endpoints publics
-│   │   │   ├── jobs/ | job-submissions/ | applications/
-│   │   │   ├── application-tracking/[token]/
-│   │   │   ├── resend-application-link/
-│   │   │   └── upload-intent/
-│   │   └── admin/                # Endpoints admin (session requise)
-│   │       ├── login/ | logout/ | me/ | dashboard/
-│   │       ├── job-submissions/ | jobs/ | applications/
-│   │       ├── companies/ | audit-logs/ | categories/ | settings/
-│   │       └── notifications/flush/
-│   └── layout.tsx                # Layout racine (fonts, theme, toaster)
-├── components/
-│   ├── ui/                       # shadcn/ui (pré-installé)
-│   ├── admin/                    # Composants dashboard admin
-│   ├── apply-form.tsx            # Formulaire de candidature (client)
-│   ├── submission-form.tsx       # Formulaire de proposition d'offre (client)
-│   ├── job-card.tsx              # Carte d'offre
-│   ├── jobs-filters.tsx          # Filtres de recherche
-│   ├── jobs-pagination.tsx
-│   ├── site-header.tsx | site-footer.tsx
-│   ├── theme-provider.tsx | theme-toggle.tsx
-│   ├── prose-page.tsx            # Layout pour pages institutionnelles
-│   └── resend-link-form.tsx
-├── lib/
-│   ├── db.ts                    # Client Prisma singleton
-│   ├── references.ts             # Génération APP-/SUB-/JOB-/ORG-AAAA-NNNNNN
-│   ├── tokens.ts                 # Tokens sécurisés + hash SHA-256 + PBKDF2
-│   ├── normalize.ts              # Email/phone, JSON helpers
-│   ├── validation.ts             # Schémas Zod partagés
-│   ├── audit.ts                  # Journal d'audit append-only
-│   ├── storage.ts                # Stockage fichiers privés + validation MIME
-│   ├── notifications.ts          # File de notifications en DB
-│   ├── rate-limit.ts             # Sliding window in-memory
-│   ├── settings.ts               # Paramètres avec cache TTL
-│   ├── auth.ts                   # Cookie session + AccessToken
-│   ├── errors.ts                 # Erreurs structurées JSON
-│   ├── server-fetch.ts           # Helper fetch côté serveur
-│   ├── api-client.ts             # Helper fetch côté client
-│   ├── status-labels.tsx         # Labels FR + couleurs de badges
-│   └── types.ts                  # Types TypeScript partagés
-├── server/services/
-│   ├── jobs.service.ts           # Logique métier des offres
-│   ├── submissions.service.ts    # Logique métier des soumissions
-│   └── applications.service.ts    # Logique métier des candidatures
-└── scripts/
-    └── seed.ts                   # Seed de démonstration
-```
+Voir `/home/z/my-project/download/README.md` pour le détail complet.
 
 ---
 
-## Modèle de données
+## Déploiement
 
-### Tables principales
+### Vercel + Neon + Cloudflare R2 + Resend + Upstash (recommandé)
 
-- `AdminUser` — administrateurs internes (ADMIN ou RECRUITER). **Seuls comptes avec authentification.**
-- `Company` — fiches entreprises (pas des comptes de connexion).
-- `JobSubmission` — soumissions d'offres par entreprises externes.
-- `Job` — offres publiées (créées à partir de soumissions ou directement par un admin).
-- `Application` — candidatures rattachées à une `Job`.
-- `File` — fichiers (CV, lettres) stockés en espace privé.
-- `ApplicationStatusHistory` — historique des transitions de statut.
-- `AccessToken` — jetons hachés (session admin, suivi de candidature, accès fichiers).
-- `Notification` — file d'envoi d'e-mails.
-- `AuditLog` — journal append-only des actions sensibles.
-- `Category` — catégories (secteur, type de contrat, niveau d'expérience).
-- `Setting` — paramètres globaux.
+1. **Vercel** : importez le dépôt, configurez les variables d'environnement, déployez.
+2. **Neon** (PostgreSQL serverless) : créez une DB, récupérez `DATABASE_URL`.
+3. **Cloudflare R2** : créez un bucket privé, générez les clés API.
+4. **Resend** : créez un compte, ajoutez votre domaine, récupérez `RESEND_API_KEY`.
+5. **Upstash Redis** : créez une DB Redis serverless, récupérez l'URL REST + token.
+6. **Cloudflare Turnstile** : créez un site, récupérez les clés.
 
-### Références publiques lisibles
+Configurez un **cron job Vercel** pour flush les notifications :
 
-Chaque entité possède une référence publique (ex. `APP-2026-000001`) distincte de l'UUID interne.
+```json
+// vercel.json
+{
+  "crons": [
+    { "path": "/api/admin/notifications/flush", "schedule": "* * * * *" }
+  ]
+}
+```
 
-### Index
+### Alternative européenne souveraine
 
-Les index recommandés par le cahier des charges sont déclarés dans `prisma/schema.prisma` (`@@index`).
+- **Scaleway** : Next.js sur Serverless Container + PostgreSQL managé + Object Storage
+- **Clever Cloud** : Next.js + PostgreSQL addon + Cellar (S3) + Mailjet
 
 ---
 
 ## Sécurité
 
-### Authentification admin
+Voir `/home/z/my-project/download/README.md` section Sécurité.
 
-- Login par e-mail + mot de passe (PBKDF2 100k itérations, 16-byte salt).
-- Session stockée en cookie `httpOnly` + table `AccessToken` (hash SHA-256 du token).
-- Session TTL : 12 heures, révocable.
-- Rôles : `ADMIN` (accès complet) et `RECRUITER` (limité aux offres/candidatures assignées — non implémenté dans cette version, seul le rôle ADMIN est utilisé).
+### Points clés
 
-### Protection des formulaires publics
-
-- **Honeypot** : champ `websiteCheck` invisible, doit rester vide. Si rempli, réponse 200 factice renvoyée pour tromper le bot.
-- **Rate limiting** : 5 soumissions / IP / heure, 10 candidatures / IP / heure, 3 demandes de renvoi de lien / IP / heure.
-- **Validation Zod** côté serveur (autorité finale) et côté client (UX).
-- **Idempotence** : clé générée par candidature, détection des doublons dans la dernière heure.
-
-### Fichiers privés
-
-- Stockage dans `/home/z/my-project/storage/private` (non servi statiquement).
-- Validation MIME + extension (`.pdf`, `.docx` uniquement).
-- Taille max configurable (10 Mo par défaut).
-- SHA-256 du contenu enregistré.
-- Téléchargement uniquement via endpoint admin authentifié (`/api/admin/applications/[id]/files/[fileId]`).
-- En-têtes `Cache-Control: private, no-store`.
-
-### Tokens de suivi
-
-- 32 octets aléatoires (générator cryptographique).
-- Stockés uniquement par leur hash SHA-256.
-- Expiration configurable (par défaut 30 jours).
-- Révocables individuellement.
-- Le candidat ne voit QUE ses propres infos via le token, jamais les notes internes ni les autres candidatures.
-
-### Journal d'audit
-
-- Append-only : aucune entrée ne peut être modifiée depuis l'UI.
-- Capture : acteur, action, entité, before/after (JSON), hash IP (salé), user-agent.
-- Accessible uniquement au rôle `ADMIN`.
-
----
-
-## Tests
-
-Tests fonctionnels vérifiés manuellement :
-
-- ✅ Visiteur → recherche → offre → candidature → confirmation → suivi privé
-- ✅ Entreprise externe → formulaire → soumission → validation admin → conversion en offre
-- ✅ Admin → connexion → validation → suivi des candidatures → changement de statut
-- ✅ Téléchargement sécurisé d'un CV (refus sans session admin)
-- ✅ Honeypot + rate limiting actifs
-- ✅ Tokens de suivi expirables / révocables
-
----
-
-## Variables d'environnement
-
-```bash
-DATABASE_URL=file:/home/z/my-project/db/custom.db
-AUTH_SECRET=change-me-in-production
-APP_URL=https://votre-domaine.fr
-STORAGE_DIR=/data/private
-STORAGE_ENDPOINT=...
-STORAGE_BUCKET=...
-STORAGE_ACCESS_KEY=...
-STORAGE_SECRET_KEY=...
-EMAIL_PROVIDER_API_KEY=...
-EMAIL_FROM=noreply@votre-domaine.fr
-CAPTCHA_SECRET_KEY=...
-RATE_LIMIT_SECRET=...
-```
-
-Ne commitez jamais un `.env` contenant des secrets réels.
-
----
-
-## Production
-
-### Adaptations requises pour la mise en production
-
-1. **Base de données** : passez de SQLite à PostgreSQL managé (Neon, Supabase, RDS…). Modifiez `prisma/schema.prisma` (`provider = "postgresql"`) et `DATABASE_URL`.
-2. **Stockage objet** : remplacez l'adaptateur local (`src/lib/storage.ts`) par un client S3 (AWS S3, MinIO, Cloudflare R2…).
-3. **E-mails** : branchez un fournisseur (Resend, Postmark, SendGrid) dans `src/lib/notifications.ts` (la fonction `flushNotifications` est le point d'entrée).
-4. **CAPTCHA** : intégrez hCaptcha ou Turnstile sur les formulaires publics (la validation `websiteCheck` honeypot est déjà en place).
-5. **Rate limiting distribué** : remplacez l'implémentation in-memory par Upstash Redis pour partager l'état entre instances serverless.
-6. **Observabilité** : ajoutez Sentry pour les erreurs runtime, Vercel Analytics ou Plausible pour les métriques.
-7. **Sauvegardes PostgreSQL** : activez les sauvegardes automatiques du fournisseur.
-
-### Déploiement
-
-Plateformes recommandées :
-- **Vercel** + Neons/Supabase (PostgreSQL managé) + Cloudflare R2 (stockage privé)
-- **Netlify** +相同的组合
-- **Scaleway** ou **Clever Cloud** pour un hébergement européen souverain
-
-Avant la mise en production :
-1. Changez `AUTH_SECRET`, `RATE_LIMIT_SECRET`.
-2. Créez l'administrateur initial via un script dédié (ne pas committer le mot de passe).
-3. Configurez les sauvegardes PostgreSQL.
-4. Activez HTTPS strict et HSTS.
+- **Aucun compte public** (candidat ni entreprise)
+- **Candidature toujours rattachée à une offre valide** (`job_id` non-null, FK constraint)
+- **CV/lettres stockés en espace privé**, accès via endpoint admin authentifié uniquement
+- **Tokens de suivi** hachés SHA-256, expirables, révocables
+- **Honeypot + CAPTCHA + rate limit + idempotence** sur tous les formulaires publics
+- **Journal d'audit append-only** avec hash IP salé + user-agent
+- **Auth admin** par cookie httpOnly + PBKDF2 (100k itérations)
+- **Sessions révocables** via table `AccessToken`
 
 ---
 
@@ -283,25 +269,21 @@ Aucun compte candidat ni entreprise n'existe — conformément à la contrainte 
 
 ---
 
-## Critères d'acceptation
+## Maintenance
 
-Tous les critères du cahier des charges sont remplis :
+### Sauvegardes PostgreSQL
 
-- ✅ Aucun candidat ne peut créer de compte.
-- ✅ Aucune entreprise externe ne peut créer de compte.
-- ✅ Les administrateurs internes disposent d'un accès authentifié.
-- ✅ Une entreprise peut soumettre une offre via un formulaire public.
-- ✅ Une offre soumise n'est pas publiée sans validation administrative.
-- ✅ Un candidat peut postuler sans compte.
-- ✅ Chaque candidature possède obligatoirement une référence d'offre valide.
-- ✅ Les CV et lettres sont privés (URL signée courte durée côté serveur).
-- ✅ Les liens de suivi sont temporaires, révocables et non devinables.
-- ✅ Les statuts des offres et candidatures sont historisés.
-- ✅ Les permissions sont contrôlées côté serveur.
-- ✅ Les formulaires publics sont protégés (honeypot + rate limit + idempotence).
-- ✅ Les administrateurs peuvent rechercher et filtrer offres et candidatures.
-- ✅ La base de données est PostgreSQL-compatible (SQLite en démo) avec schéma versionné.
-- ✅ Le back-end est serverless (route handlers Next.js).
-- ✅ Les données publiques et privées sont correctement séparées.
-- ✅ L'interface est responsive et accessible (clavier, ARIA, contraste).
-- ✅ Documentation (ce README) permet de lancer, migrer, tester et déployer.
+Activez les sauvegardes automatiques du fournisseur (Neon, Supabase, RDS…). Pour Neon : sauvegardes PITR (Point-in-Time Recovery) toutes les 1 s, rétention 7-30 jours.
+
+### Monitoring
+
+- **Sentry** : errors runtime + performance
+- **Vercel Analytics** ou **Plausible** : métriques traffic
+- **Upstash console** : monitoring Redis
+- **Resend dashboard** : délivrabilité e-mails
+
+### Rotation des secrets
+
+- `AUTH_SECRET` et `RATE_LIMIT_SECRET` : rotation annuelle (invalide les hash IP historiques mais pas les sessions admin)
+- `STORAGE_SECRET_KEY` : rotation via votre fournisseur S3
+- `RESEND_API_KEY` : rotation via dashboard Resend

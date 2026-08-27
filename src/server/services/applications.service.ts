@@ -1,7 +1,7 @@
 // Service: applications (public submit + admin review)
 import { db } from '@/lib/db'
 import { generateApplicationRef } from '@/lib/references'
-import { normalizeEmail, normalizePhone, parseJsonObject, parseJsonArray } from '@/lib/normalize'
+import { normalizeEmail, normalizePhone } from '@/lib/normalize'
 import { ApplicationSchema } from '@/lib/validation'
 import { audit } from '@/lib/audit'
 import { enqueueNotification } from '@/lib/notifications'
@@ -10,6 +10,21 @@ import { hashToken, generateToken } from '@/lib/tokens'
 import { getSettings } from '@/lib/settings'
 import { storeFile, validateFile } from '@/lib/storage'
 import { ApiError } from '@/lib/errors'
+import { encodeJsonField } from '@/lib/db-compat'
+import { verifyTurnstileToken } from '@/lib/captcha'
+
+// Works for both SQLite (string) and PostgreSQL (enum).
+type ApplicationStatus = string
+
+// Safe JSON parse for SQLite (where answers is stored as String).
+function safeJsonParse<T>(s: string, fallback: T): T {
+  try {
+    const parsed = JSON.parse(s)
+    return (parsed ?? fallback) as T
+  } catch {
+    return fallback
+  }
+}
 
 export interface UploadedFile {
   field: 'cv' | 'coverLetter'
@@ -29,8 +44,12 @@ export async function submitApplication(
   // Honeypot
   if (data.websiteCheck) throw new Error('HONEYPOT_TRIGGERED')
 
+  // CAPTCHA verification (optional — only active if TURNSTILE_* env vars are set)
+  const captcha = await verifyTurnstileToken(data.captchaToken, ip)
+  if (!captcha.success) throw new Error('CAPTCHA_FAILED')
+
   // Rate limit: max 10 applications per IP per hour
-  const rl = rateLimit(`application:${ip}`, 10, 60 * 60 * 1000)
+  const rl = await rateLimit(`application:${ip}`, 10, 60 * 60 * 1000)
   if (!rl.ok) throw new Error('RATE_LIMIT_EXCEEDED')
 
   // Verify the job exists and accepts applications
@@ -92,7 +111,7 @@ export async function submitApplication(
       candidatePhone: normalizePhone(data.candidatePhone),
       candidateCity: data.candidateCity || null,
       coverLetter: data.coverLetter || null,
-      answers: JSON.stringify(data.answers ?? {}),
+      answers: encodeJsonField(data.answers ?? {}) as any,
       status: 'SUBMITTED',
       consentAccepted: true,
       consentVersion: settings.consentVersion,
@@ -213,6 +232,13 @@ export async function getApplicationByTrackingToken(token: string) {
     .catch(() => null)
 
   const app = record.application
+  // answers is Json (PG) or String (SQLite) — parse if string.
+  const rawAnswers = app.answers
+  const answers =
+    typeof rawAnswers === 'string'
+      ? safeJsonParse<Record<string, string>>(rawAnswers, {})
+      : (rawAnswers as Record<string, string>) ?? {}
+
   return {
     revoked: false,
     expired: false,
@@ -221,7 +247,7 @@ export async function getApplicationByTrackingToken(token: string) {
       status: app.status,
       submittedAt: app.submittedAt,
       coverLetter: app.coverLetter,
-      answers: parseJsonObject(app.answers),
+      answers,
       job: {
         title: app.job.title,
         publicReference: app.job.publicReference,
@@ -251,7 +277,7 @@ export async function adminListApplications(filters: {
   const where = {
     AND: [
       filters.jobId ? { jobId: filters.jobId } : {},
-      filters.status ? { status: filters.status } : {},
+      filters.status ? { status: filters.status as ApplicationStatus } : {},
       filters.search
         ? {
             OR: [
@@ -289,9 +315,13 @@ export async function adminGetApplication(id: string) {
     },
   })
   if (!app) return null
+  const adminAnswers =
+    typeof app.answers === 'string'
+      ? safeJsonParse<Record<string, string>>(app.answers, {})
+      : (app.answers as Record<string, string>) ?? {}
   return {
     ...app,
-    answers: parseJsonObject(app.answers),
+    answers: adminAnswers,
     files: app.files.map((f) => ({
       id: f.id,
       kind: f.kind,
@@ -305,7 +335,7 @@ export async function adminGetApplication(id: string) {
 
 export async function adminSetApplicationStatus(
   id: string,
-  status: string,
+  status: ApplicationStatus,
   adminId: string,
   options: { publicMessage?: string; internalNote?: string } = {},
 ) {

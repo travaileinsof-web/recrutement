@@ -7,7 +7,18 @@ import { z } from 'zod'
 export const dynamic = 'force-dynamic'
 
 const Schema = z.object({
-  status: z.string(),
+  status: z.enum([
+    'SUBMITTED',
+    'RECEIVED',
+    'UNDER_REVIEW',
+    'SHORTLISTED',
+    'INTERVIEW_SCHEDULED',
+    'INTERVIEW_COMPLETED',
+    'WAITLISTED',
+    'ACCEPTED',
+    'REJECTED',
+    'WITHDRAWN',
+  ]),
   publicMessage: z.string().max(2000).optional(),
   internalNote: z.string().max(5000).optional(),
 })
