@@ -19,8 +19,13 @@ export function SiteHeader() {
   const pathname = usePathname()
   const [open, setOpen] = React.useState(false)
   const [scrolled, setScrolled] = React.useState(false)
+  // Prevent hydration mismatch: Radix Sheet generates random IDs via useId()
+  // that differ between server and client renders. We delay rendering the
+  // interactive (mobile-only) Sheet until after mount.
+  const [mounted, setMounted] = React.useState(false)
 
   React.useEffect(() => {
+    setMounted(true)
     setOpen(false)
   }, [pathname])
 
@@ -88,61 +93,66 @@ export function SiteHeader() {
           </Button>
         </div>
 
-        {/* Mobile menu */}
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden"
-              aria-label="Ouvrir le menu"
-            >
-              <Menu className="size-5" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="right" className="w-[300px] sm:w-[360px]">
-            <SheetTitle className="font-serif text-lg">
-              Navigation
-            </SheetTitle>
-            <SheetDescription className="sr-only">
-              Navigation principale
-            </SheetDescription>
-            <nav className="mt-8 flex flex-col gap-1" aria-label="Navigation mobile">
-              {NAV.map((item) => {
-                const active =
-                  item.href === '/'
-                    ? pathname === '/'
-                    : pathname === item.href || pathname.startsWith(item.href + '/')
-                return (
-                  <SheetClose asChild key={item.href}>
-                    <Link
-                      href={item.href}
-                      className={cn(
-                        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
-                        active
-                          ? 'bg-secondary text-secondary-foreground'
-                          : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-                      )}
-                    >
-                      <item.icon className="size-4" strokeWidth={1.75} />
-                      {item.label}
+        {/* Mobile menu — rendered only after mount to avoid Radix hydration mismatch */}
+        {mounted ? (
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden"
+                aria-label="Ouvrir le menu"
+              >
+                <Menu className="size-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[300px] sm:w-[360px]">
+              <SheetTitle className="font-serif text-lg">
+                Navigation
+              </SheetTitle>
+              <SheetDescription className="sr-only">
+                Navigation principale
+              </SheetDescription>
+              <nav className="mt-8 flex flex-col gap-1" aria-label="Navigation mobile">
+                {NAV.map((item) => {
+                  const active =
+                    item.href === '/'
+                      ? pathname === '/'
+                      : pathname === item.href || pathname.startsWith(item.href + '/')
+                  return (
+                    <SheetClose asChild key={item.href}>
+                      <Link
+                        href={item.href}
+                        className={cn(
+                          'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                          active
+                            ? 'bg-secondary text-secondary-foreground'
+                            : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                        )}
+                      >
+                        <item.icon className="size-4" strokeWidth={1.75} />
+                        {item.label}
+                      </Link>
+                    </SheetClose>
+                  )
+                })}
+              </nav>
+              <div className="mt-6 border-t border-border pt-6">
+                <SheetClose asChild>
+                  <Button asChild className="w-full gap-2">
+                    <Link href="/proposer-une-offre">
+                      <Send className="size-4" strokeWidth={2} />
+                      Proposer une offre
                     </Link>
-                  </SheetClose>
-                )
-              })}
-            </nav>
-            <div className="mt-6 border-t border-border pt-6">
-              <SheetClose asChild>
-                <Button asChild className="w-full gap-2">
-                  <Link href="/proposer-une-offre">
-                    <Send className="size-4" strokeWidth={2} />
-                    Proposer une offre
-                  </Link>
-                </Button>
-              </SheetClose>
-            </div>
-          </SheetContent>
-        </Sheet>
+                  </Button>
+                </SheetClose>
+              </div>
+            </SheetContent>
+          </Sheet>
+        ) : (
+          /* Placeholder button (same size) to prevent layout shift before hydration */
+          <div className="md:hidden size-9" aria-hidden />
+        )}
       </div>
     </header>
   )
