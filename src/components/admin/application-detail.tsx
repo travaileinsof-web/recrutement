@@ -41,12 +41,12 @@ import type { AdminApplication } from '@/lib/types'
 
 const STATUS_OPTIONS = Object.entries(APPLICATION_LABELS)
 
-export function ApplicationDetail({ id }: { id: string }) {
-  const [loading, setLoading] = React.useState(true)
-  const [data, setData] = React.useState<AdminApplication | null>(null)
+export function ApplicationDetail({ id, initialData }: { id: string; initialData?: AdminApplication | null }) {
+  const [loading, setLoading] = React.useState(!initialData)
+  const [data, setData] = React.useState<AdminApplication | null>(initialData ?? null)
   const [note, setNote] = React.useState('')
   const [savingNote, setSavingNote] = React.useState(false)
-  const [newStatus, setNewStatus] = React.useState('')
+  const [newStatus, setNewStatus] = React.useState(initialData?.status ?? '')
   const [publicMessage, setPublicMessage] = React.useState('')
   const [internalNote, setInternalNote] = React.useState('')
   const [savingStatus, setSavingStatus] = React.useState(false)
@@ -64,7 +64,10 @@ export function ApplicationDetail({ id }: { id: string }) {
   }, [id])
 
   React.useEffect(() => {
+    // Skip initial fetch if server already pre-fetched the data.
+    if (initialData) return
     fetchData()
+     
   }, [fetchData])
 
   const addNote = async () => {

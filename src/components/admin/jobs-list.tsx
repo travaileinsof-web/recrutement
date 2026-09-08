@@ -33,17 +33,17 @@ import type { AdminJob } from '@/lib/types'
 
 const STATUS_OPTIONS = Object.entries(JOB_LABELS)
 
-export function JobsList() {
+export function JobsList({ initialData }: { initialData?: { items: AdminJob[]; total: number; totalPages: number } | null }) {
   const router = useRouter()
   const params = useSearchParams()
 
   const [status, setStatus] = React.useState(params.get('status') ?? '__all__')
   const [search, setSearch] = React.useState(params.get('search') ?? '')
-  const [loading, setLoading] = React.useState(true)
+  const [loading, setLoading] = React.useState(!initialData)
   const [data, setData] = React.useState<{ items: AdminJob[]; total: number; totalPages: number }>({
-    items: [],
-    total: 0,
-    totalPages: 1,
+    items: initialData?.items ?? [],
+    total: initialData?.total ?? 0,
+    totalPages: initialData?.totalPages ?? 1,
   })
   const page = Math.max(1, Number(params.get('page') ?? '1') || 1)
 
@@ -69,7 +69,10 @@ export function JobsList() {
   }, [status, search, page])
 
   React.useEffect(() => {
+    // Skip initial fetch if server already pre-fetched the data.
+    if (initialData) return
     fetchData()
+     
   }, [fetchData])
 
   const updateUrl = (updates: Record<string, string | null>) => {

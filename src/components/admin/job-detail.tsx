@@ -68,30 +68,42 @@ function parseSkills(skills: string): string[] {
   return []
 }
 
-export function JobDetail({ id }: { id: string }) {
+export function JobDetail({
+  id,
+  initialJob,
+  initialCompanies,
+}: {
+  id: string
+  initialJob?: AdminJob | null
+  initialCompanies?: AdminCompany[] | null
+}) {
   const router = useRouter()
-  const [loading, setLoading] = React.useState(true)
+  const [loading, setLoading] = React.useState(!initialJob)
   const [submitting, setSubmitting] = React.useState(false)
   const [acting, setActing] = React.useState<string | null>(null)
-  const [job, setJob] = React.useState<AdminJob | null>(null)
-  const [companies, setCompanies] = React.useState<AdminCompany[]>([])
-  const [skills, setSkills] = React.useState<string[]>([])
+  const [job, setJob] = React.useState<AdminJob | null>(initialJob ?? null)
+  const [companies, setCompanies] = React.useState<AdminCompany[]>(initialCompanies ?? [])
+  const [skills, setSkills] = React.useState<string[]>(
+    initialJob ? parseSkills(initialJob.skills) : [],
+  )
   const [skillInput, setSkillInput] = React.useState('')
 
   // Form fields
-  const [title, setTitle] = React.useState('')
-  const [companyId, setCompanyId] = React.useState('')
-  const [description, setDescription] = React.useState('')
-  const [location, setLocation] = React.useState('')
-  const [country, setCountry] = React.useState('France')
-  const [contractType, setContractType] = React.useState('')
-  const [experienceLevel, setExperienceLevel] = React.useState('')
-  const [salaryText, setSalaryText] = React.useState('')
-  const [category, setCategory] = React.useState('')
-  const [applicationDeadline, setApplicationDeadline] = React.useState('')
-  const [isFeatured, setIsFeatured] = React.useState(false)
-  const [seoTitle, setSeoTitle] = React.useState('')
-  const [seoDescription, setSeoDescription] = React.useState('')
+  const [title, setTitle] = React.useState(initialJob?.title ?? '')
+  const [companyId, setCompanyId] = React.useState(initialJob?.companyId ?? '')
+  const [description, setDescription] = React.useState(initialJob?.description ?? '')
+  const [location, setLocation] = React.useState(initialJob?.location ?? '')
+  const [country, setCountry] = React.useState(initialJob?.country ?? 'France')
+  const [contractType, setContractType] = React.useState(initialJob?.contractType ?? '')
+  const [experienceLevel, setExperienceLevel] = React.useState(initialJob?.experienceLevel ?? '')
+  const [salaryText, setSalaryText] = React.useState(initialJob?.salaryText ?? '')
+  const [category, setCategory] = React.useState(initialJob?.category ?? '')
+  const [applicationDeadline, setApplicationDeadline] = React.useState(
+    initialJob?.applicationDeadline ? initialJob.applicationDeadline.slice(0, 10) : '',
+  )
+  const [isFeatured, setIsFeatured] = React.useState(initialJob?.isFeatured ?? false)
+  const [seoTitle, setSeoTitle] = React.useState(initialJob?.seoTitle ?? '')
+  const [seoDescription, setSeoDescription] = React.useState(initialJob?.seoDescription ?? '')
 
   const fetchData = React.useCallback(async () => {
     setLoading(true)
@@ -124,7 +136,10 @@ export function JobDetail({ id }: { id: string }) {
   }, [id])
 
   React.useEffect(() => {
+    // Skip initial fetch if server already pre-fetched the data.
+    if (initialJob) return
     fetchData()
+     
   }, [fetchData])
 
   const save = async () => {

@@ -23,13 +23,13 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { apiFetch } from '@/lib/api-client'
 import type { AdminCompany } from '@/lib/types'
 
-export function CompaniesTable() {
+export function CompaniesTable({ initialData }: { initialData?: { items: AdminCompany[]; total: number } | null }) {
   const router = useRouter()
   const [search, setSearch] = React.useState('')
-  const [loading, setLoading] = React.useState(true)
+  const [loading, setLoading] = React.useState(!initialData)
   const [data, setData] = React.useState<{ items: AdminCompany[]; total: number }>({
-    items: [],
-    total: 0,
+    items: initialData?.items ?? [],
+    total: initialData?.total ?? 0,
   })
 
   const fetchData = React.useCallback(async () => {
@@ -48,7 +48,10 @@ export function CompaniesTable() {
   }, [search])
 
   React.useEffect(() => {
+    // Skip initial fetch if server already pre-fetched the data.
+    if (initialData) return
     fetchData()
+     
   }, [])
 
   return (

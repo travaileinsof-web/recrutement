@@ -57,10 +57,10 @@ function parseSkills(skills: string | string[] | undefined): string[] {
   return []
 }
 
-export function SubmissionDetail({ id }: { id: string }) {
+export function SubmissionDetail({ id, initialData }: { id: string; initialData?: AdminSubmission | null }) {
   const router = useRouter()
-  const [data, setData] = React.useState<AdminSubmission | null>(null)
-  const [loading, setLoading] = React.useState(true)
+  const [data, setData] = React.useState<AdminSubmission | null>(initialData ?? null)
+  const [loading, setLoading] = React.useState(!initialData)
   const [acting, setActing] = React.useState<string | null>(null)
   const [correctionMsg, setCorrectionMsg] = React.useState('')
   const [correctionOpen, setCorrectionOpen] = React.useState(false)
@@ -74,7 +74,10 @@ export function SubmissionDetail({ id }: { id: string }) {
   }, [id])
 
   React.useEffect(() => {
+    // Skip initial fetch if server already pre-fetched the data.
+    if (initialData) return
     fetchData()
+     
   }, [fetchData])
 
   const act = async (
