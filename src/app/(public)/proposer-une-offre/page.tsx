@@ -53,6 +53,29 @@ export default function ProposerPage() {
           Vous recrutez ? Soumettez votre offre, notre équipe la valide puis la
           publie sur la plateforme. Aucun compte à créer, aucune commission.
         </p>
+
+        {/* Inline portrait — premium circular image with quote */}
+        <div className="mx-auto mt-8 flex max-w-xl items-center gap-4 rounded-2xl border border-border bg-card p-4 text-left shadow-premium-sm">
+          <div className="relative size-16 shrink-0">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 to-accent/10 blur-sm" aria-hidden />
+            <div className="relative size-full overflow-hidden rounded-full ring-2 ring-white shadow-premium">
+              <img
+                src="/images/people/recruiter-woman.png"
+                alt="Recruteuse noire africaine professionnelle"
+                className="size-full object-cover"
+                loading="lazy"
+              />
+            </div>
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium text-foreground">
+              « Notre équipe valide chaque offre sous 48h ouvrées. »
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Amara D. · Responsable des opérations recrutement
+            </p>
+          </div>
+        </div>
       </header>
 
       <div className="grid gap-8 lg:grid-cols-[340px_1fr]">

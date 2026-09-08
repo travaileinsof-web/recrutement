@@ -50,6 +50,8 @@ const HOW_IT_WORKS = [
     title: 'Pour les candidats',
     text: 'Consultez les offres, postulez en quelques minutes sans créer de compte. Votre CV reste privé. Vous suivez votre candidature avec un lien personnel et sécurisé.',
     bullets: ['Sans inscription', 'CV privé', 'Suivi par lien dédié'],
+    image: '/images/people/candidate-man.png',
+    imageAlt: 'Candidat noir africain souriant en chemise blanche',
   },
   {
     icon: Send,
@@ -57,6 +59,8 @@ const HOW_IT_WORKS = [
     title: 'Pour les entreprises',
     text: 'Proposez une offre via un formulaire guidé. Notre équipe la valide, la publie, puis centralise les candidatures reçues — sans intermédiaire ni commission.',
     bullets: ['Formulaire structuré', 'Validation humaine', 'Aucune commission'],
+    image: '/images/people/recruiter-woman.png',
+    imageAlt: 'Recruteuse noire africaine confiante en costume',
   },
   {
     icon: ShieldCheck,
@@ -64,6 +68,8 @@ const HOW_IT_WORKS = [
     title: 'Pour les recruteurs internes',
     text: 'Un tableau de bord complet : validation des offres, suivi des candidatures, statuts, fichiers, notes internes et journal d’audit traçable.',
     bullets: ['Tableau de bord unifié', 'Audit append-only', 'Données chiffrées au repos'],
+    image: '/images/people/recruiter-man.png',
+    imageAlt: 'Recruteur noir africain souriant en costume gris',
   },
 ]
 
@@ -117,77 +123,120 @@ export default async function HomePage() {
           }}
         />
 
-        <div className="container relative mx-auto px-4 py-24 md:py-32 lg:py-40" style={{ zIndex: 1 }}>
-          <div className="mx-auto max-w-3xl text-center">
-            {/* Eyebrow — refined pill with gradient dot */}
-            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background/80 px-4 py-1.5 text-xs font-medium tracking-[0.18em] text-muted-foreground shadow-premium-xs backdrop-blur-md">
-              <span className="relative flex size-1.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
-                <span className="relative inline-flex size-1.5 rounded-full bg-accent" />
+        <div className="container relative mx-auto px-4 py-20 md:py-28 lg:py-32" style={{ zIndex: 1 }}>
+          <div className="grid items-center gap-12 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
+            {/* LEFT — text content */}
+            <div className="text-center lg:text-left">
+              {/* Eyebrow — refined pill with gradient dot */}
+              <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background/80 px-4 py-1.5 text-xs font-medium tracking-[0.18em] text-muted-foreground shadow-premium-xs backdrop-blur-md">
+                <span className="relative flex size-1.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
+                  <span className="relative inline-flex size-1.5 rounded-full bg-accent" />
+                </span>
+                PLATEFORME DE RECRUTEMENT SANS COMPTES PUBLICS
               </span>
-              PLATEFORME DE RECRUTEMENT SANS COMPTES PUBLICS
-            </span>
 
-            <h1 className="mt-8 font-serif text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-[4.5rem]">
-              <span className="block">Recrutez sans friction.</span>
-              <span className="mt-1 block bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-                Candidatez sans compte.
-              </span>
-            </h1>
+              <h1 className="mt-7 font-serif text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-[4.25rem]">
+                <span className="block">Recrutez sans friction.</span>
+                <span className="mt-1 block bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+                  Candidatez sans compte.
+                </span>
+              </h1>
 
-            <p className="mx-auto mt-7 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
-              TalentForge met en relation entreprises et talents sans jamais exiger
-              la création d’un compte public. Publiez une offre ou postulez en
-              quelques minutes, en toute confidentialité.
-            </p>
+              <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg lg:mx-0">
+                TalentForge met en relation entreprises et talents sans jamais exiger
+                la création d’un compte public. Publiez une offre ou postulez en
+                quelques minutes, en toute confidentialité.
+              </p>
 
-            {/* Search bar — ultra-premium with gradient focus ring */}
-            <form
-              action="/offres"
-              method="GET"
-              className="group mx-auto mt-10 flex max-w-xl items-center gap-2 rounded-xl border border-border bg-card p-2 shadow-premium transition-all duration-300 focus-within:border-primary/30 focus-within:shadow-premium-lg"
-            >
-              <div className="relative flex-1">
-                <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
-                <input
-                  type="search"
-                  name="search"
-                  aria-label="Rechercher une offre"
-                  placeholder="Métier, mot-clé, compétence, lieu…"
-                  className="h-10 w-full rounded-md bg-transparent pl-9 pr-3 text-sm outline-none placeholder:text-muted-foreground"
-                />
-              </div>
-              <Button type="submit" size="lg" className="gap-1.5 shadow-premium-sm">
-                <Search className="size-4" strokeWidth={2} />
-                <span className="hidden sm:inline">Rechercher</span>
-              </Button>
-            </form>
-
-            {/* Trust indicators — refined, with accent dots */}
-            <div className="mx-auto mt-10 flex max-w-3xl flex-wrap items-center justify-center gap-x-5 gap-y-2.5 text-xs text-muted-foreground">
-              {TRUST_ITEMS.map((item, i) => (
-                <div key={item.label} className="flex items-center gap-2">
-                  {i > 0 && <span className="h-3 w-px bg-border" aria-hidden />}
-                  <item.icon className="size-3.5 text-primary" strokeWidth={1.75} />
-                  <span className="font-medium">{item.label}</span>
+              {/* Search bar — ultra-premium with gradient focus ring */}
+              <form
+                action="/offres"
+                method="GET"
+                className="group mx-auto mt-8 flex max-w-xl items-center gap-2 rounded-xl border border-border bg-card p-2 shadow-premium transition-all duration-300 focus-within:border-primary/30 focus-within:shadow-premium-lg lg:mx-0"
+              >
+                <div className="relative flex-1">
+                  <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
+                  <input
+                    type="search"
+                    name="search"
+                    aria-label="Rechercher une offre"
+                    placeholder="Métier, mot-clé, compétence, lieu…"
+                    className="h-10 w-full rounded-md bg-transparent pl-9 pr-3 text-sm outline-none placeholder:text-muted-foreground"
+                  />
                 </div>
-              ))}
+                <Button type="submit" size="lg" className="gap-1.5 shadow-premium-sm">
+                  <Search className="size-4" strokeWidth={2} />
+                  <span className="hidden sm:inline">Rechercher</span>
+                </Button>
+              </form>
+
+              {/* Trust indicators — refined, with accent dots */}
+              <div className="mx-auto mt-8 flex max-w-2xl flex-wrap items-center justify-center gap-x-5 gap-y-2.5 text-xs text-muted-foreground lg:mx-0 lg:justify-start">
+                {TRUST_ITEMS.map((item, i) => (
+                  <div key={item.label} className="flex items-center gap-2">
+                    {i > 0 && <span className="h-3 w-px bg-border" aria-hidden />}
+                    <item.icon className="size-3.5 text-primary" strokeWidth={1.75} />
+                    <span className="font-medium">{item.label}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* CTA buttons — premium with depth */}
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
+                <Button asChild size="lg" className="gap-2 shadow-premium-sm hover:shadow-premium-lg">
+                  <Link href="/offres">
+                    <Briefcase className="size-4" strokeWidth={2} />
+                    Voir les offres
+                  </Link>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="gap-2 border-primary/20 hover:border-primary/40 hover:bg-secondary/50">
+                  <Link href="/proposer-une-offre">
+                    <Send className="size-4" strokeWidth={2} />
+                    Proposer une offre
+                  </Link>
+                </Button>
+              </div>
             </div>
 
-            {/* CTA buttons — premium with depth */}
-            <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-              <Button asChild size="lg" className="gap-2 shadow-premium-sm hover:shadow-premium-lg">
-                <Link href="/offres">
-                  <Briefcase className="size-4" strokeWidth={2} />
-                  Voir les offres
-                </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="gap-2 border-primary/20 hover:border-primary/40 hover:bg-secondary/50">
-                <Link href="/proposer-une-offre">
-                  <Send className="size-4" strokeWidth={2} />
-                  Proposer une offre
-                </Link>
-              </Button>
+            {/* RIGHT — premium image with floating badges */}
+            <div className="relative mx-auto w-full max-w-md lg:max-w-none">
+              {/* Decorative glow behind image */}
+              <div className="absolute -inset-4 -z-10 rounded-[2rem] bg-gradient-to-br from-primary/20 via-accent/10 to-transparent blur-2xl" aria-hidden />
+
+              {/* Image container with gradient border */}
+              <div className="relative overflow-hidden rounded-2xl border border-white/40 shadow-premium-xl">
+                <img
+                  src="/images/people/candidate-woman.png"
+                  alt="Candidate professionnelle noire africaine souriante en blazer bleu marine"
+                  className="aspect-[3/4] w-full object-cover"
+                  loading="eager"
+                />
+                {/* Subtle gradient overlay on image */}
+                <div className="absolute inset-0 bg-gradient-to-t from-primary/10 via-transparent to-transparent" aria-hidden />
+              </div>
+
+              {/* Floating stat badge — top right */}
+              <div className="absolute -right-3 top-8 flex items-center gap-2.5 rounded-xl border border-border bg-card/95 p-3 shadow-premium-lg backdrop-blur-md sm:-right-6">
+                <div className="flex size-9 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-100">
+                  <ShieldCheck className="size-4" strokeWidth={2} />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-foreground">CV 100% privé</p>
+                  <p className="text-[0.7rem] text-muted-foreground">Espace sécurisé</p>
+                </div>
+              </div>
+
+              {/* Floating stat badge — bottom left */}
+              <div className="absolute -left-3 bottom-12 flex items-center gap-2.5 rounded-xl border border-border bg-card/95 p-3 shadow-premium-lg backdrop-blur-md sm:-left-6">
+                <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-inset ring-primary/15">
+                  <Clock className="size-4" strokeWidth={2} />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-foreground">3 minutes</p>
+                  <p className="text-[0.7rem] text-muted-foreground">Pour postuler</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -302,6 +351,7 @@ export default async function HomePage() {
                   <div className="shimmer-line h-0.5 bg-gradient-to-r from-primary via-accent to-primary" />
 
                   <CardContent className="flex h-full flex-col gap-4 p-7">
+                    {/* Header with icon + step number */}
                     <div className="flex items-start justify-between">
                       <div className="relative flex size-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-accent/5 text-primary ring-1 ring-inset ring-primary/15 transition-all group-hover:from-primary/15 group-hover:to-accent/10">
                         <item.icon className="size-5" strokeWidth={1.75} />
@@ -310,7 +360,21 @@ export default async function HomePage() {
                         {item.step}
                       </span>
                     </div>
-                    <div>
+
+                    {/* Portrait image — circular, premium with ring */}
+                    <div className="relative mx-auto my-2 size-20">
+                      <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 to-accent/10 blur-md" aria-hidden />
+                      <div className="relative size-full overflow-hidden rounded-full ring-2 ring-white shadow-premium">
+                        <img
+                          src={item.image}
+                          alt={item.imageAlt}
+                          className="size-full object-cover"
+                          loading="lazy"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="text-center">
                       <h3 className="font-serif text-xl font-semibold tracking-tight text-foreground">
                         {item.title}
                       </h3>

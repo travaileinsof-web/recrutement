@@ -46,6 +46,19 @@ export default async function ConfirmationPage({ searchParams }: PageProps) {
                 </div>
               </div>
 
+              {/* Portrait of satisfied candidate — premium with ring */}
+              <div className="relative size-20">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 to-accent/10 blur-md" aria-hidden />
+                <div className="relative size-full overflow-hidden rounded-full ring-2 ring-white shadow-premium">
+                  <img
+                    src="/images/people/candidate-woman.png"
+                    alt="Candidate noire africaine souriante"
+                    className="size-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+
               <div>
                 <span className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
                   Confirmation

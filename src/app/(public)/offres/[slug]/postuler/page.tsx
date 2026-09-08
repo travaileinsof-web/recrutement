@@ -146,6 +146,31 @@ export default async function ApplyPage({ params }: PageProps) {
               votre dossier.
             </p>
           </div>
+
+          {/* Candidate testimonial — premium with portrait */}
+          <div className="mt-4 overflow-hidden rounded-xl border border-border bg-card shadow-premium-xs">
+            <div className="flex items-center gap-3 p-4">
+              <div className="relative size-12 shrink-0">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 to-accent/10 blur-sm" aria-hidden />
+                <div className="relative size-full overflow-hidden rounded-full ring-2 ring-white shadow-premium">
+                  <img
+                    src="/images/people/candidate-man.png"
+                    alt="Candidat noir africain souriant"
+                    className="size-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-foreground">
+                  « J’ai postulé en 3 minutes, sans compte. »
+                </p>
+                <p className="mt-0.5 text-[0.7rem] text-muted-foreground">
+                  Kofi A. · candidat validé
+                </p>
+              </div>
+            </div>
+          </div>
         </aside>
       </div>
     </div>
