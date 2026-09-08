@@ -179,10 +179,20 @@ export interface DashboardStats {
   underReviewApps: number
   closedJobs: number
   failedNotifications: number
+  totalCompanies: number
+  totalApplications: number
+  totalJobs: number
+}
+
+export interface DashboardActivity {
+  date: string
+  applications: number
+  submissions: number
 }
 
 export interface DashboardData {
   stats: DashboardStats
+  activity: DashboardActivity[]
   recentSubmissions: AdminSubmission[]
   recentApplications: Array<{
     id: string
@@ -193,6 +203,17 @@ export interface DashboardData {
     status: string
     job: { id: string; title: string; company: AdminCompany }
   }>
+  priorityActions?: {
+    pendingSubmissions: AdminSubmission[]
+    unreviewedApplications: Array<{
+      id: string
+      publicReference: string
+      candidateName: string
+      submittedAt: string
+      status: string
+      job: { id: string; title: string; company: AdminCompany }
+    }>
+  }
 }
 
 export interface PlatformSettings {
