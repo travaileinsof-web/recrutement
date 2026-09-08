@@ -61,7 +61,7 @@ const templates: Record<string, (data: Record<string, unknown>) => TemplateResul
     const title = data.title
     const companyName = data.companyName
     const html = layout(`
-      <h1 style="margin:0 0 16px;font-size:24px;color:#1e3a8a;">Proposition d’offre reçue ✅</h1>
+      <h1 style="margin:0 0 16px;font-size:24px;color:#1e3a8a;">Proposition d’offre reçue</h1>
       <p style="margin:0 0 12px;">Bonjour,</p>
       <p style="margin:0 0 12px;">Nous avons bien reçu votre proposition d’offre <strong>${escapeHtml(title)}</strong> pour <strong>${escapeHtml(companyName)}</strong>.</p>
       <p style="margin:0 0 16px;">Notre équipe l’examine et reviendra vers vous sous 48h ouvrées.</p>
@@ -95,7 +95,7 @@ const templates: Record<string, (data: Record<string, unknown>) => TemplateResul
       ? `${process.env.APP_URL}${trackingUrlPath}`
       : `http://localhost:3000${trackingUrlPath}`
     const html = layout(`
-      <h1 style="margin:0 0 16px;font-size:24px;color:#1e3a8a;">Candidature reçue ✅</h1>
+      <h1 style="margin:0 0 16px;font-size:24px;color:#1e3a8a;">Candidature reçue</h1>
       <p style="margin:0 0 12px;">Bonjour,</p>
       <p style="margin:0 0 12px;">Nous avons bien reçu votre candidature pour le poste <strong>${escapeHtml(jobTitle)}</strong> chez <strong>${escapeHtml(companyName)}</strong>.</p>
       <p style="margin:0 0 8px;font-size:14px;color:#475569;">Référence de votre candidature :</p>
@@ -140,7 +140,7 @@ const templates: Record<string, (data: Record<string, unknown>) => TemplateResul
     const reference = data.reference
     const title = data.title
     const html = layout(`
-      <h1 style="margin:0 0 16px;font-size:24px;color:#1e3a8a;">Proposition approuvée 🎉</h1>
+      <h1 style="margin:0 0 16px;font-size:24px;color:#1e3a8a;">Proposition approuvée</h1>
       <p style="margin:0 0 12px;">Bonjour,</p>
       <p style="margin:0 0 12px;">Votre proposition d’offre <strong>${escapeHtml(title)}</strong> a été approuvée et sera bientôt publiée.</p>
       <p style="margin:0 0 8px;font-size:14px;color:#475569;">Référence :</p>

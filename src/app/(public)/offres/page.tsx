@@ -56,10 +56,15 @@ export default async function OffresPage({ searchParams }: PageProps) {
   }
 
   return (
-    <div className="container mx-auto px-4 py-10">
-      <header className="mb-8">
-        <h1 className="font-serif text-3xl font-bold md:text-4xl">Offres d’emploi</h1>
-        <p className="mt-2 text-muted-foreground">
+    <div className="container mx-auto px-4 py-12 md:py-16">
+      <header className="mb-10 max-w-2xl">
+        <span className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+          Catalogue
+        </span>
+        <h1 className="mt-3 font-serif text-3xl font-bold tracking-tight md:text-4xl">
+          Offres d’emploi
+        </h1>
+        <p className="mt-3 text-base text-muted-foreground">
           {data.total > 0 ? (
             <>
               {data.total} offre{data.total > 1 ? 's' : ''} trouvée{data.total > 1 ? 's' : ''}
@@ -74,10 +79,10 @@ export default async function OffresPage({ searchParams }: PageProps) {
 
       <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
         <aside className="lg:sticky lg:top-20 lg:h-fit">
-          <Card>
+          <Card className="overflow-hidden border-border/80 shadow-premium-xs">
             <CardContent className="pt-6">
-              <div className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                <SlidersHorizontal className="size-4" />
+              <div className="mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <SlidersHorizontal className="size-3.5" strokeWidth={1.75} />
                 Filtres
               </div>
               <Suspense fallback={<FilterSkeleton />}>
@@ -89,29 +94,35 @@ export default async function OffresPage({ searchParams }: PageProps) {
 
         <div>
           {data.items.length === 0 ? (
-            <Card>
+            <Card className="border-dashed">
               <CardContent className="flex flex-col items-center justify-center gap-3 py-16 text-center">
-                <div className="flex size-14 items-center justify-center rounded-full bg-muted">
-                  <SearchX className="size-6 text-muted-foreground" />
+                <div className="flex size-14 items-center justify-center rounded-full bg-secondary ring-1 ring-inset ring-primary/10">
+                  <SearchX className="size-6 text-muted-foreground" strokeWidth={1.5} />
                 </div>
-                <h2 className="font-serif text-xl font-semibold">Aucune offre trouvée</h2>
+                <h2 className="font-serif text-xl font-semibold tracking-tight">Aucune offre trouvée</h2>
                 <p className="max-w-md text-sm text-muted-foreground">
                   Essayez d’élargir vos critères de recherche, ou réessayez
                   ultérieurement. De nouvelles offres sont publiées chaque semaine.
                 </p>
                 <Link
                   href="/offres"
-                  className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+                  className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-colors hover:text-accent"
                 >
-                  <Briefcase className="size-4" />
+                  <Briefcase className="size-4" strokeWidth={1.75} />
                   Voir toutes les offres
                 </Link>
               </CardContent>
             </Card>
           ) : (
             <div className="grid gap-5 sm:grid-cols-2">
-              {data.items.map((job) => (
-                <JobCard key={job.id} job={job} />
+              {data.items.map((job, i) => (
+                <div
+                  key={job.id}
+                  className="animate-fade-in-up"
+                  style={{ animationDelay: `${Math.min(i, 8) * 50}ms` }}
+                >
+                  <JobCard job={job} />
+                </div>
               ))}
             </div>
           )}

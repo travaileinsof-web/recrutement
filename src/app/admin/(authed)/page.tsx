@@ -10,6 +10,7 @@ import {
   MailX,
   ArrowRight,
   Clock,
+  type LucideIcon,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -21,6 +22,14 @@ export const dynamic = 'force-dynamic'
 
 async function fetchDashboard(): Promise<DashboardData | null> {
   return serverFetch<DashboardData>('/api/admin/dashboard')
+}
+
+interface StatItem {
+  label: string
+  value: number
+  icon: LucideIcon
+  // Tailwind classes for icon container — semantic colors only
+  accent: string
 }
 
 export default async function AdminDashboardPage() {
@@ -39,74 +48,96 @@ export default async function AdminDashboardPage() {
   const recentSubmissions = data?.recentSubmissions ?? []
   const recentApplications = data?.recentApplications ?? []
 
-  const STATS = [
-    { label: 'Offres publiées', value: stats.publishedJobs, icon: Briefcase, color: 'text-emerald-700 bg-emerald-100' },
-    { label: 'Soumissions en attente', value: stats.pendingSubmissions, icon: Inbox, color: 'text-sky-700 bg-sky-100' },
-    { label: 'Nouvelles candidatures', value: stats.newApplications, icon: Users, color: 'text-amber-700 bg-amber-100' },
-    { label: 'Candidatures en revue', value: stats.underReviewApps, icon: Eye, color: 'text-purple-700 bg-purple-100' },
-    { label: 'Offres clôturées', value: stats.closedJobs, icon: CheckCircle2, color: 'text-zinc-700 bg-zinc-100' },
-    { label: 'E-mails en échec', value: stats.failedNotifications, icon: MailX, color: 'text-red-700 bg-red-100' },
+  const STATS: StatItem[] = [
+    { label: 'Offres publiées', value: stats.publishedJobs, icon: Briefcase, accent: 'text-emerald-700 bg-emerald-50 ring-emerald-100' },
+    { label: 'Soumissions en attente', value: stats.pendingSubmissions, icon: Inbox, accent: 'text-sky-700 bg-sky-50 ring-sky-100' },
+    { label: 'Nouvelles candidatures', value: stats.newApplications, icon: Users, accent: 'text-amber-700 bg-amber-50 ring-amber-100' },
+    { label: 'Candidatures en revue', value: stats.underReviewApps, icon: Eye, accent: 'text-purple-700 bg-purple-50 ring-purple-100' },
+    { label: 'Offres clôturées', value: stats.closedJobs, icon: CheckCircle2, accent: 'text-zinc-700 bg-zinc-50 ring-zinc-200' },
+    { label: 'E-mails en échec', value: stats.failedNotifications, icon: MailX, accent: 'text-red-700 bg-red-50 ring-red-100' },
   ]
 
   return (
     <div className="space-y-8">
-      <header>
-        <h1 className="font-serif text-3xl font-bold">Vue d’ensemble</h1>
-        <p className="mt-1 text-muted-foreground">
+      <header className="border-b border-border pb-6">
+        <span className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+          Tableau de bord
+        </span>
+        <h1 className="mt-2 font-serif text-3xl font-bold tracking-tight text-foreground">
+          Vue d’ensemble
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Activité récente et indicateurs clés de la plateforme.
         </p>
       </header>
 
+      {/* STAT CARDS — premium version */}
       <section
         aria-label="Statistiques"
         className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6"
       >
-        {STATS.map((s) => (
-          <Card key={s.label}>
-            <CardContent className="py-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs uppercase tracking-wide text-muted-foreground">
-                  {s.label}
-                </span>
-                <span className={`flex size-7 items-center justify-center rounded-md ${s.color}`}>
-                  <s.icon className="size-4" />
+        {STATS.map((s, i) => (
+          <Card
+            key={s.label}
+            className="hover-lift animate-fade-in-up overflow-hidden border-border/80 shadow-premium-xs hover:shadow-premium"
+            style={{ animationDelay: `${i * 40}ms` } as React.CSSProperties}
+          >
+            <CardContent className="p-5">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="text-[0.7rem] font-semibold uppercase tracking-wide text-muted-foreground">
+                    {s.label}
+                  </p>
+                  <p className="mt-2 font-serif text-3xl font-bold leading-none tracking-tight text-foreground">
+                    {s.value}
+                  </p>
+                </div>
+                <span className={`flex size-9 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset ${s.accent}`}>
+                  <s.icon className="size-4" strokeWidth={1.75} />
                 </span>
               </div>
-              <p className="mt-2 font-serif text-2xl font-bold">{s.value}</p>
             </CardContent>
           </Card>
         ))}
       </section>
 
+      {/* RECENT ACTIVITY — two-column premium layout */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* RECENT SUBMISSIONS */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
+        <Card className="overflow-hidden border-border/80 shadow-premium-xs">
+          <CardHeader className="flex flex-row items-center justify-between border-b border-border/60 bg-secondary/30 py-4">
             <div>
-              <CardTitle className="font-serif text-lg">Soumissions récentes</CardTitle>
-              <CardDescription>
+              <CardTitle className="font-serif text-lg font-semibold tracking-tight">
+                Soumissions récentes
+              </CardTitle>
+              <CardDescription className="mt-1 text-xs">
                 Propositions d’offres à examiner
               </CardDescription>
             </div>
-            <Button asChild variant="ghost" size="sm" className="gap-1.5">
+            <Button asChild variant="ghost" size="sm" className="gap-1.5 text-primary">
               <Link href="/admin/soumissions">
                 Tout voir
-                <ArrowRight className="size-4" />
+                <ArrowRight className="size-3.5" strokeWidth={2} />
               </Link>
             </Button>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-3">
             {recentSubmissions.length === 0 ? (
-              <p className="py-8 text-center text-sm text-muted-foreground">
-                Aucune soumission en attente.
-              </p>
+              <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
+                <div className="flex size-10 items-center justify-center rounded-full bg-secondary">
+                  <Inbox className="size-4 text-muted-foreground" strokeWidth={1.75} />
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Aucune soumission en attente.
+                </p>
+              </div>
             ) : (
-              <ul className="max-h-96 space-y-2 overflow-y-auto scroll-pretty">
+              <ul className="max-h-96 space-y-1 overflow-y-auto scroll-pretty">
                 {recentSubmissions.map((s) => (
                   <li key={s.id}>
                     <Link
                       href={`/admin/soumissions/${s.id}`}
-                      className="block rounded-md border border-border bg-card p-3 transition-colors hover:border-primary/30 hover:bg-muted/50"
+                      className="hover-lift block rounded-lg border border-transparent p-3 transition-colors hover:border-primary/20 hover:bg-secondary/40"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
@@ -120,10 +151,10 @@ export default async function AdminDashboardPage() {
                         <StatusBadge status={s.status} kind="submission" />
                       </div>
                       <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
-                        <span className="font-mono">{s.publicReference}</span>
+                        <span className="font-mono text-[0.7rem]">{s.publicReference}</span>
                         {s.submittedAt && (
                           <span className="inline-flex items-center gap-1">
-                            <Clock className="size-3" />
+                            <Clock className="size-3" strokeWidth={1.75} />
                             {formatDistanceToNow(new Date(s.submittedAt), { addSuffix: true, locale: fr })}
                           </span>
                         )}
@@ -137,33 +168,40 @@ export default async function AdminDashboardPage() {
         </Card>
 
         {/* RECENT APPLICATIONS */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
+        <Card className="overflow-hidden border-border/80 shadow-premium-xs">
+          <CardHeader className="flex flex-row items-center justify-between border-b border-border/60 bg-secondary/30 py-4">
             <div>
-              <CardTitle className="font-serif text-lg">Candidatures récentes</CardTitle>
-              <CardDescription>
+              <CardTitle className="font-serif text-lg font-semibold tracking-tight">
+                Candidatures récentes
+              </CardTitle>
+              <CardDescription className="mt-1 text-xs">
                 Dernières candidatures reçues
               </CardDescription>
             </div>
-            <Button asChild variant="ghost" size="sm" className="gap-1.5">
+            <Button asChild variant="ghost" size="sm" className="gap-1.5 text-primary">
               <Link href="/admin/candidatures">
                 Tout voir
-                <ArrowRight className="size-4" />
+                <ArrowRight className="size-3.5" strokeWidth={2} />
               </Link>
             </Button>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-3">
             {recentApplications.length === 0 ? (
-              <p className="py-8 text-center text-sm text-muted-foreground">
-                Aucune candidature pour le moment.
-              </p>
+              <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
+                <div className="flex size-10 items-center justify-center rounded-full bg-secondary">
+                  <Users className="size-4 text-muted-foreground" strokeWidth={1.75} />
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Aucune candidature pour le moment.
+                </p>
+              </div>
             ) : (
-              <ul className="max-h-96 space-y-2 overflow-y-auto scroll-pretty">
+              <ul className="max-h-96 space-y-1 overflow-y-auto scroll-pretty">
                 {recentApplications.map((a) => (
                   <li key={a.id}>
                     <Link
                       href={`/admin/candidatures/${a.id}`}
-                      className="block rounded-md border border-border bg-card p-3 transition-colors hover:border-primary/30 hover:bg-muted/50"
+                      className="hover-lift block rounded-lg border border-transparent p-3 transition-colors hover:border-primary/20 hover:bg-secondary/40"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
@@ -177,9 +215,9 @@ export default async function AdminDashboardPage() {
                         <StatusBadge status={a.status} kind="application" />
                       </div>
                       <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
-                        <span className="font-mono">{a.publicReference}</span>
+                        <span className="font-mono text-[0.7rem]">{a.publicReference}</span>
                         <span className="inline-flex items-center gap-1">
-                          <Clock className="size-3" />
+                          <Clock className="size-3" strokeWidth={1.75} />
                           {formatDistanceToNow(new Date(a.submittedAt), { addSuffix: true, locale: fr })}
                         </span>
                       </div>

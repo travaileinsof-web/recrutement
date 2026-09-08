@@ -96,17 +96,21 @@ export default async function TrackingPage({ params }: PageProps) {
   const submittedAt = new Date(data.submittedAt)
 
   return (
-    <div className="container mx-auto px-4 py-10">
-      <div className="mx-auto max-w-3xl">
-        <header className="mb-6 text-center">
-          <div className="mx-auto mb-3 flex size-14 items-center justify-center rounded-full bg-emerald-100">
-            <CheckCircle2 className="size-7 text-emerald-700" />
-          </div>
-          <h1 className="font-serif text-3xl font-bold">Suivi de candidature</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Consultez ici l’état de votre candidature. Cette page est privée et
-            accessible uniquement via votre lien personnel.
-          </p>
+    <div className="bg-texture-subtle py-12 md:py-16">
+      <div className="container mx-auto px-4">
+        <div className="mx-auto max-w-3xl">
+          <header className="mb-8 text-center">
+            <span className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+              Espace privé
+            </span>
+            <div className="mx-auto mt-4 flex size-14 items-center justify-center rounded-full bg-emerald-50 ring-1 ring-inset ring-emerald-100">
+              <CheckCircle2 className="size-7 text-emerald-600" strokeWidth={1.75} />
+            </div>
+            <h1 className="mt-4 font-serif text-3xl font-bold tracking-tight md:text-4xl">Suivi de candidature</h1>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Consultez ici l’état de votre candidature. Cette page est privée et
+              accessible uniquement via votre lien personnel.
+            </p>
         </header>
 
         <Card>
@@ -247,6 +251,7 @@ export default async function TrackingPage({ params }: PageProps) {
               Retour aux offres
             </Link>
           </Button>
+        </div>
         </div>
       </div>
     </div>

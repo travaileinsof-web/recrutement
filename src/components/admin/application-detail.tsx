@@ -16,6 +16,8 @@ import {
   RefreshCw,
   Send,
   Plus,
+  MessageSquare,
+  Lock,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -265,11 +267,15 @@ export function ApplicationDetail({ id }: { id: string }) {
                               </span>
                             </div>
                             {h.publicMessage && (
-                              <p className="mt-1 text-sm text-foreground/80">💬 {h.publicMessage}</p>
+                              <p className="mt-1 flex items-start gap-1.5 text-sm text-foreground/80">
+                                <MessageSquare className="mt-0.5 size-3.5 shrink-0 text-accent" strokeWidth={1.75} />
+                                <span>{h.publicMessage}</span>
+                              </p>
                             )}
                             {h.internalNote && (
-                              <p className="mt-1 text-xs text-muted-foreground">
-                                🔒 Note interne : {h.internalNote}
+                              <p className="mt-1 flex items-start gap-1.5 text-xs text-muted-foreground">
+                                <Lock className="mt-0.5 size-3 shrink-0" strokeWidth={2} />
+                                <span>Note interne : {h.internalNote}</span>
                               </p>
                             )}
                           </>

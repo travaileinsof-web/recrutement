@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Send, Clock, ShieldCheck, CheckCircle2, MailOpen } from 'lucide-react'
+import { Send, Clock, ShieldCheck, CheckCircle2, MailOpen, type LucideIcon } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { SubmissionForm } from '@/components/submission-form'
 
@@ -9,7 +9,13 @@ export const metadata = {
   title: 'Proposer une offre',
 }
 
-const STEPS = [
+interface Step {
+  icon: LucideIcon
+  title: string
+  text: string
+}
+
+const STEPS: Step[] = [
   {
     icon: Send,
     title: 'Vous soumettez votre offre',
@@ -34,42 +40,46 @@ const STEPS = [
 
 export default function ProposerPage() {
   return (
-    <div className="container mx-auto px-4 py-10">
-      <header className="mb-10 text-center">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
+    <div className="container mx-auto px-4 py-12 md:py-16">
+      <header className="mb-12 text-center">
+        <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-accent shadow-premium-xs">
+          <span className="flex size-1.5 rounded-full bg-accent" />
           Pour les entreprises
         </span>
-        <h1 className="mt-4 font-serif text-3xl font-bold md:text-4xl">
+        <h1 className="mt-5 font-serif text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
           Proposer une offre
         </h1>
-        <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">
+        <p className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground">
           Vous recrutez ? Soumettez votre offre, notre équipe la valide puis la
           publie sur la plateforme. Aucun compte à créer, aucune commission.
         </p>
       </header>
 
-      <div className="grid gap-8 lg:grid-cols-[320px_1fr]">
-        {/* EXPLAINER */}
+      <div className="grid gap-8 lg:grid-cols-[340px_1fr]">
+        {/* EXPLAINER SIDEBAR — premium timeline */}
         <aside className="lg:sticky lg:top-20 lg:h-fit">
-          <Card>
+          <Card className="overflow-hidden border-border/80 shadow-premium-sm">
+            <div className="h-0.5 bg-gradient-to-r from-primary via-accent to-primary" />
             <CardHeader>
-              <CardTitle className="font-serif text-lg">
+              <CardTitle className="font-serif text-lg font-semibold tracking-tight">
                 Que se passe-t-il après l’envoi ?
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ol className="space-y-5">
+              <ol className="space-y-1">
                 {STEPS.map((s, i) => (
-                  <li key={s.title} className="flex gap-3">
-                    <div className="flex flex-col items-center">
-                      <div className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary">
-                        <s.icon className="size-4" />
-                      </div>
-                      {i < STEPS.length - 1 && (
-                        <span className="mt-1 h-8 w-px bg-border" aria-hidden />
-                      )}
+                  <li key={s.title} className="relative flex gap-4 pb-6 last:pb-0">
+                    {/* Vertical connector line */}
+                    {i < STEPS.length - 1 && (
+                      <span
+                        className="absolute left-[18px] top-10 h-[calc(100%-2rem)] w-px bg-gradient-to-b from-primary/30 to-transparent"
+                        aria-hidden
+                      />
+                    )}
+                    <div className="relative z-10 flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary ring-1 ring-inset ring-primary/15">
+                      <s.icon className="size-4" strokeWidth={1.75} />
                     </div>
-                    <div className="pt-1">
+                    <div className="pt-0.5">
                       <p className="text-sm font-semibold text-foreground">
                         {s.title}
                       </p>
@@ -83,17 +93,18 @@ export default function ProposerPage() {
             </CardContent>
           </Card>
 
-          <div className="mt-4 flex items-start gap-2 rounded-md border border-border bg-muted/50 p-4 text-xs text-muted-foreground">
-            <ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />
-            <p>
+          {/* Trust callout */}
+          <div className="mt-4 flex items-start gap-3 rounded-xl border border-primary/15 bg-secondary/40 p-4">
+            <ShieldCheck className="mt-0.5 size-5 shrink-0 text-primary" strokeWidth={1.75} />
+            <p className="text-xs leading-relaxed text-muted-foreground">
               Vos données ne sont jamais revendues ni partagées en dehors de
               l’équipe TalentForge.
             </p>
           </div>
 
-          <p className="mt-4 text-center text-sm">
+          <p className="mt-5 text-center text-sm">
             Besoin d’aide ?{' '}
-            <Link href="/contact" className="font-medium text-primary hover:underline">
+            <Link href="/contact" className="font-medium text-primary transition-colors hover:text-accent">
               Contactez-nous
             </Link>
           </p>
