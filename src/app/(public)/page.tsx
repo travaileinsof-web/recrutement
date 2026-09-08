@@ -8,7 +8,6 @@ import {
   Eye,
   FileText,
   Users,
-  Sparkles,
   ShieldCheck,
   Cpu,
   Zap,
@@ -18,8 +17,8 @@ import {
   GraduationCap,
   CheckCircle2,
   Lock,
-  Mail,
   Clock,
+  Star,
   type LucideIcon,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -28,12 +27,11 @@ import { JobCard } from '@/components/job-card'
 import { serverFetch } from '@/lib/server-fetch'
 import type { PaginatedJobs } from '@/lib/types'
 
-// Premium icon set (replaces emojis) — lucide-react, consistent line weight
 type Category = {
   name: string
   description: string
   icon: LucideIcon
-  count?: string
+  count: string
 }
 
 const CATEGORIES: Category[] = [
@@ -89,37 +87,50 @@ export default async function HomePage() {
   return (
     <>
       {/* ========================================================= */}
-      {/* HERO — premium, with layered gradient + grid texture      */}
+      {/* HERO — aurora gradient + noise + animated orbs            */}
       {/* ========================================================= */}
-      <section className="relative overflow-hidden border-b border-border bg-texture-subtle">
-        {/* Background gradient — subtle, multi-layered */}
-        <div className="absolute inset-0 -z-10" aria-hidden>
-          <div className="absolute inset-0 bg-gradient-to-br from-secondary/50 via-background to-background" />
-          <div className="absolute -right-32 -top-32 size-[28rem] rounded-full bg-accent/10 blur-3xl" />
-          <div className="absolute -bottom-32 -left-32 size-[28rem] rounded-full bg-primary/10 blur-3xl" />
-          {/* Decorative grid — extremely subtle */}
+      <section className="noise-overlay relative overflow-hidden border-b border-border" style={{ background: 'linear-gradient(135deg, #eff6ff 0%, #ffffff 40%, #dbeafe 100%)' }}>
+        {/* Animated aurora orbs — drifting glow */}
+        <div className="absolute inset-0" aria-hidden style={{ zIndex: 0 }}>
           <div
-            className="absolute inset-0 opacity-[0.025]"
-            style={{
-              backgroundImage:
-                'linear-gradient(to right, #1e3a8a 1px, transparent 1px), linear-gradient(to bottom, #1e3a8a 1px, transparent 1px)',
-              backgroundSize: '48px 48px',
-            }}
+            className="aurora-orb size-[32rem] bg-blue-400/50"
+            style={{ top: '-8%', right: '-2%', animationDelay: '0s' }}
+          />
+          <div
+            className="aurora-orb size-[28rem] bg-blue-600/40"
+            style={{ bottom: '-8%', left: '-3%', animationDelay: '7s' }}
+          />
+          <div
+            className="aurora-orb size-[24rem] bg-indigo-400/35"
+            style={{ top: '25%', left: '45%', animationDelay: '14s' }}
           />
         </div>
 
-        <div className="container mx-auto px-4 py-20 md:py-28 lg:py-32">
+        {/* Decorative grid — extremely subtle */}
+        <div
+          className="absolute inset-0 -z-10 opacity-[0.02]"
+          aria-hidden
+          style={{
+            backgroundImage:
+              'linear-gradient(to right, #1e3a8a 1px, transparent 1px), linear-gradient(to bottom, #1e3a8a 1px, transparent 1px)',
+            backgroundSize: '56px 56px',
+          }}
+        />
+
+        <div className="container relative mx-auto px-4 py-24 md:py-32 lg:py-40" style={{ zIndex: 1 }}>
           <div className="mx-auto max-w-3xl text-center">
-            {/* Eyebrow badge — refined, with bordered container */}
-            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background/80 px-4 py-1.5 text-xs font-medium tracking-wide text-muted-foreground shadow-premium-xs backdrop-blur-sm">
-              <span className="flex size-1.5 rounded-full bg-accent" />
+            {/* Eyebrow — refined pill with gradient dot */}
+            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background/80 px-4 py-1.5 text-xs font-medium tracking-[0.18em] text-muted-foreground shadow-premium-xs backdrop-blur-md">
+              <span className="relative flex size-1.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
+                <span className="relative inline-flex size-1.5 rounded-full bg-accent" />
+              </span>
               PLATEFORME DE RECRUTEMENT SANS COMPTES PUBLICS
             </span>
 
-            <h1 className="mt-8 font-serif text-4xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-[4.25rem]">
-              Recrutez sans friction.
-              <br />
-              <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+            <h1 className="mt-8 font-serif text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-[4.5rem]">
+              <span className="block">Recrutez sans friction.</span>
+              <span className="mt-1 block bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
                 Candidatez sans compte.
               </span>
             </h1>
@@ -130,14 +141,14 @@ export default async function HomePage() {
               quelques minutes, en toute confidentialité.
             </p>
 
-            {/* Search bar — premium, with shadow and refined focus */}
+            {/* Search bar — ultra-premium with gradient focus ring */}
             <form
               action="/offres"
               method="GET"
-              className="mx-auto mt-10 flex max-w-xl items-center gap-2 rounded-xl border border-border bg-card p-2 shadow-premium-sm transition-shadow focus-within:shadow-premium"
+              className="group mx-auto mt-10 flex max-w-xl items-center gap-2 rounded-xl border border-border bg-card p-2 shadow-premium transition-all duration-300 focus-within:border-primary/30 focus-within:shadow-premium-lg"
             >
               <div className="relative flex-1">
-                <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
                 <input
                   type="search"
                   name="search"
@@ -146,32 +157,32 @@ export default async function HomePage() {
                   className="h-10 w-full rounded-md bg-transparent pl-9 pr-3 text-sm outline-none placeholder:text-muted-foreground"
                 />
               </div>
-              <Button type="submit" size="lg" className="gap-1.5">
-                <Search className="size-4" />
+              <Button type="submit" size="lg" className="gap-1.5 shadow-premium-sm">
+                <Search className="size-4" strokeWidth={2} />
                 <span className="hidden sm:inline">Rechercher</span>
               </Button>
             </form>
 
-            {/* Trust indicators — refined, with subtle separators */}
-            <div className="mx-auto mt-10 flex max-w-3xl flex-wrap items-center justify-center gap-x-6 gap-y-3 text-xs text-muted-foreground">
+            {/* Trust indicators — refined, with accent dots */}
+            <div className="mx-auto mt-10 flex max-w-3xl flex-wrap items-center justify-center gap-x-5 gap-y-2.5 text-xs text-muted-foreground">
               {TRUST_ITEMS.map((item, i) => (
                 <div key={item.label} className="flex items-center gap-2">
-                  {i > 0 && <span className="absolute h-1 w-1 -translate-x-3 rounded-full bg-border" aria-hidden />}
+                  {i > 0 && <span className="h-3 w-px bg-border" aria-hidden />}
                   <item.icon className="size-3.5 text-primary" strokeWidth={1.75} />
                   <span className="font-medium">{item.label}</span>
                 </div>
               ))}
             </div>
 
-            {/* CTA buttons */}
+            {/* CTA buttons — premium with depth */}
             <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-              <Button asChild size="lg" className="gap-2">
+              <Button asChild size="lg" className="gap-2 shadow-premium-sm hover:shadow-premium-lg">
                 <Link href="/offres">
                   <Briefcase className="size-4" strokeWidth={2} />
                   Voir les offres
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="gap-2">
+              <Button asChild size="lg" variant="outline" className="gap-2 border-primary/20 hover:border-primary/40 hover:bg-secondary/50">
                 <Link href="/proposer-une-offre">
                   <Send className="size-4" strokeWidth={2} />
                   Proposer une offre
@@ -180,30 +191,38 @@ export default async function HomePage() {
             </div>
           </div>
         </div>
+
+        {/* Bottom fade — smooth transition to next section */}
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background to-transparent" aria-hidden />
       </section>
 
       {/* ========================================================= */}
-      {/* STATS BAND — minimal, elegant numbers                     */}
+      {/* STATS BAND — premium with gradient accent bar              */}
       {/* ========================================================= */}
-      <section className="border-b border-border bg-card" aria-label="Chiffres clés">
-        <div className="container mx-auto grid grid-cols-2 gap-8 px-4 py-12 md:grid-cols-4 md:py-14">
-          <StatCard icon={Briefcase} value={String(totalJobs)} label="Offres publiées" />
-          <StatCard icon={Building2} value="4" label="Entreprises partenaires" />
-          <StatCard icon={FileText} value="0" label="Candidatures traitées" />
-          <StatCard icon={Users} value="100%" label="Confidentialité des données" />
+      <section className="relative border-b border-border bg-card" aria-label="Chiffres clés">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 divide-border md:grid-cols-4 md:divide-x">
+            <StatCard icon={Briefcase} value={String(totalJobs)} label="Offres publiées" />
+            <StatCard icon={Building2} value="4" label="Entreprises partenaires" />
+            <StatCard icon={FileText} value="0" label="Candidatures traitées" />
+            <StatCard icon={Users} value="100%" label="Confidentialité des données" />
+          </div>
         </div>
       </section>
 
       {/* ========================================================= */}
       {/* FEATURED JOBS                                              */}
       {/* ========================================================= */}
-      <section className="container mx-auto px-4 py-16 md:py-24" aria-labelledby="featured-jobs-title">
-        <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
+      <section className="container mx-auto px-4 py-20 md:py-28" aria-labelledby="featured-jobs-title">
+        <div className="mb-12 flex flex-wrap items-end justify-between gap-4">
           <div className="max-w-xl">
-            <span className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-              Sélection
-            </span>
-            <h2 id="featured-jobs-title" className="mt-3 font-serif text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+            <div className="flex items-center gap-3">
+              <span className="h-px w-8 bg-accent" />
+              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+                Sélection
+              </span>
+            </div>
+            <h2 id="featured-jobs-title" className="mt-4 font-serif text-3xl font-bold tracking-tight text-foreground md:text-4xl">
               Offres à la une
             </h2>
             <p className="mt-3 text-base text-muted-foreground">
@@ -221,7 +240,7 @@ export default async function HomePage() {
         {jobs.items.length === 0 ? (
           <Card className="border-dashed">
             <CardContent className="flex flex-col items-center justify-center gap-3 py-16 text-center">
-              <div className="flex size-12 items-center justify-center rounded-full bg-secondary">
+              <div className="flex size-12 items-center justify-center rounded-full bg-secondary ring-1 ring-inset ring-primary/10">
                 <Briefcase className="size-5 text-muted-foreground" strokeWidth={1.75} />
               </div>
               <p className="text-sm text-muted-foreground">
@@ -235,7 +254,7 @@ export default async function HomePage() {
               <div
                 key={job.id}
                 className="animate-fade-in-up"
-                style={{ animationDelay: `${i * 60}ms` }}
+                style={{ animationDelay: `${i * 70}ms` }}
               >
                 <JobCard job={job} />
               </div>
@@ -245,19 +264,25 @@ export default async function HomePage() {
       </section>
 
       {/* ========================================================= */}
-      {/* HOW IT WORKS — premium 3-step cards with numbered badges  */}
+      {/* HOW IT WORKS — premium 3-step with numbered cards         */}
       {/* ========================================================= */}
       <section
-        className="relative overflow-hidden border-y border-border bg-secondary/30 py-16 md:py-24"
+        className="noise-overlay relative overflow-hidden border-y border-border bg-secondary/30 py-20 md:py-28"
         aria-labelledby="how-title"
       >
+        {/* Background depth */}
         <div className="absolute inset-0 -z-10 bg-texture-subtle" aria-hidden />
+
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-2xl text-center">
-            <span className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-              Parcours
-            </span>
-            <h2 id="how-title" className="mt-3 font-serif text-3xl font-bold tracking-tight md:text-4xl">
+            <div className="flex items-center justify-center gap-3">
+              <span className="h-px w-8 bg-accent" />
+              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+                Parcours
+              </span>
+              <span className="h-px w-8 bg-accent" />
+            </div>
+            <h2 id="how-title" className="mt-4 font-serif text-3xl font-bold tracking-tight md:text-4xl">
               Comment ça marche
             </h2>
             <p className="mt-3 text-base text-muted-foreground">
@@ -266,54 +291,63 @@ export default async function HomePage() {
           </div>
 
           <div className="mt-12 grid gap-6 md:grid-cols-3">
-            {HOW_IT_WORKS.map((item) => (
-              <Card
-                key={item.title}
-                className="hover-lift relative h-full overflow-hidden border-border/80 bg-card shadow-premium-sm hover:shadow-premium-lg hover:border-primary/30"
-              >
-                {/* Top accent line — subtle premium detail */}
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-                <CardContent className="flex h-full flex-col gap-4 p-7">
-                  <div className="flex items-start justify-between">
-                    <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-inset ring-primary/15">
-                      <item.icon className="size-5" strokeWidth={1.75} />
+            {HOW_IT_WORKS.map((item, i) => (
+              <div key={item.title} className="group relative">
+                {/* Connector line between cards */}
+                {i < HOW_IT_WORKS.length - 1 && (
+                  <div className="absolute -right-3 top-1/2 z-10 hidden h-px w-6 bg-gradient-to-r from-border to-transparent md:block" />
+                )}
+                <Card className="hover-lift relative h-full overflow-hidden border-border/80 bg-card shadow-premium-sm hover:border-primary/30 hover:shadow-premium-lg">
+                  {/* Top accent line with shimmer */}
+                  <div className="shimmer-line h-0.5 bg-gradient-to-r from-primary via-accent to-primary" />
+
+                  <CardContent className="flex h-full flex-col gap-4 p-7">
+                    <div className="flex items-start justify-between">
+                      <div className="relative flex size-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-accent/5 text-primary ring-1 ring-inset ring-primary/15 transition-all group-hover:from-primary/15 group-hover:to-accent/10">
+                        <item.icon className="size-5" strokeWidth={1.75} />
+                      </div>
+                      <span className="font-serif text-4xl font-bold leading-none text-primary/10 transition-colors group-hover:text-primary/20">
+                        {item.step}
+                      </span>
                     </div>
-                    <span className="font-serif text-3xl font-bold text-primary/15">
-                      {item.step}
-                    </span>
-                  </div>
-                  <div>
-                    <h3 className="font-serif text-xl font-semibold tracking-tight text-foreground">
-                      {item.title}
-                    </h3>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                      {item.text}
-                    </p>
-                  </div>
-                  <ul className="mt-auto space-y-1.5 border-t border-border/60 pt-4">
-                    {item.bullets.map((b) => (
-                      <li key={b} className="flex items-center gap-2 text-xs font-medium text-foreground/80">
-                        <CheckCircle2 className="size-3.5 text-accent" strokeWidth={2} />
-                        {b}
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
+                    <div>
+                      <h3 className="font-serif text-xl font-semibold tracking-tight text-foreground">
+                        {item.title}
+                      </h3>
+                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                        {item.text}
+                      </p>
+                    </div>
+                    <ul className="mt-auto space-y-2 border-t border-border/60 pt-4">
+                      {item.bullets.map((b) => (
+                        <li key={b} className="flex items-center gap-2 text-xs font-medium text-foreground/80">
+                          <span className="flex size-4 items-center justify-center rounded-full bg-accent/10">
+                            <CheckCircle2 className="size-3 text-accent" strokeWidth={2.5} />
+                          </span>
+                          {b}
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* ========================================================= */}
-      {/* CATEGORIES — premium grid with Lucide icons               */}
+      {/* CATEGORIES — premium cards with depth + icons             */}
       {/* ========================================================= */}
-      <section className="container mx-auto px-4 py-16 md:py-24" aria-labelledby="categories-title">
-        <div className="mb-10 max-w-2xl">
-          <span className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-            Domaines
-          </span>
-          <h2 id="categories-title" className="mt-3 font-serif text-3xl font-bold tracking-tight md:text-4xl">
+      <section className="container mx-auto px-4 py-20 md:py-28" aria-labelledby="categories-title">
+        <div className="mb-12 max-w-2xl">
+          <div className="flex items-center gap-3">
+            <span className="h-px w-8 bg-accent" />
+            <span className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+              Domaines
+            </span>
+          </div>
+          <h2 id="categories-title" className="mt-4 font-serif text-3xl font-bold tracking-tight md:text-4xl">
             Explorer par catégorie
           </h2>
           <p className="mt-3 text-base text-muted-foreground">
@@ -322,45 +356,52 @@ export default async function HomePage() {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {CATEGORIES.map((cat) => (
-            <Link
+          {CATEGORIES.map((cat, i) => (
+            <div
               key={cat.name}
-              href={`/offres?category=${encodeURIComponent(cat.name)}`}
-              className="hover-lift group relative flex items-start gap-4 overflow-hidden rounded-xl border border-border bg-card p-6 shadow-premium-xs hover:border-primary/30 hover:shadow-premium-lg"
+              className="animate-fade-in-up"
+              style={{ animationDelay: `${i * 50}ms` }}
             >
-              {/* Left accent bar — appears on hover */}
-              <div className="absolute inset-y-0 left-0 w-0.5 bg-gradient-to-b from-primary to-accent opacity-0 transition-opacity group-hover:opacity-100" />
+              <Link
+                href={`/offres?category=${encodeURIComponent(cat.name)}`}
+                className="hover-lift group relative flex items-start gap-4 overflow-hidden rounded-xl border border-border bg-card p-6 shadow-premium-xs hover:border-primary/30 hover:shadow-premium-lg"
+              >
+                {/* Left accent bar — appears on hover */}
+                <div className="absolute inset-y-0 left-0 w-0.5 origin-top scale-y-0 bg-gradient-to-b from-primary to-accent transition-transform duration-300 group-hover:scale-y-100" />
 
-              <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-secondary text-primary ring-1 ring-inset ring-primary/10 transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                <cat.icon className="size-5" strokeWidth={1.75} />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between gap-2">
-                  <h3 className="font-serif text-lg font-semibold tracking-tight text-foreground group-hover:text-primary">
-                    {cat.name}
-                  </h3>
-                  <ArrowRight
-                    className="size-4 shrink-0 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:text-primary"
-                    strokeWidth={2}
-                  />
+                {/* Icon container — gradient + glow on hover */}
+                <div className="relative flex size-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-accent/5 text-primary ring-1 ring-inset ring-primary/10 transition-all duration-300 group-hover:from-primary group-hover:to-accent group-hover:text-white group-hover:shadow-premium">
+                  <cat.icon className="size-5" strokeWidth={1.75} />
                 </div>
-                <p className="mt-1 text-sm text-muted-foreground">{cat.description}</p>
-                <span className="mt-3 inline-flex items-center rounded-full border border-border bg-secondary/60 px-2.5 py-0.5 text-[0.7rem] font-medium uppercase tracking-wide text-muted-foreground">
-                  {cat.count}
-                </span>
-              </div>
-            </Link>
+
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="font-serif text-lg font-semibold tracking-tight text-foreground transition-colors group-hover:text-primary">
+                      {cat.name}
+                    </h3>
+                    <ArrowRight
+                      className="size-4 shrink-0 text-muted-foreground transition-all duration-300 group-hover:translate-x-1 group-hover:text-primary"
+                      strokeWidth={2}
+                    />
+                  </div>
+                  <p className="mt-1 text-sm text-muted-foreground">{cat.description}</p>
+                  <span className="mt-3 inline-flex items-center rounded-full border border-border bg-secondary/60 px-2.5 py-0.5 text-[0.7rem] font-medium uppercase tracking-wide text-muted-foreground">
+                    {cat.count}
+                  </span>
+                </div>
+              </Link>
+            </div>
           ))}
         </div>
       </section>
 
       {/* ========================================================= */}
-      {/* FINAL CTA — premium gradient band                        */}
+      {/* FINAL CTA — premium gradient band with depth              */}
       {/* ========================================================= */}
-      <section className="relative overflow-hidden bg-brand-gradient text-white">
-        {/* Decorative overlay — subtle grid texture */}
+      <section className="noise-overlay relative overflow-hidden bg-brand-gradient text-white">
+        {/* Decorative grid */}
         <div
-          className="absolute inset-0 opacity-[0.06]"
+          className="absolute inset-0 opacity-[0.05]"
           aria-hidden
           style={{
             backgroundImage:
@@ -368,19 +409,29 @@ export default async function HomePage() {
             backgroundSize: '40px 40px',
           }}
         />
-        {/* Decorative glow */}
-        <div className="absolute -right-20 top-0 size-72 rounded-full bg-white/10 blur-3xl" aria-hidden />
-        <div className="absolute -left-20 bottom-0 size-72 rounded-full bg-white/5 blur-3xl" aria-hidden />
+        {/* Aurora orbs */}
+        <div className="absolute inset-0 -z-10" aria-hidden>
+          <div
+            className="aurora-orb size-96 bg-white/15"
+            style={{ top: '-20%', right: '-10%' }}
+          />
+          <div
+            className="aurora-orb size-80 bg-blue-300/20"
+            style={{ bottom: '-15%', left: '-5%', animationDelay: '10s' }}
+          />
+        </div>
 
-        <div className="container relative mx-auto flex flex-col items-center gap-8 px-4 py-16 text-center md:py-24">
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-medium tracking-wide backdrop-blur-sm">
-            <Sparkles className="size-3.5" strokeWidth={2} />
+        <div className="container relative mx-auto flex flex-col items-center gap-8 px-4 py-20 text-center md:py-28">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-medium tracking-[0.18em] backdrop-blur-md">
+            <span className="flex size-1.5 rounded-full bg-white" />
             COMMENCEZ AUJOURD’HUI
           </span>
-          <h2 className="mx-auto max-w-2xl font-serif text-3xl font-bold leading-tight tracking-tight md:text-5xl">
-            Prêt à publier votre offre ou à postuler ?
+          <h2 className="mx-auto max-w-3xl font-serif text-3xl font-bold leading-[1.1] tracking-tight md:text-5xl lg:text-[3.5rem]">
+            Prêt à publier votre offre
+            <br />
+            ou à postuler ?
           </h2>
-          <p className="mx-auto max-w-2xl text-base text-white/80 md:text-lg">
+          <p className="mx-auto max-w-xl text-base text-white/80 md:text-lg">
             Aucune création de compte. Aucun engagement. Vous gardez le contrôle
             total de vos données à chaque étape.
           </p>
@@ -388,7 +439,6 @@ export default async function HomePage() {
             <Button
               asChild
               size="lg"
-              variant="secondary"
               className="gap-2 border-0 bg-white text-primary shadow-premium-lg hover:bg-white/95 hover:text-primary"
             >
               <Link href="/proposer-une-offre">
@@ -424,8 +474,8 @@ function StatCard({
   label: string
 }) {
   return (
-    <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-4">
-      <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-inset ring-primary/10">
+    <div className="group flex flex-col items-start gap-3 px-4 py-8 transition-colors hover:bg-secondary/30 md:flex-row md:items-center md:gap-5 md:px-8">
+      <div className="flex size-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-accent/5 text-primary ring-1 ring-inset ring-primary/10 transition-transform group-hover:scale-105">
         <Icon className="size-5" strokeWidth={1.75} />
       </div>
       <div>
