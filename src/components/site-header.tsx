@@ -9,10 +9,10 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose, SheetDescrip
 import { cn } from '@/lib/utils'
 
 const NAV = [
-  { href: '/', label: 'Accueil', icon: Home },
-  { href: '/offres', label: 'Offres', icon: Briefcase },
-  { href: '/proposer-une-offre', label: 'Proposer une offre', icon: Send },
-  { href: '/suivi-candidature', label: 'Suivi candidature', icon: Eye },
+  { href: '/a-propos', label: 'Le Cabinet', icon: Home },
+  { href: '/offres', label: 'Offres d\'emploi', icon: Briefcase },
+  { href: '/fiches-metiers', label: 'Fiches Métiers', icon: Eye },
+  { href: '/je-recrute', label: 'Je recrute', icon: Send },
 ] as const
 
 export function SiteHeader() {

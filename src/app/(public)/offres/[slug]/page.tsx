@@ -13,6 +13,7 @@ import {
   Tag,
   ArrowLeft,
   Star,
+  BadgeCheck,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -140,8 +141,11 @@ export default async function JobDetailPage({ params }: PageProps) {
                   {job.company && (
                     <span className="inline-flex items-center gap-1.5">
                       <Building2 className="size-4 text-primary" strokeWidth={1.75} />
-                      <span className="font-medium text-foreground/90">
+                      <span className="font-medium text-foreground/90 flex items-center gap-1">
                         {job.company.tradeName ?? job.company.legalName}
+                        {job.company.isVerified && (
+                          <BadgeCheck className="size-4 text-success" strokeWidth={2} aria-label="Entreprise vérifiée" />
+                        )}
                       </span>
                     </span>
                   )}

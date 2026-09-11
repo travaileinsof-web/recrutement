@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import { Briefcase, MapPin, ArrowUpRight, Clock, Banknote, Star } from 'lucide-react'
+import { Briefcase, MapPin, ArrowUpRight, Clock, Banknote, Star, BadgeCheck } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { CONTRACT_LABELS } from '@/lib/status-labels'
@@ -23,8 +23,11 @@ export function JobCard({ job }: { job: PublicJob }) {
               <span className="flex size-6 items-center justify-center rounded-md bg-primary/10 text-[0.65rem] font-semibold uppercase tracking-wide text-primary">
                 {job.company?.legalName?.[0] ?? 'E'}
               </span>
-              <p className="truncate text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="truncate text-xs font-medium uppercase tracking-wide text-muted-foreground flex items-center gap-1">
                 {job.company?.legalName ?? 'Entreprise'}
+                {job.company?.isVerified && (
+                  <BadgeCheck className="size-3.5 text-success" strokeWidth={2} aria-label="Entreprise vérifiée" />
+                )}
               </p>
               {job.isFeatured && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-1.5 py-0.5 text-[0.65rem] font-medium text-amber-700">

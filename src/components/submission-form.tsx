@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
-import { Loader2, Send, X, CheckCircle2, Plus } from 'lucide-react'
+import { Loader2, Send, CheckCircle2, ShieldCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -19,41 +19,30 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { JobSubmissionSchema } from '@/lib/validation'
-import { CONTRACT_LABELS, EXPERIENCE_LABELS } from '@/lib/status-labels'
+import { CONTRACT_LABELS } from '@/lib/status-labels'
+import { WhatsAppChip } from '@/components/premium-ui'
 
 type FormValues = {
   legalName: string
-  tradeName?: string
+  tradeName?: string // Used for RCCM
   companyEmail: string
-  companyPhone?: string
-  website?: string
-  sector?: string
-  city?: string
-  country?: string
-  address?: string
-  contactName: string
-  contactEmail: string
   contactPhone?: string
   title: string
   description: string
   location?: string
   contractType?: string
-  experienceLevel?: string
-  salaryText?: string
-  requiredSkills: string[]
-  deadline?: string
   consent: boolean
   websiteCheck?: string
+  // Defaults to pass schema
+  contactName: string
+  contactEmail: string
 }
 
 const CONTRACT_OPTIONS = Object.entries(CONTRACT_LABELS)
-const EXPERIENCE_OPTIONS = Object.entries(EXPERIENCE_LABELS)
 
 export function SubmissionForm() {
   const [submitting, setSubmitting] = React.useState(false)
   const [success, setSuccess] = React.useState<{ reference: string } | null>(null)
-  const [skills, setSkills] = React.useState<string[]>([])
-  const [skillInput, setSkillInput] = React.useState('')
 
   const {
     register,
@@ -62,61 +51,45 @@ export function SubmissionForm() {
     watch,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(JobSubmissionSchema) as never,
+    resolver: zodResolver(JobSubmissionSchema),
     defaultValues: {
-      legalName: '',
-      tradeName: '',
-      companyEmail: '',
-      companyPhone: '',
-      website: '',
-      sector: '',
-      city: '',
-      country: 'Guin�e',
-      address: '',
-      contactName: '',
-      contactEmail: '',
-      contactPhone: '',
-      title: '',
-      description: '',
-      location: '',
-      contractType: '',
-      experienceLevel: '',
-      salaryText: '',
-      requiredSkills: [],
-      deadline: '',
-      consent: false,
-      websiteCheck: '',
+      contactName: 'Responsable', // Hidden default
+      contactEmail: '', // Synced with companyEmail
     },
   })
 
-  const consent = watch('consent')
-  const contractType = watch('contractType')
-  const experienceLevel = watch('experienceLevel')
+  // Sync companyEmail to contactEmail
+  const companyEmailVal = watch('companyEmail')
+  React.useEffect(() => {
+    setValue('contactEmail', companyEmailVal || '')
+  }, [companyEmailVal, setValue])
 
-  const onSubmit = handleSubmit(async (values) => {
+  const onSubmit = handleSubmit(async (data) => {
     setSubmitting(true)
     try {
-      const payload = { ...values, requiredSkills: skills }
-      const res = await fetch('/api/public/job-submissions', {
+      const payload = {
+        ...data,
+        requiredSkills: [],
+      }
+
+      const res = await fetch('/api/public/submissions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
-      const json = await res.json().catch(() => ({}))
+
+      const result = await res.json()
+
       if (!res.ok) {
-        const msg = json?.error?.message ?? 'Une erreur est survenue.'
-        toast.error(msg)
-        if (json?.error?.issues) {
-          const first = json.error.issues[0]
-          if (first) toast.error(`${first.path}: ${first.message}`)
-        }
-        return
+        throw new Error(result.error ?? 'Erreur lors de la soumission')
       }
-      const data = json?.data ?? json
-      setSuccess({ reference: data.publicReference })
-      toast.success('Proposition envoyée !')
-    } catch (e) {
-      toast.error('Erreur réseau. Réessayez.')
+
+      setSuccess({ reference: result.reference })
+      toast.success('Offre envoyée avec succès')
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    } catch (error) {
+      console.error(error)
+      toast.error(error instanceof Error ? error.message : 'Erreur inconnue')
     } finally {
       setSubmitting(false)
     }
@@ -124,454 +97,190 @@ export function SubmissionForm() {
 
   if (success) {
     return (
-      <div className="rounded-xl border border-border bg-card p-8 text-center shadow-sm">
-        <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-emerald-100">
-          <CheckCircle2 className="size-8 text-emerald-700" />
+      <div className="rounded-2xl border border-border bg-card p-8 md:p-12 text-center shadow-premium-sm">
+        <div className="mx-auto mb-6 flex size-20 items-center justify-center rounded-full bg-success/10 ring-1 ring-inset ring-success/20">
+          <CheckCircle2 className="size-10 text-success" />
         </div>
-        <h2 className="font-serif text-2xl font-bold">Proposition reçue</h2>
-        <p className="mt-3 text-muted-foreground">
-          Merci ! Notre équipe examine votre proposition et reviendra vers vous
-          sous 48h ouvrées.
+        <h2 className="font-serif text-3xl font-bold text-foreground">Proposition reçue</h2>
+        <p className="mt-3 text-lg text-muted-foreground">
+          Notre équipe va examiner votre offre dans les plus brefs délais.
         </p>
-        <div className="mt-6 rounded-lg bg-muted p-4">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">
-            Votre numéro de référence
+        <div className="mx-auto mt-8 max-w-sm rounded-xl bg-secondary/30 p-6 border border-border">
+          <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">
+            Référence de suivi
           </p>
-          <p className="mt-1 font-mono text-lg font-bold text-foreground">
+          <p className="mt-2 font-mono text-2xl font-bold tracking-tight text-foreground">
             {success.reference}
           </p>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Conservez cette référence pour toute communication avec notre équipe.
+          <p className="mt-3 text-sm text-muted-foreground">
+            Conservez cette référence. Un e-mail de confirmation vous a été envoyé.
           </p>
         </div>
-        <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Button asChild>
-            <Link href="/offres">Voir les offres</Link>
+        <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+          <Button asChild variant="outline" className="gap-2 border-primary/20 hover:bg-secondary">
+            <Link href="/suivi-candidature">
+              Suivre la publication
+            </Link>
           </Button>
-          <Button
-            variant="outline"
-            onClick={() => {
-              setSuccess(null)
-              setSkills([])
-            }}
-          >
-            Proposer une autre offre
+          <Button asChild className="gap-2 shadow-premium-sm">
+            <Link href="/offres">
+              Voir le catalogue
+            </Link>
           </Button>
         </div>
       </div>
     )
   }
 
-  const addSkill = () => {
-    const v = skillInput.trim()
-    if (!v) return
-    if (skills.includes(v)) return
-    if (skills.length >= 20) {
-      toast.error('Maximum 20 compétences.')
-      return
-    }
-    setSkills([...skills, v])
-    setSkillInput('')
-  }
-
   return (
-    <form onSubmit={onSubmit} className="space-y-10" noValidate>
+    <form onSubmit={onSubmit} className="space-y-12" noValidate>
       {/* Honeypot */}
       <div aria-hidden className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
-        <label htmlFor="website-check-sub">Ne pas remplir</label>
-        <input
-          id="website-check-sub"
-          type="text"
-          tabIndex={-1}
-          autoComplete="off"
-          {...register('websiteCheck')}
-        />
+        <input type="text" {...register('websiteCheck')} tabIndex={-1} autoComplete="off" />
       </div>
 
-      {/* ENTREPRISE */}
-      <Section
-        number={1}
-        title="Entreprise"
-        description="Informations légales sur l’entreprise qui propose l’offre."
-      >
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field
-            label="Raison sociale"
-            required
-            error={errors.legalName?.message as string}
+      <div className="space-y-8">
+        <div>
+          <h3 className="font-serif text-2xl font-bold text-foreground flex items-center gap-2">
+            1. L'Entreprise
+          </h3>
+          <p className="text-muted-foreground mt-1 text-sm">Vos informations restent confidentielles jusqu'à validation.</p>
+        </div>
+        <div className="grid gap-6 sm:grid-cols-2">
+          <Field label="Nom de l'entreprise *" error={errors.legalName?.message}>
+            <Input {...register('legalName')} placeholder="TalentForge SA" className="bg-secondary/30" />
+          </Field>
+          <Field 
+            label="N° RCCM (Vérification)" 
+            error={errors.tradeName?.message}
           >
-            <Input
-              {...register('legalName')}
-              autoComplete="organization"
-              placeholder="Acme Robotics SAS"
-              aria-invalid={!!errors.legalName}
-            />
+            <div className="relative">
+              <Input {...register('tradeName')} placeholder="GN.TCC.2024.B..." className="bg-secondary/30 pr-10" />
+              <ShieldCheck className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-success/70" />
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">Nécessaire pour garantir l'authenticité de l'offre.</p>
           </Field>
-          <Field label="Nom commercial">
-            <Input
-              {...register('tradeName')}
-              placeholder="Acme"
-            />
+          <Field label="E-mail de contact *" error={errors.companyEmail?.message}>
+            <Input type="email" {...register('companyEmail')} placeholder="rh@entreprise.gn" className="bg-secondary/30" />
           </Field>
-          <Field
-            label="E-mail entreprise"
-            required
-            error={errors.companyEmail?.message as string}
-          >
-            <Input
-              type="email"
-              {...register('companyEmail')}
-              autoComplete="work email"
-              placeholder="contact@entreprise.fr"
-              aria-invalid={!!errors.companyEmail}
-            />
-          </Field>
-          <Field label="Téléphone entreprise">
-            <Input
-              type="tel"
-              {...register('companyPhone')}
-              placeholder="+224 621 11 22 33"
-            />
-          </Field>
-          <Field
-            label="Site web"
-            error={errors.website?.message as string}
-          >
-            <Input
-              type="url"
-              {...register('website')}
-              placeholder="https://entreprise.fr"
-            />
-          </Field>
-          <Field label="Secteur d’activité">
-            <Input
-              {...register('sector')}
-              placeholder="Robotique, Énergie, Santé…"
-            />
-          </Field>
-          <Field label="Ville">
-            <Input
-              {...register('city')}
-              placeholder="Conakry"
-            />
-          </Field>
-          <Field label="Pays">
-            <Input
-              {...register('country')}
-              defaultValue="Guin�e"
-              placeholder="Guin�e"
-            />
-          </Field>
-          <Field label="Adresse" className="sm:col-span-2">
-            <Input
-              {...register('address')}
-              placeholder="Avenue de la République, Kaloum, Conakry"
-            />
+          <Field label="Téléphone" error={errors.contactPhone?.message}>
+            <Input type="tel" {...register('contactPhone')} placeholder="+224 6..." className="bg-secondary/30" />
           </Field>
         </div>
-      </Section>
+      </div>
 
-      {/* CONTACT */}
-      <Section
-        number={2}
-        title="Contact"
-        description="La personne avec qui nous échangerons au sujet de cette offre."
-      >
-        <div className="grid gap-4 sm:grid-cols-3">
-          <Field
-            label="Nom du contact"
-            required
-            error={errors.contactName?.message as string}
-          >
-            <Input
-              {...register('contactName')}
-              placeholder="Camille Dubois"
-              aria-invalid={!!errors.contactName}
-            />
-          </Field>
-          <Field
-            label="E-mail du contact"
-            required
-            error={errors.contactEmail?.message as string}
-          >
-            <Input
-              type="email"
-              {...register('contactEmail')}
-              placeholder="camille@entreprise.fr"
-              aria-invalid={!!errors.contactEmail}
-            />
-          </Field>
-          <Field label="Téléphone du contact">
-            <Input
-              type="tel"
-              {...register('contactPhone')}
-              placeholder="+224 622 33 44 55"
-            />
-          </Field>
+      <hr className="border-border/60" />
+
+      <div className="space-y-8">
+        <div>
+          <h3 className="font-serif text-2xl font-bold text-foreground">2. Le Poste</h3>
+          <p className="text-muted-foreground mt-1 text-sm">Les détails de votre offre qui seront publiés.</p>
         </div>
-      </Section>
-
-      {/* POSTE */}
-      <Section
-        number={3}
-        title="Poste"
-        description="Décrivez le poste à pourvoir. La description doit contenir au moins 80 caractères."
-      >
-        <div className="grid gap-4">
-          <Field
-            label="Titre du poste"
-            required
-            error={errors.title?.message as string}
-          >
-            <Input
-              {...register('title')}
-              placeholder="Ingénieur·e Robotique Senior"
-              aria-invalid={!!errors.title}
-            />
+        <div className="grid gap-6 sm:grid-cols-2">
+          <Field label="Titre du poste *" className="sm:col-span-2" error={errors.title?.message}>
+            <Input {...register('title')} placeholder="Développeur Full-Stack (H/F)" className="bg-secondary/30" />
           </Field>
-          <Field
-            label="Description du poste"
-            required
-            error={errors.description?.message as string}
-          >
+          <Field label="Type de contrat" error={errors.contractType?.message}>
+            <Select onValueChange={(val) => setValue('contractType', val)} defaultValue={watch('contractType')}>
+              <SelectTrigger className="bg-secondary/30">
+                <SelectValue placeholder="Sélectionnez..." />
+              </SelectTrigger>
+              <SelectContent>
+                {CONTRACT_OPTIONS.map(([val, label]) => (
+                  <SelectItem key={val} value={val}>
+                    {label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="Localisation" error={errors.location?.message}>
+            <Input {...register('location')} placeholder="Conakry, Guinée" className="bg-secondary/30" />
+          </Field>
+          <Field label="Description du poste *" className="sm:col-span-2" error={errors.description?.message}>
             <Textarea
               {...register('description')}
               rows={8}
-              placeholder="Missions, profil recherché, contexte, avantages… (min. 80 caractères)"
-              aria-invalid={!!errors.description}
+              className="resize-y bg-secondary/30 font-sans"
+              placeholder="Décrivez les missions, le profil recherché et ce que vous offrez..."
             />
-            <p className="text-xs text-muted-foreground">
-              Astuce : séparez les sections par des lignes vides pour une meilleure lisibilité.
+            <p className="text-xs text-muted-foreground mt-2 flex items-center justify-between">
+              <span>Minimum 80 caractères. Soyez précis et authentique.</span>
+              <span>{watch('description')?.length || 0} car.</span>
             </p>
           </Field>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Field label="Localisation">
-              <Input
-                {...register('location')}
-                placeholder="Conakry — hybride"
-              />
-            </Field>
-            <Field
-              label="Type de contrat"
-              error={errors.contractType?.message as string}
-            >
-              <Select
-                value={contractType || '__all__'}
-                onValueChange={(v) =>
-                  setValue('contractType', v === '__all__' ? '' : v, { shouldValidate: true })
-                }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Choisir…" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__all__">—</SelectItem>
-                  {CONTRACT_OPTIONS.map(([value, label]) => (
-                    <SelectItem key={value} value={value}>
-                      {label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
-            <Field
-              label="Niveau d’expérience"
-              error={errors.experienceLevel?.message as string}
-            >
-              <Select
-                value={experienceLevel || '__all__'}
-                onValueChange={(v) =>
-                  setValue('experienceLevel', v === '__all__' ? '' : v, { shouldValidate: true })
-                }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Choisir…" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__all__">—</SelectItem>
-                  {EXPERIENCE_OPTIONS.map(([value, label]) => (
-                    <SelectItem key={value} value={value}>
-                      {label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
-            <Field label="Salaire (texte libre)">
-              <Input
-                {...register('salaryText')}
-                placeholder="45–55 k€ + bonus"
-              />
-            </Field>
-          </div>
         </div>
-      </Section>
+      </div>
 
-      {/* CRITÈRES */}
-      <Section
-        number={4}
-        title="Critères"
-        description="Compétences attendues et date limite de candidature."
-      >
-        <div className="grid gap-4">
-          <Field label="Compétences requises">
-            <div className="flex flex-wrap gap-1.5">
-              {skills.map((s) => (
-                <span
-                  key={s}
-                  className="inline-flex items-center gap-1 rounded-md bg-secondary px-2 py-1 text-xs font-medium text-secondary-foreground"
-                >
-                  {s}
-                  <button
-                    type="button"
-                    aria-label={`Retirer ${s}`}
-                    onClick={() => setSkills(skills.filter((x) => x !== s))}
-                  >
-                    <X className="size-3" />
-                  </button>
-                </span>
-              ))}
-            </div>
-            <div className="mt-2 flex gap-2">
-              <Input
-                value={skillInput}
-                onChange={(e) => setSkillInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ',') {
-                    e.preventDefault()
-                    addSkill()
-                  }
-                }}
-                placeholder="Tapez une compétence puis Entrée"
-              />
-              <Button type="button" variant="outline" onClick={addSkill} className="gap-1.5">
-                <Plus className="size-4" />
-                Ajouter
-              </Button>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Astuce : séparez les compétences par Entrée ou virgule. Max 20.
-            </p>
-          </Field>
-          <Field
-            label="Date limite de candidature"
-            error={errors.deadline?.message as string}
-          >
-            <Input
-              type="date"
-              {...register('deadline')}
-            />
-          </Field>
-        </div>
-      </Section>
+      <hr className="border-border/60" />
 
-      {/* CONSENTEMENT */}
-      <Section
-        number={5}
-        title="Consentement"
-        description="Acceptez les conditions pour que votre proposition soit traitée."
-      >
+      <div className="space-y-6">
         <label
-          htmlFor="sub-consent"
-          className="flex items-start gap-3 text-sm leading-relaxed"
+          htmlFor="consent"
+          className="group flex cursor-pointer items-start gap-4 rounded-xl border border-border bg-secondary/10 p-5 transition-colors hover:bg-secondary/30"
         >
           <Checkbox
-            id="sub-consent"
-            checked={consent}
-            onCheckedChange={(v) => setValue('consent', v === true, { shouldValidate: true })}
+            id="consent"
+            checked={watch('consent')}
+            onCheckedChange={(checked) => setValue('consent', checked === true)}
+            className="mt-1 border-primary/30 text-primary data-[state=checked]:bg-primary"
           />
-          <span className="text-foreground">
-            Je certifie que les informations fournies sont exactes et j’accepte
-            que TalentForge les traite pour évaluer ma proposition d’offre,
-            conformément à la{' '}
-            <Link
-              href="/confidentialite"
-              target="_blank"
-              className="font-medium text-primary hover:underline"
-            >
-              politique de confidentialité
-            </Link>
-            . <span className="text-destructive">*</span>
-          </span>
-        </label>
-        {errors.consent && (
-          <p className="mt-2 text-xs text-destructive">{errors.consent.message}</p>
-        )}
-
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-          <Button type="submit" size="lg" disabled={submitting} className="gap-2">
-            {submitting ? (
-              <>
-                <Loader2 className="size-4 animate-spin" />
-                Envoi en cours…
-              </>
-            ) : (
-              <>
-                <Send className="size-4" />
-                Envoyer ma proposition
-              </>
+          <div className="grid gap-1.5">
+            <span className="font-medium text-foreground">
+              J'accepte les conditions générales
+            </span>
+            <span className="text-sm text-muted-foreground leading-relaxed">
+              En soumettant cette offre, je certifie que les informations sont exactes et 
+              j'accepte la politique de confidentialité. Un compte anonyme lié à cette 
+              offre sera généré pour m'en permettre le suivi.
+            </span>
+            {errors.consent && (
+              <span className="text-xs text-destructive mt-1 font-medium">{errors.consent.message}</span>
             )}
-          </Button>
-          <Button asChild variant="outline" size="lg">
-            <Link href="/offres">Voir les offres existantes</Link>
-          </Button>
-        </div>
-      </Section>
-    </form>
-  )
-}
+          </div>
+        </label>
+      </div>
 
-function Section({
-  number,
-  title,
-  description,
-  children,
-}: {
-  number: number
-  title: string
-  description?: string
-  children: React.ReactNode
-}) {
-  return (
-    <section className="rounded-xl border border-border bg-card p-6 shadow-sm">
-      <header className="mb-5 flex items-start gap-3">
-        <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
-          {number}
-        </span>
-        <div>
-          <h2 className="font-serif text-xl font-semibold text-foreground">{title}</h2>
-          {description && (
-            <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+        <Button
+          type="submit"
+          disabled={submitting}
+          size="lg"
+          className="w-full sm:w-auto min-w-[200px] gap-2 shadow-premium-sm"
+        >
+          {submitting ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <Send className="size-4" strokeWidth={2} />
           )}
+          Soumettre l'offre
+        </Button>
+        
+        <div className="text-center sm:text-right">
+          <p className="text-sm text-muted-foreground mb-2">Besoin d'aide ?</p>
+          <WhatsAppChip />
         </div>
-      </header>
-      <div className="space-y-4">{children}</div>
-    </section>
+      </div>
+    </form>
   )
 }
 
 function Field({
   label,
-  required,
   error,
-  children,
   className,
+  children,
 }: {
   label: string
-  required?: boolean
   error?: string
-  children: React.ReactNode
   className?: string
+  children: React.ReactNode
 }) {
   return (
-    <div className={`space-y-1.5 ${className ?? ''}`}>
-      <Label>
-        {label}
-        {required && <span className="text-destructive"> *</span>}
-      </Label>
+    <div className={`space-y-2 ${className ?? ''}`}>
+      <Label className="text-sm font-semibold text-foreground/90">{label}</Label>
       {children}
-      {error && <p className="text-xs text-destructive">{error}</p>}
+      {error && <p className="text-xs font-medium text-destructive">{error}</p>}
     </div>
   )
 }
-

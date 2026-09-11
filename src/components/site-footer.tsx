@@ -5,20 +5,27 @@ const FOOTER_LINKS = [
   {
     title: 'Plateforme',
     links: [
-      { href: '/offres', label: 'Offres d’emploi' },
-      { href: '/proposer-une-offre', label: 'Proposer une offre' },
+      { href: '/offres', label: 'Offres d\'emploi' },
+      { href: '/je-recrute', label: 'Je recrute' },
       { href: '/suivi-candidature', label: 'Suivre ma candidature' },
-      { href: '/aide-candidatures', label: 'Aide & FAQ' },
+      { href: '/fiches-metiers', label: 'Fiches Métiers' },
     ],
   },
   {
-    title: 'Informations',
+    title: 'Le Cabinet',
     links: [
-      { href: '/a-propos', label: 'À propos' },
+      { href: '/a-propos', label: 'Le Cabinet' },
+      { href: '/evaluation', label: 'Notre évaluation' },
+      { href: '/temoignages', label: 'Témoignages' },
+      { href: '/blog', label: 'Blog & Actualités' },
+    ],
+  },
+  {
+    title: 'Légal & Contact',
+    links: [
       { href: '/contact', label: 'Contact' },
       { href: '/confidentialite', label: 'Confidentialité (RGPD)' },
-      { href: '/conditions', label: 'Conditions d’utilisation' },
-      { href: '/cookies', label: 'Cookies' },
+      { href: '/conditions', label: 'CGU' },
     ],
   },
 ] as const
@@ -30,7 +37,7 @@ export function SiteFooter() {
       <div className="h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
       <div className="container mx-auto px-4 py-14 md:py-16">
-        <div className="grid gap-12 md:grid-cols-[1.5fr_1fr_1fr_1.2fr]">
+        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1fr]">
           {/* Brand block */}
           <div>
             <Link href="/" className="group inline-flex items-center gap-2.5" aria-label="Accueil TalentForge">

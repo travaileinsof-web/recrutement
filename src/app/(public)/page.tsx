@@ -24,6 +24,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { JobCard } from '@/components/job-card'
+import { HandwrittenSubtitle, DualActionButtons, WhatsAppChip } from '@/components/premium-ui'
 import { serverFetch } from '@/lib/server-fetch'
 import type { PaginatedJobs } from '@/lib/types'
 
@@ -136,7 +137,10 @@ export default async function HomePage() {
                 PLATEFORME DE RECRUTEMENT SANS COMPTES PUBLICS
               </span>
 
-              <h1 className="mt-7 font-serif text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-[4.25rem]">
+              <div className="mb-6">
+                <HandwrittenSubtitle>Le recrutement, simplement.</HandwrittenSubtitle>
+              </div>
+              <h1 className="font-serif text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-[4.25rem]">
                 <span className="block">Recrutez sans friction.</span>
                 <span className="mt-1 block bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
                   Candidatez sans compte.
@@ -145,9 +149,19 @@ export default async function HomePage() {
 
               <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg lg:mx-0">
                 TalentForge met en relation entreprises et talents sans jamais exiger
-                la création d’un compte public. Publiez une offre ou postulez en
+                la création d'un compte public. Publiez une offre ou postulez en
                 quelques minutes, en toute confidentialité.
               </p>
+
+              <div className="mt-8 mb-4">
+                <DualActionButtons 
+                  primaryText="Voir les offres"
+                  primaryHref="/offres"
+                  secondaryText="Un besoin ? Discutons-en"
+                  secondaryHref="/je-recrute"
+                  className="lg:justify-start"
+                />
+              </div>
 
               {/* Search bar — ultra-premium with gradient focus ring */}
               <form

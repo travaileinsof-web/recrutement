@@ -1,24 +1,32 @@
 import type { Metadata } from 'next'
-import { Inter, Playfair_Display } from 'next/font/google'
+import { Nunito_Sans, Fraunces, Caveat } from 'next/font/google'
 import './globals.css'
 import { Toaster } from '@/components/ui/sonner'
 import { ThemeProvider } from '@/components/theme-provider'
+import { FloatingWhatsApp } from '@/components/floating-whatsapp'
 
-const inter = Inter({
-  variable: '--font-inter',
+const nunito = Nunito_Sans({
+  variable: '--font-sans',
   subsets: ['latin'],
   display: 'swap',
 })
 
-const playfair = Playfair_Display({
-  variable: '--font-playfair',
+const fraunces = Fraunces({
+  variable: '--font-serif',
+  subsets: ['latin'],
+  display: 'swap',
+  axes: ['opsz', 'SOFT', 'WONK'],
+})
+
+const caveat = Caveat({
+  variable: '--font-script',
   subsets: ['latin'],
   display: 'swap',
 })
 
 export const metadata: Metadata = {
   title: {
-    default: 'TalentForge — Recrutez sans friction, candidatez sans compte',
+    default: 'TalentForge — Recrutement à Conakry sans friction',
     template: '%s · TalentForge',
   },
   description:
@@ -29,6 +37,8 @@ export const metadata: Metadata = {
     'candidature',
     'sans compte',
     'TalentForge',
+    'Conakry',
+    'Guinée'
   ],
   authors: [{ name: 'TalentForge' }],
   icons: {
@@ -47,34 +57,51 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const orgJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'TalentForge',
-    url: 'https://talentforge.gn',
-    logo: 'https://talentforge.gn/logo.svg',
-    sameAs: [],
-  }
-
   return (
     <html lang="fr" suppressHydrationWarning>
       <head>
+        <meta
+          name="theme-color"
+          media="(prefers-color-scheme: light)"
+          content="#FAF8F5"
+        />
+        <meta
+          name="theme-color"
+          media="(prefers-color-scheme: dark)"
+          content="#1E1C22"
+        />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Organization',
+              name: 'TalentForge',
+              url: 'https://talentforge.gn',
+              logo: 'https://talentforge.gn/logo.png',
+              contactPoint: {
+                '@type': 'ContactPoint',
+                email: 'contact@talentforge.gn',
+                contactType: 'customer service',
+                areaServed: 'GN',
+                availableLanguage: 'French',
+              },
+            }),
+          }}
         />
       </head>
       <body
-        className={`${inter.variable} ${playfair.variable} antialiased bg-background text-foreground`}
+        className={`${nunito.variable} ${fraunces.variable} ${caveat.variable} antialiased bg-background text-foreground`}
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
-          enableSystem={false}
+          defaultTheme="system"
+          enableSystem
           disableTransitionOnChange
         >
           <div className="flex min-h-screen flex-col">{children}</div>
           <Toaster richColors position="top-right" />
+          <FloatingWhatsApp />
         </ThemeProvider>
       </body>
     </html>

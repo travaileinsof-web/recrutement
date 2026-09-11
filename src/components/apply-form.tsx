@@ -234,23 +234,37 @@ export function ApplyForm({ job }: { job: PublicJob }) {
         )}
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row">
-        <Button type="submit" size="lg" disabled={submitting} className="gap-2">
-          {submitting ? (
-            <>
-              <Loader2 className="size-4 animate-spin" />
-              Envoi en cours…
-            </>
-          ) : (
-            <>
-              <Send className="size-4" />
-              Envoyer ma candidature
-            </>
-          )}
-        </Button>
-        <Button asChild variant="outline" size="lg">
-          <Link href={`/offres/${job.slug}`}>Annuler</Link>
-        </Button>
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <Button type="submit" size="lg" disabled={submitting} className="w-full sm:w-auto gap-2 shadow-premium-sm">
+            {submitting ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                Envoi en cours...
+              </>
+            ) : (
+              <>
+                <Send className="size-4" strokeWidth={2} />
+                Envoyer ma candidature
+              </>
+            )}
+          </Button>
+          <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
+            <Link href={`/offres/${job.slug}`}>Annuler</Link>
+          </Button>
+        </div>
+        
+        <div className="text-center sm:text-right">
+          <p className="text-sm text-muted-foreground mb-2">Une question ?</p>
+          <a
+            href="https://wa.me/224620000000?text=Bonjour%2C%20je%20souhaite%20des%20renseignements%20sur%20une%20offre"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-full bg-[#25D366]/10 px-4 py-2 text-sm font-medium text-[#1DA851] transition-all hover:bg-[#25D366]/20 ring-1 ring-inset ring-[#25D366]/20"
+          >
+            Discuter sur WhatsApp
+          </a>
+        </div>
       </div>
 
       <div className="rounded-md bg-muted p-3 text-xs text-muted-foreground">

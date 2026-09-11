@@ -1,0 +1,934 @@
+<USER_REQUEST>
+ok on va recustomiser le site   Talent Forge 2.0 — Plan de transformation
+Faire de TalentForge la version améliorée de Finance Recrutement, adaptée au marché de Conakry
+
+Volume 3 de la série : rapport_finance_recrutement.pdf (audit FR) + rapport_talentforge.pdf (audit TF) + ce plan.
+Équipe Projet Web & Digital · Septembre 2026 · Version Markdown pour copie directe.
+
+Table des matières
+La vision : Finance Recrutement 2.0
+L'ADN de l'original à transplanter
+Le châssis TalentForge : garder, corriger, ajouter
+Design system 2.0
+Architecture et arborescence 2.0
+Pages clés : avant / après
+Contenus et copywriting
+SEO technique 2.0
+Fonctionnalités 2.0
+Feuille de route P0 · P1 · P2
+KPIs et checklist de lancement
+A. Matrice de migration FR → Talent Forge
+1. La vision : Finance Recrutement 2.0
+Ce document ne s'analyse plus, il transforme. Les deux premiers volumes ont respectivement audité finance-recrutement.fr, le cabinet lillois spécialiste des métiers du chiffre, puis TalentForge, le prototype Next.js déployé sur Vercel. La décision prise est claire : TalentForge doit devenir la version améliorée de Finance Recrutement — un site qui parle, rassure et convainc comme l'original, mais qui court, s'affiche et se pilote comme une application de nouvelle génération. Ce plan définit la manière d'y parvenir : ce qu'on transplante, ce qu'on corrige, ce qu'on invente, et dans quel ordre.
+
+Les deux audits ont convergé vers un diagnostic d'une lisibilité remarquable, résumé en une phrase : TalentForge a résolu l'expérience, Finance Recrutement a résolu la crédibilité. Le prototype affiche un temps jusqu'au premier octet de 0,29 à 0,40 seconde et n'exige que 25 requêtes par page, contre 1,6 seconde de chargement du DOM et 123 requêtes pour le site WordPress — mais il ne contient aucune offre, aucun article, aucune fiche métier, et son formulaire de suivi renvoie une erreur interne. À l'inverse, le cabinet lillois aligne 645 URL publiées, 482 offres actives, 40 fiches métiers, 61 articles de blog, quinze ans de chiffres vérifiables et une voix éditoriale singulière — mais son moteur est lourd, son SEO truffé de défauts évitables et son expérience candidat parfois franchement datée. La transformation consiste précisément à souder ces deux moitiés complémentaires.
+
+Indicateur
+Finance Recrutement
+TalentForge actuel
+URL publiées	645	11
+Requêtes par page	123	25
+Chargement	DOM 1,6 s	TTFB 0,29–0,40 s
+Note contenu	9,5 / 10	3 / 10
+
+1.1 — Les trois mouvements de la transformation
+Le plan s'articule en trois mouvements qui se succèdent mais s'entrecroisent dans la feuille de route du chapitre 10.
+
+Premier mouvement : transplanter l'ADN. La tonalité de Finance Recrutement n'est pas un habillage, c'est un système complet — une palette chaude, trois voix typographiques, un pronom « on » qui parle comme un artisan, une machine à confiance faite de compteurs, de témoignages et d'engagements écrits, et une profondeur éditoriale qui fait du site une encyclopédie du recrutement financier. Ce système est décrit au chapitre 2 et transplanté, élément par élément, dans les chapitres 4 à 7.
+
+Deuxième mouvement : corriger les défauts des deux parents. TalentForge doit faire mieux que l'original, pas seulement différemment. Les défauts de l'original — balises H1 manquantes sur les pages stratégiques, meta description unique pour tout le site, absence de données structurées, pages lourdes — deviennent une liste d'exigences de conception : ce qui était à corriger en rattrapage chez Finance Recrutement se construit proprement dès le départ chez TalentForge. Symétriquement, les défauts du prototype — backend non branché, identité fictive, formulaire entreprise à vingt champs, tonalité « template SaaS » froide — sont traités aux chapitres 4, 7 et 9.
+
+Troisième mouvement : dépasser l'original. WhatsApp, salaires en francs guinéens, vérification des entreprises, suivi sans compte : le chapitre 9 ajoute ce que ni l'un ni l'autre n'ont, parce que le terrain visé — Conakry — l'exige.
+
+1.2 — Où en sont les deux sites, en un coup d'œil
+Les notations des deux audits, portées sur six axes, livrent trois lectures. D'abord, la diagonale du prototype : excellent sur l'expérience (8,5), effondré sur le contenu (3) et la crédibilité (4) — l'inverse exact de l'original. Ensuite, la cible 2.0 ne cherche pas la note parfaite partout : quelques dixièmes sont volontairement laissés en réserve sur l'expérience pure, car le gain décisif se situe sur les trois axes où le prototype échoue. Enfin, l'axe SEO est celui qui progresse le plus : il passe de 5 à 8,5 non pas en rattrapant l'original mais en évitant ses erreurs — le sitemap, les H1, les descriptions uniques et les données structurées sont posés dès la conception, au lieu d'être ajoutés après coup sur 645 pages existantes.
+
+Principe directeur du plan. Garder l'âme de l'original — la chaleur, la confiance, la profondeur ; garder le moteur du prototype — la vitesse, la propreté, le sans-compte ; corriger les défauts des deux parents dès la conception ; et re-territorialiser l'ensemble pour Conakry : canaux, monnaie, preuves et portraits locaux.
+
+2. L'ADN de l'original à transplanter
+Avant de transformer, il faut nommer précisément ce qui constitue la « tonalité » de Finance Recrutement — ce quelque chose qui fait qu'un visiteur comprend en dix secondes qu'il a affaire à un cabinet de personnes, et non à un logiciel. L'audit a permis d'isoler quatre composantes distinctes, chacune observable, mesurable et donc transplantable : une voix éditoriale, une machine à confiance, une profondeur de contenu et une architecture de conversion à double couloir.
+
+2.1 — La voix : un cabinet qui parle avec « on »
+La première composante est langagière. Le site lillois s'adresse à ses lecteurs avec le « on » de l'artisan qui s'engage personnellement : « Choisissez le profil qui vous correspond », « Un besoin ? Discutons-en », « Nous vous proposons… ». Les titres ne décrivent pas des fonctionnalités, ils parlent au lecteur : « Restez à la page avec nos dernières actualités », « Inscrivez-vous à notre newsletter ». Chaque fiche d'offre s'organise en trois sections qui parlent directement au candidat — « Votre mission », « Votre profil », « Nous vous proposons » — et se termine par un engagement de confidentialité rédigé comme une promesse morale, pas comme une clause légale. Cette voix tranche avec le registre impersonnel du prototype (« Soumettez votre offre, notre équipe la valide »), correct mais interchangeable, qu'on pourrait lire sur n'importe quelle application SaaS.
+
+La voix s'accompagne d'un régime typographique unique en son genre. La palette — charbon profond #202020, bleu-violet d'action #4a52a8, blanc cassé crème #fbf9f7, lavande claire #ececfa — donne un ton à la fois expert et chaleureux. Surtout, trois voix typographiques se partagent la page : Nunito Sans, arrondie et lisible, porte les corps de texte ; Gochi Hand, une écriture manuscrite, signe les surtitres et les annotations comme des notes au crayon ; et la display Sailors_Rough réserve son caractère au logotype. Le manuscrit en particulier est un actif différenciant : il dit que derrière le site, quelqu'un écrit. TalentForge, avec son Inter et son Playfair Display sur fond blanc, ne possède rien de tel — c'est précisément ce vide que le design system 2.0 (chapitre 4) comble.
+
+2.2 — La machine à confiance
+Deuxième composante : un dispositif de preuve qui occupe chaque page stratégique. En tête, quatre compteurs issus de quinze ans d'activité — 25 200 candidats suivis, 1 210 clients, 4 530 missions réalisées — mis en scène en bandeau sur la page cabinet. Autour, les avis Google nominatifs avec avatars, l'adresse physique complète et le téléphone fixe répétés dans le pied de page de toutes les pages, l'identité de la fondatrice mise en avant avec citation directe (« Notre valeur ajoutée est notre accompagnement sur mesure et notre coaching personnalisé »), et deux encadrés symétriques d'engagement — l'un envers le candidat, l'autre envers le client. Chaque fiche d'offre rappelle enfin l'engagement de confidentialité stricte du cabinet, un argument décisif pour les candidats en poste.
+
+Le prototype possède une intention de transparence remarquable — afficher des zéros honnêtes plutôt que des chiffres gonflés, documenter le workflow de modération sous 48 heures, promettre un journal d'audit — mais il lui manque les matières premières de la confiance : des visages, des noms, des témoignages nominatifs, des coordonnées vérifiables. Ses quatre portraits professionnels africains vont dans la bonne direction ; son adresse au « 12 rue de l'Innovation » et son e-mail en talentforge.local la détruisent immédiatement auprès de tout décideur attentif. La transformation consiste à garder l'honnêteté du prototype et à lui donner les preuves de l'original — version Conakry : adresse réelle à Kaloum ou Ratoma, équipe nominative, témoignages de partenaires guinéens, numéro d'enregistrement au registre du commerce.
+
+2.3 — La profondeur éditoriale
+Troisième composante : le volume et la structure du contenu. Le site lillois n'est pas une vitrine, c'est une bibliothèque : 482 fiches d'offres détaillées suivant un gabarit unique, 37 pages « types d'offres » qui capturent les requêtes génériques, 40 fiches métiers organisées en quatre familles, 61 articles de blog répartis en dix catégories, et une dizaine de pages institutionnelles. Cette profondeur remplit trois fonctions à la fois : elle capte le trafic organique sur des centaines de requêtes, elle nourrit l'autorité thématique du cabinet aux yeux des moteurs, et elle fournit aux visiteurs de la matière qui les fait rester. Le prototype, lui, n'a qu'une FAQ de dix questions : sa boucle de contenu est vide, et avec elle tout espoir d'acquisition organique.
+
+La leçon structurante n'est pas le chiffre brut — personne ne publie 645 pages en un jour — mais la méthode : sept gabarits réutilisables remplis semi-automatiquement, une taxonomie stable (métier × contrat), une cadence régulière. Le plan de transposition (chapitre 5) reprend exactement cette mécanique : les gabarits du prototype — fiche d'offre, listing, page institutionnelle — deviennent les moules d'une production éditoriale calibrée pour le marché guinéen, avec des cibles réalistes : trente offres fondatrices, dix fiches métiers, deux articles par mois.
+
+2.4 — Le double couloir de conversion
+Quatrième composante : une architecture qui sert simultanément deux audiences sans les faire se marcher dessus. Chez l'original, le couloir candidat va de l'accueil aux offres (un clic), de l'offre à la candidature pré-remplie (deux clics), avec la newsletter en filet de secours ; le couloir entreprise passe par la page « Je suis une entreprise », la page évaluation et le double appel à l'action « Un besoin ? Discutons-en » + « CONTACTEZ-NOUS ». Le prototype, lui, est biaisé : son bouton principal « Proposer une offre » sert l'entreprise, mais le candidat n'a qu'une barre de recherche, et aucun des deux mondes ne dispose de la page de services qui transforme l'intérêt en dossier — pas d'équivalent de l'évaluation technique, pas de présentation du cabinet digne de ce nom. Le chapitre 6 rééquilibre les deux couloirs sur l'accueil refondu, et le chapitre 5 greffe les pages manquantes.
+
+Tableau 1 — Les sept éléments d'ADN identifiés et leur point de greffe
+
+Élément d'ADN
+Chez l'original
+Destination Talent Forge 2.0
+Voix « on »	« Un besoin ? Discutons-en », « Nous vous proposons… » sur toutes les pages clés	Chapitre 7 : guide de voix + copywriting prêt à l'emploi
+Manuscrit décoratif	Gochi Hand en surtitres et annotations	Chapitre 4 : Caveat, successeur moderne, même usage
+Compteurs de preuve	15 ans · 25 200 candidats · 1 210 clients · 4 530 missions	Chapitre 6 : page « Notre cabinet » avec compteurs réadaptés
+Témoignages nominatifs	Avis Google + citation de la fondatrice	Chapitre 6 : témoignage DRH partenaire + équipe nominative
+Engagements écrits	Confidentialité sur chaque offre ; encadrés candidat / client	Chapitres 6-7 : bandeau confidentialité sur chaque fiche
+Profondeur éditoriale	482 offres · 40 fiches métiers · 61 articles · 10 catégories	Chapitres 5 et 7 : gabarits + calendrier (30 offres, 10 fiches, 2 articles/mois)
+Double couloir	Accueil bifurque candidat / entreprise	Chapitres 5-6 : double CTA dès le hero + pages « Je recrute » et « Évaluation »
+
+3. Le châssis TalentForge : garder, corriger, ajouter
+Transformer n'est pas tout remplacer. La valeur du prototype réside dans son squelette technique, qui doit être préservé tel quel — c'est lui qui rend la transformation abordable. Next.js App Router avec React Server Components et Server Actions, déployé sur le réseau edge de Vercel, habillé par Tailwind CSS et shadcn/ui, éclairé par next-themes en mode clair et sombre, typographié par next/font qui sous-ensemble automatiquement les polices : chaque brique est moderne, cohérente avec les autres, et opérable par une petite équipe. Ce chapitre fixe la liste de ce qui reste intouchable, de ce qui doit être réparé avant toute publication, et de ce qui manque pour tenir la promesse « version améliorée ».
+
+3.1 — Ce qu'on garde tel quel
+La pile applicative ne se discute pas : elle surclasse le site WordPress sur tous les indicateurs mesurés. L'écart est net : cinq fois moins de requêtes, un premier octet arrivant en 0,3 seconde contre 1,6 seconde de DOM côté original, zéro tracker tiers, et une navigation prefetchée quasi instantanée grâce au protocole RSC. S'y ajoutent des acquis d'expérience candidat qu'aucune transformation ne doit dégrader : la candidature en trois minutes sans création de compte, le suivi par lien privé et référence, les états vides soignés, l'accessibilité soignée (régions ARIA, focus visible, libellés explicites) et la conformité RGPD native par minimisation des données. Ces éléments sont les piliers du « sans friction » — l'actif que la tonalité chaleureuse va habiller, jamais diluer.
+
+3.2 — Ce qu'il faut corriger avant toute publication
+Trois réparations conditionnent la crédibilité minimale du site et forment le socle de la phase P0 de la feuille de route.
+
+Backend : le formulaire de suivi renvoie « Erreur interne » à toute soumission — la base de données n'est pas opérationnelle et les e-mails transactionnels (liens de suivi, notifications entreprise) ne partent pas. Tant que cette chaîne n'est pas branchée et testée de bout en bout, le site vend un service qu'il ne peut pas tenir.
+Identité : l'adresse fictive, le domaine .local et le copyright générique doivent céder la place à l'identité réelle du projet — domaine définitif, e-mail professionnel, adresse réelle à Conakry, mentions légales nominatives.
+Contenu : un catalogue d'offres vide ne démontre rien. Les trente offres fondatrices du chapitre 7 doivent être négociées avec les premières entreprises partenaires avant le lancement public.
+3.3 — Ce qui manque pour être « la version améliorée »
+Entre le prototype actuel et la cible, l'écart tient en quatre familles, qui structurent le reste du plan. La famille design : le prototype est impeccable mais interchangeable, il lui faut l'identité chaleureuse de l'original (chapitre 4). La famille architecture : onze routes suffisent à un produit, pas à un cabinet — il faut les couches cabinet et contenu SEO (chapitre 5). La famille contenus : textes, offres, fiches métiers, articles (chapitres 6 et 7). La famille fonctionnalités : WhatsApp, vérification des entreprises, évaluation technique, alertes (chapitre 9).
+
+Tableau 2 — Le triptyque d'action sur le châssis existant
+
+Décision
+Éléments
+Phase
+GARDER	Stack Next.js + Vercel · candidature 3 min sans compte · suivi par lien privé · bimode clair/sombre · états vides soignés · RGPD natif sans tracker · accessibilité ARIA · workflow de modération 48 h	Intangible
+CORRIGER	Backend suivi « Erreur interne » → base + e-mails transactionnels · identité fictive (.local) → identité réelle Conakry · 0 offre → 30 offres fondatrices · title dupliqué de /offres · H1 absent de /suivi · meta description unique · pas de sitemap ni de données structurées	P0 (semaines 1-2)
+AJOUTER	Design system 2.0 chaleureux · pages cabinet, évaluation, témoignages · fiches métiers + blog · WhatsApp bouton/v1 API · vérification RCCM des entreprises · formulaire offre allégé (20 → 8 champs) · alertes offres · monétisation mobile money	P1-P2 (semaines 3-16)
+
+4. Design system 2.0
+Le design system est le premier point de greffe de la tonalité, parce qu'il se voit avant qu'on lise. L'option d'une copie fidèle — reprendre tel quel le charbon, le bleu-violet et les polices de l'original — a été écartée : elle importerait aussi la patine du site source et ferait de TalentForge une copie, pas une version améliorée. L'option inverse, une identité entièrement nouvelle, a été écartée pour la raison symétrique : elle perdrait la chaleur qui fait le sujet même de la transformation. Le parti retenu est une évolution assumée : chaque décision de l'original est identifiée, comprise, puis réinterprétée dans le langage du prototype — même système, exécution contemporaine, contraintes de performance guinéennes intégrées dès le départ.
+
+4.1 — La palette : six rôles, deux modes
+La palette claire reprend l'architecture de l'original et la rafraîchit. Le fond crème #FAF8F5 hérite du blanc cassé #fbf9f7 et dissout l'agressivité du blanc pur du prototype ; la lavande claire #EFECF7 reprend le rôle des encadrés ; l'encre chaude #23211F remplace le charbon #202020 en adoucissant sa dureté ; et l'indigo cabinet #4A52A8 conserve — à l'identique — le bleu-violet d'action de l'original : c'est l'élément le plus reconnaissable de l'ADN, il ne se modernise pas, il se transmet. Deux ajouts locaux complètent le système : la terre de Guinée #C96F3B, un ocre brûlé qui colore accents, badges et illustrations (et qui remplace avantageusement le brun réservé au pied de page de l'original), et le vert vérifié #3E7D5A, réservé au badge « entreprise vérifiée » et aux états de succès. Le mode sombre du prototype est conservé et transposé : fond charbon violacé #1E1C22, indigo remonté en #8A92E8 pour les boutons, terre éclaircie en #E08B54 — la même chaleur, lisible en 3G comme en écran bureau.
+
+Tableau 3 — La palette bimode du design system 2.0 et ses héritages
+
+Rôle
+Mode clair
+Mode sombre
+Usage
+Héritage
+Fond de page	#FAF8F5	#1E1C22	Fond général	#fbf9f7 de FR
+Surface secondaire	#EFECF7	#2A2732	Encadrés, cartes douces	#ececfa de FR
+Encre (texte)	#23211F	#F3F0EA	Titres, corps, footer	#202020 de FR
+Indigo cabinet	#4A52A8	#8A92E8	Boutons, liens, titres	#4a52a8 de FR — inchangé
+Terre de Guinée	#C96F3B	#E08B54	Accents, manuscrit, badges chauds	Nouveau — teinte locale
+Vert vérifié	#3E7D5A	#6FB08A	Badge vérifié, succès	Nouveau — confiance locale
+
+4.2 — Trois voix typographiques, comme l'original
+L'original joue sur trois registres — la ronde (Nunito Sans), le manuscrit (Gochi Hand), la display (Sailors_Rough) — et c'est ce mélange qui signe ses pages. La transposition conserve la logique et modernise les instruments :
+
+Nunito Sans est conservée telle quelle pour les corps et l'interface : plus humaine qu'Inter, elle est littéralement l'ADN typographique du site source.
+Fraunces, serif variable à axe optique, remplace Playfair Display pour les titres : elle garde la personnalité éditoriale du prototype tout en gagnant la chaleur organique de l'original, et son format variable tient en un seul fichier WOFF2 — la contrainte de poids du marché mobile est respectée d'office.
+Caveat succède à Gochi Hand pour les surtitres manuscrits : trait plus lisible, chargement léger, même usage parcimonieux — un surtitre par page au plus, la signature « carnet de cabinet ».
+Sailors_Rough n'a pas d'équivalent gratuit : le logotype 2.0 sera dessiné sur mesure, avec la même densité de caractère.
+4.3 — Composants : la discipline du prototype, la chaleur de l'original
+Le prototype excelle dans la fabrication des composants : cartes à ombre douce, rayons uniformes, états vides composés, régions ARIA nommées. Le design system 2.0 garde cette discipline et y injecte les objets qui manquent :
+
+la carte d'offre enrichie (commune, contrat, salaire en GNF, badge vérifié) ;
+le double bouton primaire/secondaire à la voix de l'original (« Voir les offres » / « Un besoin ? Discutons-en ») ;
+le chip WhatsApp ;
+le compteur Fraunces des pages cabinet ;
+le surtitre manuscrit qui rythme les sections comme chez l'original.
+Le rayon passe de 10 à 12 pixels et les ombres s'adoucissent d'un cran : deux réglages infimes qui baissent la température perçue sans casser la grille. Chaque composant est défini dans les deux modes et documenté avec ses états — c'est la condition pour que les dix pages existantes et les douze nouvelles s'habillent en une semaine, pas en un mois.
+
+5. Architecture et arborescence 2.0
+Onze routes suffisent à un produit automatisé ; elles ne suffisent plus à un cabinet. L'original tire sa force de trois couches que le prototype n'a pas : une couche cabinet qui convertit les entreprises, une couche contenu qui attire les candidats par les moteurs, et une couche service qui accompagne les deux. L'arborescence 2.0 conserve l'intégralité du squelette produit existant — aucun parcours ne casse, aucune URL à réécrire — et greffe douze nouvelles routes organisées dans ces couches.
+
+text
+
+Talent Forge 2.0 — talentforge.gn (next.js · app router · bimode)
+
+● COUCHE CANDIDAT — boucle sans compte
+   Offres ............................. /offres            [existant]
+   Fiche offre FR-style ............... /offres/[slug]
+   Candidature 3 min .................. /candidature/[slug] [existant]
+   Suivi privé ........................ /suivi-candidature   [existant]
+   Aide & FAQ ......................... /aide-candidatures   [existant]
+
+● COUCHE ENTREPRISES — conversion client
+   Proposer une offre ................. /proposer-une-offre  [existant]
+   Évaluation & bilan technique ....... /evaluation          [NOUVEAU]
+   Recruter avec nous ................. /je-recrute          [NOUVEAU]
+
+● COUCHE CABINET — l'ADN de confiance FR
+   Notre cabinet ...................... /notre-cabinet       [NOUVEAU]
+   À propos — manifeste ............... /a-propos            [existant]
+   Témoignages & réussites ............ /temoignages         [NOUVEAU]
+
+● COUCHE CONTENUS SEO — le moteur d'acquisition FR
+   Fiches métiers ..................... /fiches-metiers      [NOUVEAU]
+   Blog & actualités .................. /actualites          [NOUVEAU]
+   Guides candidat / RH ............... /guides              [NOUVEAU]
+
+● SOCLE — conversion & conformité
+   Contact ............................ /contact             [existant]
+   Conditions · Confidentialité · Cookies
+   Administration ..................... /admin               [existant]
+5.1 — La taxonomie des offres : re-territorialiser
+Les six catégories actuelles — Ingénierie, Énergie, Design, Développement, Maintenance, Stage — décrivent le marché français de la tech, pas celui de Conakry. La taxonomie 2.0 les remplace par huit catégories calibrées sur les segments porteurs du marché guinéen :
+
+BTP & immobilier
+Mines & énergie
+Banque & microfinance
+Commerce & distribution
+Transport & logistique
+Télécommunications
+ONG & développement
+Administration & supports
+Les types de contrat suivent la même logique : le CDI reste, l'intérim disparaît (marginal localement), le CDD devient le filtre principal, et stage, vacation et mission de consultance complètent la grille. Les salaires, enfin, s'expriment en francs guinéens par mois avec des fourchettes indicatives par secteur — la transparence salariale de l'original, son actif de confiance le plus visible, transposée à la monnaie locale.
+
+5.2 — Les gabarits : la mécanique industrielle de l'original
+La leçon la plus précieuse de l'original n'est pas son volume, c'est son industrialisation : sept gabarits remplis semi-automatiquement produisent 645 pages cohérentes. Le plan 2.0 transpose cette mécanique sur le design system Next.js. La fiche d'offre FR-style reprend la structure éditoriale complète de l'original (voir chapitre 6). La fiche métier nouvelle est le gabarit informationnel : missions, compétences, formation, fourchettes salariales locales — et surtout, contrairement à l'original, un bloc « offres actives de ce métier » qui transforme le trafic informationnel en candidatures. Le gabarit article structure le blog à venir. Chaque gabarit embarque ses métadonnées uniques et son balisage JobPosting ou Article : le SEO se construit dans le moule, pas après.
+
+Tableau 4 — Les gabarits de production éditoriale et leurs cibles
+
+Gabarit
+Source
+Volume cible 6 mois
+Rôle
+Fiche d'offre FR-style	Nouveau (sur gabarit offre existante)	30 puis 15-20/mois	Conversion candidat + SEO transactionnel
+Fiche métier	Nouveau	10 puis +5/mois	Trafic informationnel, autorité
+Article de blog	Nouveau	2/mois	Longue traîne, crédibilité
+Page institutionnelle	Nouveau (cabinet, évaluation, je recrute, témoignages)	4	Conversion entreprise
+Page service/légale	Existant conservé	7 (déjà en ligne)	Socle de conformité
+Listing filtrable	Existant enrichi (catégories, communes)	2 (offres, métiers)	Navigation, découverte
+
+5.3 — Navigation et pied de page
+La navigation principale passe de quatre à cinq entrées — Offres, Cabinet, Évaluation, Métiers, À propos — et le bouton d'action change de message : « Proposer une offre », orienté produit, devient « Un besoin ? Discutons-en », orienté relation, à la voix de l'original ; le dépôt d'offre reste accessible en un clic dans le menu. Le pied de page conserve ses quatre zones et en gagne deux : les dernières offres (le maillage interne dense de l'original) et la newsletter double — une alerte candidat par WhatsApp/SMS, une lettre entreprise par e-mail. Le bouton WhatsApp flottant, présent sur toutes les pages dès le seuil mobile, complète le dispositif : à Conakry, c'est le téléphone du cabinet posé en permanence sur l'écran.
+
+6. Pages clés : avant / après
+Ce chapitre applique le design system et l'arborescence aux quatre pages qui portent l'essentiel de la conversion. Chaque point met en regard l'état actuel du prototype et l'état cible 2.0, avec la liste des changements et leur justification. (Wireframes détaillés : download/wireframes_tf2/tf2_wire_*.html.)
+
+6.1 — La page d'accueil : incarner la promesse
+L'accueil actuel est un bijou d'architecture convertie en vitrine froide : le H1 bicolore « Recrutez sans friction. Candidatez sans compte. » est excellent, mais il parle produit, pas personnes. La version 2.0 conserve la promesse et change la voix :
+
+le surtitre manuscrit « le cabinet qui recrute autrement à Conakry » pose immédiatement le lieu et le ton ;
+le H1 devient « Le bon poste, la bonne personne — on s'occupe du reste » ;
+le double appel à l'action rétablit le couloir entreprise que le prototype oublie ;
+les réassurances s'ancrent dans le réel local (vérification RCCM, salaires en francs guinéens) ;
+le témoignage nominatif d'une DRH partenaire remplace les tuiles abstraites ;
+le bandeau WhatsApp entre dans la première demi-page : à Conakry, c'est l'équivalent du numéro de téléphone du cabinet lillois en pied de page.
+6.2 — Le module offres : la fiche à la voix de l'original
+À gauche, l'état actuel : un catalogue vide aux filtres corrects mais génériques. À droite, l'état cible : des cartes d'offres vivantées — titre, commune, contrat, salaire en GNF, badge « entreprise vérifiée » — et surtout la fiche d'offre qui adopte la structure éditoriale de l'original :
+
+« Votre mission »
+« Votre profil »
+« Nous vous proposons »
+encadré « Résumé de l'annonce » regroupant les métadonnées ;
+bouton POSTULER à la candidature pré-remplie ;
+bouton « Postuler par WhatsApp » ;
+l'engagement de confidentialité en clôture.
+Cette structure n'est pas décorative : c'est elle qui a permis au cabinet lillois de publier 482 offres homogènes, et elle est directement reproductible dans un composant React unique alimenté par les champs structurés de la base.
+
+6.3 — La page cabinet : la machine à confiance transplantée
+La page « À propos » actuelle fait le travail d'un manifeste mais pas celui d'une preuve : personne n'y a de nom, de visage, de chiffre. La page « Notre cabinet » 2.0 applique le schéma de l'original :
+
+compteurs adaptés au stade de la marque : 48 h de modération, 3 min de candidature, 100 % d'entreprises vérifiées, support 6 j/7 ;
+atouts différenciants en accordéon ;
+parole donnée à la direction avec photo et citation ;
+les deux encadrés symétriques d'engagement envers le candidat et l'entreprise.
+L'exigence est non négociable : coordonnées réelles, identités réelles, chiffres vérifiables. C'est la page que lira un DRH d'entreprise avant de déposer une offre — et c'est elle qui transformera la note crédibilité du prototype de 4 à 8.
+
+6.4 — Suivi et contact : deux canaux, un statut lisible
+Le formulaire de suivi actuel est le talon d'Achille observable du prototype : deux champs bien pensés, mais une « Erreur interne » à la soumission et un statut de dossier invisible. La version 2.0 :
+
+branche le backend ;
+accepte le numéro de téléphone à côté de l'e-mail — l'identifiant réellement universel à Conakry ;
+remplace la référence APP-XXXX-XXXX par une référence courte dictable au téléphone ;
+propose l'envoi du lien privé par WhatsApp ou SMS ;
+affiche le statut du dossier en quatre étapes visibles — reçue, conforme, transmise, entretien.
+La page contact passe aux coordonnées réelles de Conakry avec horaires locaux. L'expérience « sans compte » est intacte ; elle devient simplement tenable et lisible.
+
+7. Contenus et copywriting
+Le design donne la température ; les textes donnent la voix. Ce chapitre fournit le guide de voix, les microcopies prêtes à l'emploi des pages clés et le plan de production éditoriale. La règle générale tient en une phrase : partout où le prototype décrit une fonctionnalité, la version 2.0 adresse une personne. Les exemples ci-dessous sont rédigés en français clair, à la voix de l'original (« on »), avec les ancrages locaux nécessaires au marché de Conakry ; ils sont directement utilisables tels quels dans les gabarits du chapitre 5.
+
+7.1 — Le guide de voix en cinq règles
+On parle avec « on », jamais de « la plateforme ». La plateforme n'a pas d'opinion ; l'équipe, si. « On vérifie chaque entreprise avant de publier » plutôt que « Les offres sont soumises à un processus de modération ».
+On adresse, on ne décrit pas. Chaque titre porte un « vous » ou un « votre » : « Où en est ma candidature ? » plutôt que « Suivi des candidatures ».
+On promet ce qu'on peut tenir, chiffré. « Validation sous 48 h ouvrées », « candidature en trois minutes » — l'honnêteté des zéros du prototype devient une exigence de vérifiabilité.
+On rassure avec des preuves, pas des adjectifs. Pas de « leader », pas d'« excellence » : un badge RCCM, un témoignage nominatif, une fourchette salariale.
+On écrit comme on parle à Conakry. Phrases courtes, français clair, noms de communes et métiers locaux, chiffres en francs guinéens. Le manuscrit (Caveat) signe les surtitres, jamais le corps de texte.
+7.2 — Les microcopies des pages clés
+Les textes ci-dessous remplacent leurs équivalents actuels dans les gabarits définis au chapitre 5. Ils sont calibrés sur les zones des wireframes du chapitre 6.
+
+Hero accueil — Surtitre manuscrit : « le cabinet qui recrute autrement à Conakry » · H1 : « Le bon poste, la bonne personne — on s'occupe du reste. » · Sous-titre : « Offres vérifiées à Conakry et en régions. Candidature en trois minutes, sans compte, dossier suivi en privé. » · CTA : « Voir les offres » / « Vous recrutez ? Discutons-en ».
+
+Réassurance hero — « Chaque entreprise vérifiée (RCCM) avant publication » · « Salaires affichés en francs guinéens » · « Aucune création de compte, jamais » — reprise quasi mot pour mot de la promesse du prototype, à la voix de l'original.
+
+Page entreprise (ex-« Proposer une offre ») — Surtitre : « votre offre en ligne en cinq minutes » · H1 : « Vous recrutez ? On s'en occupe. » · Corps : « Décrivez votre besoin en huit champs, on le met en forme, on vérifie votre entreprise, et votre offre est en ligne sous 48 heures ouvrées. Aucune commission, jamais. » · Alternative : « Ou envoyez votre offre directement sur WhatsApp — on la rédige pour vous. »
+
+Clôture de fiche d'offre — « Candidature confidentielle : votre CV n'est jamais partagé sans votre accord. On vous répond dans tous les cas, même sans suite — promis. »
+
+Page cabinet — Surtitre : « une équipe qui répond, toujours » · Citation direction : « Notre valeur ajoutée, c'est notre accompagnement sur mesure — pour le candidat comme pour l'entreprise. » · Encadrés : « Au candidat : confidentialité stricte, préparation aux entretiens, suivi par lien privé » / « À l'entreprise : audit du besoin, vérification RCCM, process validé ensemble ».
+
+7.3 — Le plan de production éditoriale
+Le calendrier reprend la mécanique de l'original à l'échelle du lancement. Avant l'ouverture : les trente offres fondatrices, négociées une à une avec les premières entreprises partenaires — banques et microfinance, télécoms, BTP et mines, ONG — pour que le catalogue s'ouvre vivant. Au lancement : les dix premières fiches métiers locales (comptable, chef de chantier, chargé de clientèle microfinance, logisticien, développeur…), rédigées sur le gabarit du chapitre 5 avec fourchettes salariales en francs guinéens. En continu : deux articles de blog par mois, en alternance utilité candidat (« Comment postuler par WhatsApp sans se faire arnaquer ») et autorité thématique (« Ce que vaut un comptable à Conakry en 2026 »), plus une page « réussites » nourrie par les placements. L'ensemble est tenable par une seule personne à mi-temps, ce qui est précisément la force du gabarit.
+
+Tableau 5 — Calendrier éditorial des six premiers mois
+
+Support
+Cadence
+Volume 6 mois
+Objectif principal
+Offres fondatrices	Avant lancement	30	Catalogue vivant au jour 1
+Fiches métiers	10 au lancement, +5/mois	40	Trafic informationnel + autorité
+Articles de blog	2/mois	12	Longue traîne + preuve d'activité
+Témoignages / réussites	1/mois dès le mois 2	5	Preuve sociale nominative
+Guides (candidat, entreprise)	1 par trimestre	2	Conversion et réassurance
+
+8. SEO technique 2.0
+Le référencement est le domaine où « la version améliorée » se joue le plus nettement, parce que les deux sites ont échoué chacun à leur manière. L'original a construit un capital colossal — 645 URL en silos propres — puis l'a plombé par trois négligences de fabrication : pas de H1 sur ses trois pages stratégiques, une meta description unique pour tout le site, et aucune donnée structurée. Le prototype a les fondations on-page propres mais rien à indexer : pas de sitemap, pas de JSON-LD, zéro contenu. La version 2.0 hérite des deux leçons : elle construit le capital de contenu (chapitres 5 et 7) sans reproduire aucune des négligences, parce que dans Next.js, chaque correction est une ligne de gabarit qui se propage automatiquement à toutes les pages générées.
+
+8.1 — Les quatre défauts hérités, corrigés par conception
+La colonne de droite est volontairement technique : ce sont des décisions d'implémentation Next.js, transposables telles quelles dans le code. Toutes relèvent de la phase P0 — elles sont posées avant le contenu, jamais après.
+
+Tableau 6 — Les défauts SEO des deux parents et leur traitement par conception
+
+Défaut hérité
+Qui l'a
+Traitement 2.0 dans Next.js
+H1 absents sur pages stratégiques	L'original (accueil, entreprise, cabinet)	Un composant PageHeader imposé par le gabarit : impossible de publier une page sans H1 unique
+Meta description unique partout	Les deux sites	API metadata par route + gabarit generateMetadata qui compose la description depuis les champs structurés de l'offre
+Pas de données structurées JobPosting	L'original	JSON-LD Schema.org JobPosting injecté dans chaque fiche (titre, date, lieu, emploi, salaire, entreprise) + Organization sur le site
+Pas de sitemap	Le prototype	app/sitemap.ts généré dynamiquement depuis la base (offres, fiches métiers, articles) — il se met à jour tout seul
+Title dupliqué (/offres) et H1 absent (/suivi)	Le prototype	Audit on-page automatisé dans la CI : title et H1 obligatoires par route, échec de build sinon
+Pages types en concurrence sémantique	L'original (37 pages types vs sous-espaces)	Une seule couche : catégories + fiches métiers + offres, sans doublon d'intention ; canonical explicite partout
+Maillage fiche métier → offres absent	L'original	Bloc « offres actives de ce métier » obligatoire dans le gabarit fiche métier (dès qu'une offre existe)
+
+8.2 — Le SEO local de Conakry
+Au-delà de la mécanique technique, la visibilité locale se joue sur trois fronts que ni l'original ni le prototype n'abordent.
+
+La fiche Google Business Profile de l'activité physique à Conakry, soignée comme une page du site — adresse réelle, horaires, photos, avis sollicités systématiquement après chaque placement.
+Les requêtes cibles, qui s'écrivent « emploi + métier + Conakry » ou « recrutement + secteur + Guinée » — la taxonomie du chapitre 5 et les fiches métiers sont calibrées exactement sur ces formulations, et les titres d'offres doivent reprendre l'intitulé usuel du poste à Conakry, pas une traduction élégante.
+Les canaux hors Google — groupes Facebook d'emploi guinéens, annuaires locaux, communautés WhatsApp — où chaque offre publiée est relayée avec son lien : le partage est planifié comme partie intégrante de la publication, pas comme une option.
+Ces trois fronts coûtent peu et, sur un marché où la concurrence SEO francophone est faible, ils composent l'essentiel du jeu.
+
+9. Fonctionnalités 2.0
+Les fonctionnalités nouvelles servent une seule stratégie : supprimer les frictions propres au terrain — pas celles du produit, qui sont déjà bien traitées — et apporter les services qui font d'une plateforme un cabinet. Quatre chantiers structurent le chapitre : brancher le backend, alléger le formulaire entreprise, intégrer WhatsApp dans les trois parcours, et greffer le service d'évaluation technique, le joyau de la couronne de l'original. La vérification des entreprises et la monétisation en mobile money complètent l'ensemble.
+
+9.1 — Brancher le backend
+C'est le chantier zéro, sans lequel tout le reste est décoratif. Il comprend la base de données (offres, candidatures, entreprises, statuts, journal d'audit), les e-mails transactionnels — lien privé de suivi au candidat, notification à l'entreprise à chaque nouvelle candidature, confirmation de publication — et le rejeu complet des tests des trois formulaires : dépôt d'offre, candidature, suivi. La règle d'acceptation est simple : chaque parcours se termine par un message de succès vérifiable et un état en base consultable. Ce chantier est l'essentiel de la phase P0 et se mesure en jours, pas en semaines — la logique métier est déjà écrite dans les Server Actions, seule la persistance et l'envoi manquent.
+
+9.2 — Le formulaire entreprise : de vingt à huit champs
+Le formulaire actuel est le paradoxe du produit : il prêche le sans-friction et ouvre avec vingt champs en cinq sections, dont des doublons (entreprise et contact demandent chacun e-mail et téléphone) et des anticipations inutiles (vingt tags de compétences avant même la première conversation). La version 2.0 descend à huit champs en trois étapes :
+
+Étape 1 — le besoin : intitulé, commune, contrat, description ;
+Étape 2 — l'entreprise : raison sociale, numéro RCCM — qui alimente la vérification ;
+Étape 3 — le contact : nom, téléphone WhatsApp.
+Les champs retirés ne disparaissent pas : ils sont complétés par l'équipe lors de la relecture sous 48 heures — exactement le service « main chaude » qu'un cabinet rend à ses clients, et que le dépôt WhatsApp formalise en parallèle pour les entreprises qui préfèrent dicter plutôt que rédiger. (Wireframe : download/wireframes_tf2/tf2_wire_form.html.)
+
+9.3 — WhatsApp dans les trois parcours
+WhatsApp n'est pas un bouton de plus : c'est le canal dominant du marché visé, là où l'original a le téléphone et la newsletter, le prototype n'a encore rien. L'intégration couvre les trois parcours.
+
+Côté candidat : un bouton « Postuler par WhatsApp » sur chaque fiche (message prérempli avec l'intitulé et la référence), et des alertes d'offres par métier et par commune, envoyées via WhatsApp Business API avec repli SMS.
+Côté entreprise : dépôt d'offre par WhatsApp avec mise en forme par l'équipe, et notification des candidatures reçues.
+Côté suivi : envoi du lien privé par WhatsApp ou SMS, avec la référence courte du chapitre 6.
+La version P1 peut s'appuyer sur les liens wa.me et les réponses manuelles de l'équipe ; la version P2 bascule sur WhatsApp Business API pour l'automatisation — l'important est que le canal soit présent dès le premier jour, même manuel.
+
+9.4 — L'évaluation technique : le joyau de l'original
+Le dispositif propriétaire de Finance Recrutement — mise en situation sur mesure, bilan technique remis au candidat, instrument de décision pour l'employeur, coaching d'intégration — est ce qui le distingue d'un job board : c'est un service, pas une liste. La version 2.0 le greffe sous une page « Évaluation & bilan technique » desservie depuis la navigation et la page cabinet, avec un process documenté en quatre temps (audit du besoin, mise en situation, bilan, accompagnement) et deux études de cas chiffrées dès que les premiers placements le permettront.
+
+C'est aussi la réponse à la question commerciale du modèle : la plateforme publie gratuitement pour construire la masse critique, et l'évaluation — facturée aux entreprises en mobile money — devient le premier revenu, avant la mise en avant d'offres et l'accès abonné à la CVthèque.
+
+Tableau 7 — Les douze fonctionnalités du plan, par priorité
+
+Fonctionnalité
+Prio.
+Contenu
+Dépendance
+Backend complet	P0	Base de données, e-mails transactionnels, tests des 3 formulaires	Choix SGBD, service d'e-mail
+Identité réelle	P0	Domaine définitif, e-mail pro, adresse Conakry, mentions légales	Enregistrement de l'activité
+SEO par conception	P0	Sitemap dynamique, JSON-LD, H1/meta uniques, audit CI	Backend (données à indexer)
+Design system 2.0	P1	Palette, typos, composants, bimode — appliqués aux 11 pages	Rien — parallélisable
+Formulaire 8 champs + vérification RCCM	P1	3 étapes, statut « vérification entreprise » dans l'admin	Backend
+WhatsApp v1	P1	Boutons wa.me sur fiches et contact, dépôt manuel, alertes manuelles	Numéro Business dédié
+Pages cabinet + évaluation	P1	Wireframes du chapitre 6, copies du chapitre 7	Design system, identité réelle
+Contenu fondateur	P1	30 offres, 10 fiches métiers, témoignages partenaires	Relations entreprises
+WhatsApp API + alertes	P2	Automatisation dépôt/alertes/suivi, repli SMS	WhatsApp v1, volume justifiant l'API
+Études de cas chiffrées	P2	2 placements documentés (délai, rétention à 6 mois)	Premiers placements
+Monétisation mobile money	P2	Évaluation facturée, mise en avant d'offre, CVthèque abonnée	Orange Money / MTN MoMo, trafic
+PWA légère 3G	P2	Pages sous 100 Ko, cache offline des offres vues, économie de données	Design system, contenu stable
+
+10. Feuille de route P0 · P1 · P2
+La transformation se pilote en trois phases qui s'enchaînent sans se chevaucher dangereusement : P0 rend le site vrai (backend, identité, SEO de conception), P1 le rend sien (design system, pages, contenus, WhatsApp v1), P2 le rend dominant (automatisation WhatsApp, preuves chiffrées, monétisation, légèreté 3G). Les durées supposent une petite équipe — un développeur, une personne contenu/opérations à mi-temps — et un lancement public visé en fin de P1, soit environ deux mois et demi après le démarrage. Chaque phase se clôt par un jalon vérifiable ; aucun contenu ne se produit avant que P0 soit fermé, car indexer un site faux serait détruire son capital de départ.
+
+Tableau 8 — Les trois phases de la transformation, leurs livrables et jalons
+
+Phase
+Semaines
+Livrables
+Jalon de clôture
+P0 — rendre vrai	S1-S2	Backend branché et testé ; identité réelle (domaine, e-mail, adresse, mentions) ; sitemap + JSON-LD + H1/meta par gabarit ; title et H1 corrigés ; audit CI en place	Les 3 formulaires passent de bout en bout ; un lien de suivi arrive vraiment par e-mail
+P1 — rendre sien	S3-S10	Design system 2.0 appliqué aux 11 pages ; 12 nouvelles routes publiées (cabinet, évaluation, je recrute, témoignages, fiches métiers, blog) ; formulaire 8 champs + vérification RCCM ; WhatsApp v1 (wa.me) ; 30 offres fondatrices ; 10 fiches métiers ; copies rédigées déployées	Lancement public : catalogue vivant, double couloir opérationnel, bouton WhatsApp sur chaque page
+P2 — rendre dominant	S11-S16+	WhatsApp API (alertes automatisées, dépôt assisté) ; 2 études de cas chiffrées ; monétisation mobile money (évaluation, mise en avant, CVthèque) ; PWA légère 3G ; page réussites nourrie en continu	Premier revenu encaissé en mobile money ; 300 offres cumulées et 3 000 candidats visés à 12 mois
+
+Dépendance critique. Le chemin critique n'est pas technique : c'est la collecte des trente offres fondatrices et des témoignages partenaires. La P1 peut être terminée côté développement à S8 et attendre son contenu ; mieux vaut donc démarrer les relations entreprises dès la semaine 1, en parallèle du backend.
+
+11. KPIs et checklist de lancement
+Un plan sans mesure est une intention. Ce dernier chapitre fixe les indicateurs qui diront si la transformation atteint son but — être la version améliorée — et la checklist qui verrouille la qualité au jour du lancement. Les KPIs sont volontairement peu nombreux et directement reliés aux deux couloirs : ce que le candidat réussit à faire, ce que l'entreprise accepte de confier, et ce que les moteurs reconnaissent. Chaque indicateur a une cible à 90 jours après le lancement public.
+
+Tableau 9 — Les neuf KPIs de la transformation et leurs cibles à 90 jours
+
+Indicateur
+Définition
+Départ
+Cible 90 j
+Offres en ligne vérifiées	Offres publiées avec badge vérifié	0	60+
+Candidatures complétées	Parcours 3 champs terminé jusqu'à confirmation	0	250+
+Taux de complétion formulaire entreprise	Dépôts terminés / dépôts commencés	Non mesuré	≥ 55 %
+Délai de modération	Publication après dépôt (jours ouvrés)	Promesse 48 h	≤ 48 h tenu à 95 %
+Candidatures via WhatsApp	Part du canal WhatsApp dans les candidatures	0 %	≥ 30 %
+Suivis ouverts	Liens privés de suivi ouverts au moins une fois	0	≥ 60 % des candidats
+Pages indexées	URL dans l'index Google (offres + métiers + articles)	≈ 0	≥ 120
+Trafic organique Conakry	Sessions « emploi + métier + Conakry »	0	500+/mois
+Entreprises partenaires	Entreprises vérifiées actives	4	15+
+
+11.1 — La checklist de lancement
+La liste ci-dessous se parcourt intégralement le jour J ; chaque item a un responsable unique et un test concret. Elle reprend les exigences dispersées dans les chapitres précédents et les condense en un instrument d'exploitation.
+
+ Produit : les trois formulaires testés sur vraies données ; les e-mails transactionnels reçus (boîte principale ET indésirables vérifiés) ; le lien de suivi expire et se régénère correctement.
+ Identité : domaine en production, certificat actif, adresse e-mail professionnelle, adresse physique affichée à Conakry, mentions légales nominatives, téléphone et WhatsApp vérifiés.
+ Design : design system 2.0 appliqué à l'intégralité des pages ; mode sombre transposé ; surtitres manuscrits en place ; portraits et témoignages réels intégrés.
+ Contenu : 30 offres fondatrices publiées et vérifiées ; 10 fiches métiers avec fourchettes GNF ; pages cabinet, évaluation et je recrute complètes ; FAQ relue à la voix « on ».
+ SEO : sitemap soumis à Google Search Console ; JSON-LD JobPosting validé sur 3 fiches au moins ; title et meta uniques sur 100 % des pages ; fiche Google Business Profile créée.
+ Canaux : bouton WhatsApp sur toutes les pages ; numéro Business actif avec message d'accueil ; relais planifié dans 3 groupes Facebook et 5 communautés WhatsApp.
+ Mesure : plan de marquage distinguant les deux couloirs ; objectifs de conversion posés sur les 9 KPIs ; revue hebdomadaire calée à date fixe.
+A. Matrice de migration FR → Talent Forge
+Cette matrice condense l'ensemble du plan en une table de décision élément par élément : pour chaque trait observable de l'original, elle tranche entre transplanter (reprendre, éventuellement adapté), s'en inspirer (garder le principe, changer l'exécution), conserver TalentForge (l'original n'a rien de mieux à offrir) ou écarter (ne pas reproduire, défaut ou surcharge). Elle sert de contrat de revue : toute divergence d'implémentation par rapport à cette table doit être discutée, pas découverte.
+
+Tableau A.1 — Matrice de migration : vingt décisions élément par élément
+
+Élément (source)
+Décision
+Traitement dans Talent Forge 2.0
+Palette #202020 / #4a52a8 / #fbf9f7 / #ececfa	Transplanter (adapté)	Encre #23211F, indigo #4A52A8 inchangé, crème #FAF8F5, lavande #EFECF7 + bimode
+Trois typos (Nunito Sans, Gochi Hand, Sailors_Rough)	S'en inspirer	Nunito Sans conservée ; Caveat remplace Gochi Hand ; logo 2.0 dessiné (Fraunces pour les titres)
+Voix « on » et formules (« Discutons-en »)	Transplanter	Guide de voix + microcopies du chapitre 7, appliquées à toutes les pages
+Compteurs de preuve (15 ans, 25 200 candidats…)	S'en inspirer	Compteurs réels au stade de la marque (48 h, 3 min, 100 %, 6 j/7) sur « Notre cabinet »
+Témoignages Google + citation fondatrice	Transplanter (adapté)	Témoignages partenaires nominatifs + parole de la direction avec photo
+Adresse + téléphone en pied de page	Transplanter (adapté)	Adresse Conakry réelle + WhatsApp Business + horaires locaux
+Engagement de confidentialité par offre	Transplanter	Bandeau de clôture sur chaque fiche (copywriting chapitre 7)
+482 offres, silos métier × contrat	S'en inspirer	30 offres fondatrices puis 15-20/mois ; catégories locales, CDD principal
+Fiches métiers (40) + blog (61)	S'en inspirer	Gabarits fiche métier + article ; 10 fiches au lancement, 2 articles/mois
+Maillage fiche métier → offres	Transplanter (corrigé)	Bloc « offres actives du métier » obligatoire — mieux que l'original
+Pages types d'offres (37)	Écarter	Doublon sémantique chez l'original ; une seule couche catégories + fiches
+WordPress + Elementor + 8 plugins	Conserver TalentForge	Next.js + Vercel, Server Actions, Tailwind — 5× plus léger
+Bimode clair/sombre absent	Conserver TalentForge	next-themes conservé, palette transposée aux deux modes
+Candidature sans compte + suivi lien privé	Conserver TalentForge	Intact ; enrichi du téléphone, de la référence courte et du statut en 4 étapes
+Formulaire Gravity Forms (contact, offre)	Conserver TalentForge (allégé)	Server Actions 8 champs 3 étapes + couloir WhatsApp
+Feed Instagram Smash Balloon	Écarter (adapté)	Lourd et tiers ; page Facebook reliée + contenus relais WhatsApp/Facebook
+Newsletter Mailjet	S'en inspirer	Double liste : alertes candidat WhatsApp/SMS + lettre entreprise e-mail
+Absence de H1 / meta unique / 0 JSON-LD	Écarter	Corrigés par conception : gabarits imposants H1, metadata par route, sitemap dynamique
+123 requêtes / DOM 1,6 s	Conserver TalentForge	25 requêtes / TTFB 0,3 s conservés ; cible PWA sous 100 Ko en 3G
+Zéro tracker tiers (prototype)	Conserver TalentForge	Hygiène conservée ; mesure analytique sobre sans cookies publicitaires   ________________   # Talent Forge 2.0 — Plan de transformation
+
+**Faire de TalentForge la version améliorée de Finance Recrutement, adaptée au marché de Conakry**
+
+> Volume 3 de la série : `rapport_finance_recrutement.pdf` (audit FR) + `rapport_talentforge.pdf` (audit TF) + ce plan.
+> Équipe Projet Web & Digital · Septembre 2026 · Version Markdown pour copie directe.
+
+---
+
+## Table des matières
+
+1. La vision : Finance Recrutement 2.0
+2. L'ADN de l'original à transplanter
+3. Le châssis TalentForge : garder, corriger, ajouter
+4. Design system 2.0
+5. Architecture et arborescence 2.0
+6. Pages clés : avant / après
+7. Contenus et copywriting
+8. SEO technique 2.0
+9. Fonctionnalités 2.0
+10. Feuille de route P0 · P1 · P2
+11. KPIs et checklist de lancement
+A. Matrice de migration FR → Talent Forge
+
+---
+
+# 1. La vision : Finance Recrutement 2.0
+
+Ce document ne s'analyse plus, il transforme. Les deux premiers volumes ont respectivement audité **finance-recrutement.fr**, le cabinet lillois spécialiste des métiers du chiffre, puis **TalentForge**, le prototype Next.js déployé sur Vercel. La décision prise est claire : TalentForge doit devenir **la version améliorée de Finance Recrutement** — un site qui parle, rassure et convainc comme l'original, mais qui court, s'affiche et se pilote comme une application de nouvelle génération. Ce plan définit la manière d'y parvenir : ce qu'on transplante, ce qu'on corrige, ce qu'on invente, et dans quel ordre.
+
+Les deux audits ont convergé vers un diagnostic d'une lisibilité remarquable, résumé en une phrase : **TalentForge a résolu l'expérience, Finance Recrutement a résolu la crédibilité.** Le prototype affiche un temps jusqu'au premier octet de 0,29 à 0,40 seconde et n'exige que 25 requêtes par page, contre 1,6 seconde de chargement du DOM et 123 requêtes pour le site WordPress — mais il ne contient aucune offre, aucun article, aucune fiche métier, et son formulaire de suivi renvoie une erreur interne. À l'inverse, le cabinet lillois aligne 645 URL publiées, 482 offres actives, 40 fiches métiers, 61 articles de blog, quinze ans de chiffres vérifiables et une voix éditoriale singulière — mais son moteur est lourd, son SEO truffé de défauts évitables et son expérience candidat parfois franchement datée. La transformation consiste précisément à souder ces deux moitiés complémentaires.
+
+| Indicateur | Finance Recrutement | TalentForge actuel |
+|---|---|---|
+| URL publiées | **645** | 11 |
+| Requêtes par page | 123 | **25** |
+| Chargement | DOM 1,6 s | **TTFB 0,29–0,40 s** |
+| Note contenu | **9,5 / 10** | 3 / 10 |
+
+## 1.1 — Les trois mouvements de la transformation
+
+Le plan s'articule en trois mouvements qui se succèdent mais s'entrecroisent dans la feuille de route du chapitre 10.
+
+**Premier mouvement : transplanter l'ADN.** La tonalité de Finance Recrutement n'est pas un habillage, c'est un système complet — une palette chaude, trois voix typographiques, un pronom « on » qui parle comme un artisan, une machine à confiance faite de compteurs, de témoignages et d'engagements écrits, et une profondeur éditoriale qui fait du site une encyclopédie du recrutement financier. Ce système est décrit au chapitre 2 et transplanté, élément par élément, dans les chapitres 4 à 7.
+
+**Deuxième mouvement : corriger les défauts des deux parents.** TalentForge doit faire mieux que l'original, pas seulement différemment. Les défauts de l'original — balises H1 manquantes sur les pages stratégiques, meta description unique pour tout le site, absence de données structurées, pages lourdes — deviennent une liste d'exigences de conception : ce qui était à corriger en rattrapage chez Finance Recrutement se construit proprement dès le départ chez TalentForge. Symétriquement, les défauts du prototype — backend non branché, identité fictive, formulaire entreprise à vingt champs, tonalité « template SaaS » froide — sont traités aux chapitres 4, 7 et 9.
+
+**Troisième mouvement : dépasser l'original.** WhatsApp, salaires en francs guinéens, vérification des entreprises, suivi sans compte : le chapitre 9 ajoute ce que ni l'un ni l'autre n'ont, parce que le terrain visé — Conakry — l'exige.
+
+## 1.2 — Où en sont les deux sites, en un coup d'œil
+
+Les notations des deux audits, portées sur six axes, livrent trois lectures. D'abord, la diagonale du prototype : excellent sur l'expérience (8,5), effondré sur le contenu (3) et la crédibilité (4) — l'inverse exact de l'original. Ensuite, la cible 2.0 ne cherche pas la note parfaite partout : quelques dixièmes sont volontairement laissés en réserve sur l'expérience pure, car le gain décisif se situe sur les trois axes où le prototype échoue. Enfin, l'axe SEO est celui qui progresse le plus : il passe de 5 à 8,5 non pas en rattrapant l'original mais en évitant ses erreurs — le sitemap, les H1, les descriptions uniques et les données structurées sont posés dès la conception, au lieu d'être ajoutés après coup sur 645 pages existantes.
+
+> **Principe directeur du plan.** Garder l'âme de l'original — la chaleur, la confiance, la profondeur ; garder le moteur du prototype — la vitesse, la propreté, le sans-compte ; corriger les défauts des deux parents dès la conception ; et re-territorialiser l'ensemble pour Conakry : canaux, monnaie, preuves et portraits locaux.
+
+---
+
+# 2. L'ADN de l'original à transplanter
+
+Avant de transformer, il faut nommer précisément ce qui constitue la « tonalité » de Finance Recrutement — ce quelque chose qui fait qu'un visiteur comprend en dix secondes qu'il a affaire à un cabinet de personnes, et non à un logiciel. L'audit a permis d'isoler **quatre composantes** distinctes, chacune observable, mesurable et donc transplantable : une voix éditoriale, une machine à confiance, une profondeur de contenu et une architecture de conversion à double couloir.
+
+## 2.1 — La voix : un cabinet qui parle avec « on »
+
+La première composante est langagière. Le site lillois s'adresse à ses lecteurs avec le « on » de l'artisan qui s'engage personnellement : « Choisissez le profil qui vous correspond », « Un besoin ? Discutons-en », « Nous vous proposons… ». Les titres ne décrivent pas des fonctionnalités, ils parlent au lecteur : « Restez à la page avec nos dernières actualités », « Inscrivez-vous à notre newsletter ». Chaque fiche d'offre s'organise en trois sections qui parlent directement au candidat — « Votre mission », « Votre profil », « Nous vous proposons » — et se termine par un engagement de confidentialité rédigé comme une promesse morale, pas comme une clause légale. Cette voix tranche avec le registre impersonnel du prototype (« Soumettez votre offre, notre équipe la valide »), correct mais interchangeable, qu'on pourrait lire sur n'importe quelle application SaaS.
+
+La voix s'accompagne d'un régime typographique unique en son genre. La palette — charbon profond `#202020`, bleu-violet d'action `#4a52a8`, blanc cassé crème `#fbf9f7`, lavande claire `#ececfa` — donne un ton à la fois expert et chaleureux. Surtout, trois voix typographiques se partagent la page : **Nunito Sans**, arrondie et lisible, porte les corps de texte ; **Gochi Hand**, une écriture manuscrite, signe les surtitres et les annotations comme des notes au crayon ; et la display **Sailors_Rough** réserve son caractère au logotype. Le manuscrit en particulier est un actif différenciant : il dit que derrière le site, quelqu'un écrit. TalentForge, avec son Inter et son Playfair Display sur fond blanc, ne possède rien de tel — c'est précisément ce vide que le design system 2.0 (chapitre 4) comble.
+
+## 2.2 — La machine à confiance
+
+Deuxième composante : un dispositif de preuve qui occupe chaque page stratégique. En tête, quatre compteurs issus de quinze ans d'activité — **25 200 candidats suivis, 1 210 clients, 4 530 missions réalisées** — mis en scène en bandeau sur la page cabinet. Autour, les avis Google nominatifs avec avatars, l'adresse physique complète et le téléphone fixe répétés dans le pied de page de toutes les pages, l'identité de la fondatrice mise en avant avec citation directe (« Notre valeur ajoutée est notre accompagnement sur mesure et notre coaching personnalisé »), et deux encadrés symétriques d'engagement — l'un envers le candidat, l'autre envers le client. Chaque fiche d'offre rappelle enfin l'engagement de confidentialité stricte du cabinet, un argument décisif pour les candidats en poste.
+
+Le prototype possède une intention de transparence remarquable — afficher des zéros honnêtes plutôt que des chiffres gonflés, documenter le workflow de modération sous 48 heures, promettre un journal d'audit — mais il lui manque les matières premières de la confiance : des visages, des noms, des témoignages nominatifs, des coordonnées vérifiables. Ses quatre portraits professionnels africains vont dans la bonne direction ; son adresse au « 12 rue de l'Innovation » et son e-mail en `talentforge.local` la détruisent immédiatement auprès de tout décideur attentif. La transformation consiste à garder l'honnêteté du prototype et à lui donner les preuves de l'original — version Conakry : adresse réelle à Kaloum ou Ratoma, équipe nominative, témoignages de partenaires guinéens, numéro d'enregistrement au registre du commerce.
+
+## 2.3 — La profondeur éditoriale
+
+Troisième composante : le volume et la structure du contenu. Le site lillois n'est pas une vitrine, c'est une bibliothèque : **482 fiches d'offres** détaillées suivant un gabarit unique, 37 pages « types d'offres » qui capturent les requêtes génériques, **40 fiches métiers** organisées en quatre familles, **61 articles de blog** répartis en dix catégories, et une dizaine de pages institutionnelles. Cette profondeur remplit trois fonctions à la fois : elle capte le trafic organique sur des centaines de requêtes, elle nourrit l'autorité thématique du cabinet aux yeux des moteurs, et elle fournit aux visiteurs de la matière qui les fait rester. Le prototype, lui, n'a qu'une FAQ de dix questions : sa boucle de contenu est vide, et avec elle tout espoir d'acquisition organique.
+
+La leçon structurante n'est pas le chiffre brut — personne ne publie 645 pages en un jour — mais la méthode : **sept gabarits réutilisables** remplis semi-automatiquement, une taxonomie stable (métier × contrat), une cadence régulière. Le plan de transposition (chapitre 5) reprend exactement cette mécanique : les gabarits du prototype — fiche d'offre, listing, page institutionnelle — deviennent les moules d'une production éditoriale calibrée pour le marché guinéen, avec des cibles réalistes : trente offres fondatrices, dix fiches métiers, deux articles par mois.
+
+## 2.4 — Le double couloir de conversion
+
+Quatrième composante : une architecture qui sert simultanément deux audiences sans les faire se marcher dessus. Chez l'original, le couloir candidat va de l'accueil aux offres (un clic), de l'offre à la candidature pré-remplie (deux clics), avec la newsletter en filet de secours ; le couloir entreprise passe par la page « Je suis une entreprise », la page évaluation et le double appel à l'action « Un besoin ? Discutons-en » + « CONTACTEZ-NOUS ». Le prototype, lui, est biaisé : son bouton principal « Proposer une offre » sert l'entreprise, mais le candidat n'a qu'une barre de recherche, et aucun des deux mondes ne dispose de la page de services qui transforme l'intérêt en dossier — pas d'équivalent de l'évaluation technique, pas de présentation du cabinet digne de ce nom. Le chapitre 6 rééquilibre les deux couloirs sur l'accueil refondu, et le chapitre 5 greffe les pages manquantes.
+
+**Tableau 1 — Les sept éléments d'ADN identifiés et leur point de greffe**
+
+| Élément d'ADN | Chez l'original | Destination Talent Forge 2.0 |
+|---|---|---|
+| Voix « on » | « Un besoin ? Discutons-en », « Nous vous proposons… » sur toutes les pages clés | Chapitre 7 : guide de voix + copywriting prêt à l'emploi |
+| Manuscrit décoratif | Gochi Hand en surtitres et annotations | Chapitre 4 : Caveat, successeur moderne, même usage |
+| Compteurs de preuve | 15 ans · 25 200 candidats · 1 210 clients · 4 530 missions | Chapitre 6 : page « Notre cabinet » avec compteurs réadaptés |
+| Témoignages nominatifs | Avis Google + citation de la fondatrice | Chapitre 6 : témoignage DRH partenaire + équipe nominative |
+| Engagements écrits | Confidentialité sur chaque offre ; encadrés candidat / client | Chapitres 6-7 : bandeau confidentialité sur chaque fiche |
+| Profondeur éditoriale | 482 offres · 40 fiches métiers · 61 articles · 10 catégories | Chapitres 5 et 7 : gabarits + calendrier (30 offres, 10 fiches, 2 articles/mois) |
+| Double couloir | Accueil bifurque candidat / entreprise | Chapitres 5-6 : double CTA dès le hero + pages « Je recrute » et « Évaluation » |
+
+---
+
+# 3. Le châssis TalentForge : garder, corriger, ajouter
+
+Transformer n'est pas tout remplacer. La valeur du prototype réside dans son squelette technique, qui doit être préservé tel quel — c'est lui qui rend la transformation abordable. **Next.js App Router** avec React Server Components et Server Actions, déployé sur le réseau edge de **Vercel**, habillé par **Tailwind CSS et shadcn/ui**, éclairé par **next-themes** en mode clair et sombre, typographié par **next/font** qui sous-ensemble automatiquement les polices : chaque brique est moderne, cohérente avec les autres, et opérable par une petite équipe. Ce chapitre fixe la liste de ce qui reste intouchable, de ce qui doit être réparé avant toute publication, et de ce qui manque pour tenir la promesse « version améliorée ».
+
+## 3.1 — Ce qu'on garde tel quel
+
+La pile applicative ne se discute pas : elle surclasse le site WordPress sur tous les indicateurs mesurés. L'écart est net : cinq fois moins de requêtes, un premier octet arrivant en 0,3 seconde contre 1,6 seconde de DOM côté original, zéro tracker tiers, et une navigation prefetchée quasi instantanée grâce au protocole RSC. S'y ajoutent des acquis d'expérience candidat qu'aucune transformation ne doit dégrader : la **candidature en trois minutes sans création de compte**, le **suivi par lien privé et référence**, les états vides soignés, l'accessibilité soignée (régions ARIA, focus visible, libellés explicites) et la conformité RGPD native par minimisation des données. Ces éléments sont les piliers du « sans friction » — l'actif que la tonalité chaleureuse va habiller, jamais diluer.
+
+## 3.2 — Ce qu'il faut corriger avant toute publication
+
+Trois réparations conditionnent la crédibilité minimale du site et forment le socle de la phase P0 de la feuille de route.
+
+1. **Backend** : le formulaire de suivi renvoie « Erreur interne » à toute soumission — la base de données n'est pas opérationnelle et les e-mails transactionnels (liens de suivi, notifications entreprise) ne partent pas. Tant que cette chaîne n'est pas branchée et testée de bout en bout, le site vend un service qu'il ne peut pas tenir.
+2. **Identité** : l'adresse fictive, le domaine `.local` et le copyright générique doivent céder la place à l'identité réelle du projet — domaine définitif, e-mail professionnel, adresse réelle à Conakry, mentions légales nominatives.
+3. **Contenu** : un catalogue d'offres vide ne démontre rien. Les trente offres fondatrices du chapitre 7 doivent être négociées avec les premières entreprises partenaires avant le lancement public.
+
+## 3.3 — Ce qui manque pour être « la version améliorée »
+
+Entre le prototype actuel et la cible, l'écart tient en quatre familles, qui structurent le reste du plan. **La famille design** : le prototype est impeccable mais interchangeable, il lui faut l'identité chaleureuse de l'original (chapitre 4). **La famille architecture** : onze routes suffisent à un produit, pas à un cabinet — il faut les couches cabinet et contenu SEO (chapitre 5). **La famille contenus** : textes, offres, fiches métiers, articles (chapitres 6 et 7). **La famille fonctionnalités** : WhatsApp, vérification des entreprises, évaluation technique, alertes (chapitre 9).
+
+**Tableau 2 — Le triptyque d'action sur le châssis existant**
+
+| Décision | Éléments | Phase |
+|---|---|---|
+| **GARDER** | Stack Next.js + Vercel · candidature 3 min sans compte · suivi par lien privé · bimode clair/sombre · états vides soignés · RGPD natif sans tracker · accessibilité ARIA · workflow de modération 48 h | Intangible |
+| **CORRIGER** | Backend suivi « Erreur interne » → base + e-mails transactionnels · identité fictive (.local) → identité réelle Conakry · 0 offre → 30 offres fondatrices · title dupliqué de /offres · H1 absent de /suivi · meta description unique · pas de sitemap ni de données structurées | P0 (semaines 1-2) |
+| **AJOUTER** | Design system 2.0 chaleureux · pages cabinet, évaluation, témoignages · fiches métiers + blog · WhatsApp bouton/v1 API · vérification RCCM des entreprises · formulaire offre allégé (20 → 8 champs) · alertes offres · monétisation mobile money | P1-P2 (semaines 3-16) |
+
+---
+
+# 4. Design system 2.0
+
+Le design system est le premier point de greffe de la tonalité, parce qu'il se voit avant qu'on lise. L'option d'une copie fidèle — reprendre tel quel le charbon, le bleu-violet et les polices de l'original — a été écartée : elle importerait aussi la patine du site source et ferait de TalentForge une copie, pas une version améliorée. L'option inverse, une identité entièrement nouvelle, a été écartée pour la raison symétrique : elle perdrait la chaleur qui fait le sujet même de la transformation. Le parti retenu est une **évolution assumée** : chaque décision de l'original est identifiée, comprise, puis réinterprétée dans le langage du prototype — même système, exécution contemporaine, contraintes de performance guinéennes intégrées dès le départ.
+
+## 4.1 — La palette : six rôles, deux modes
+
+La palette claire reprend l'architecture de l'original et la rafraîchit. Le fond crème `#FAF8F5` hérite du blanc cassé `#fbf9f7` et dissout l'agressivité du blanc pur du prototype ; la lavande claire `#EFECF7` reprend le rôle des encadrés ; l'encre chaude `#23211F` remplace le charbon `#202020` en adoucissant sa dureté ; et l'indigo cabinet `#4A52A8` conserve — à l'identique — le bleu-violet d'action de l'original : c'est l'élément le plus reconnaissable de l'ADN, il ne se modernise pas, il se transmet. Deux ajouts locaux complètent le système : la **terre de Guinée** `#C96F3B`, un ocre brûlé qui colore accents, badges et illustrations (et qui remplace avantageusement le brun réservé au pied de page de l'original), et le **vert vérifié** `#3E7D5A`, réservé au badge « entreprise vérifiée » et aux états de succès. Le mode sombre du prototype est conservé et transposé : fond charbon violacé `#1E1C22`, indigo remonté en `#8A92E8` pour les boutons, terre éclaircie en `#E08B54` — la même chaleur, lisible en 3G comme en écran bureau.
+
+**Tableau 3 — La palette bimode du design system 2.0 et ses héritages**
+
+| Rôle | Mode clair | Mode sombre | Usage | Héritage |
+|---|---|---|---|---|
+| Fond de page | `#FAF8F5` | `#1E1C22` | Fond général | `#fbf9f7` de FR |
+| Surface secondaire | `#EFECF7` | `#2A2732` | Encadrés, cartes douces | `#ececfa` de FR |
+| Encre (texte) | `#23211F` | `#F3F0EA` | Titres, corps, footer | `#202020` de FR |
+| Indigo cabinet | `#4A52A8` | `#8A92E8` | Boutons, liens, titres | `#4a52a8` de FR — inchangé |
+| Terre de Guinée | `#C96F3B` | `#E08B54` | Accents, manuscrit, badges chauds | Nouveau — teinte locale |
+| Vert vérifié | `#3E7D5A` | `#6FB08A` | Badge vérifié, succès | Nouveau — confiance locale |
+
+## 4.2 — Trois voix typographiques, comme l'original
+
+L'original joue sur trois registres — la ronde (Nunito Sans), le manuscrit (Gochi Hand), la display (Sailors_Rough) — et c'est ce mélange qui signe ses pages. La transposition conserve la logique et modernise les instruments :
+
+- **Nunito Sans** est conservée telle quelle pour les corps et l'interface : plus humaine qu'Inter, elle est littéralement l'ADN typographique du site source.
+- **Fraunces**, serif variable à axe optique, remplace Playfair Display pour les titres : elle garde la personnalité éditoriale du prototype tout en gagnant la chaleur organique de l'original, et son format variable tient en un seul fichier WOFF2 — la contrainte de poids du marché mobile est respectée d'office.
+- **Caveat** succède à Gochi Hand pour les surtitres manuscrits : trait plus lisible, chargement léger, même usage parcimonieux — un surtitre par page au plus, la signature « carnet de cabinet ».
+- Sailors_Rough n'a pas d'équivalent gratuit : le **logotype 2.0 sera dessiné sur mesure**, avec la même densité de caractère.
+
+## 4.3 — Composants : la discipline du prototype, la chaleur de l'original
+
+Le prototype excelle dans la fabrication des composants : cartes à ombre douce, rayons uniformes, états vides composés, régions ARIA nommées. Le design system 2.0 garde cette discipline et y injecte les objets qui manquent :
+
+- la **carte d'offre enrichie** (commune, contrat, salaire en GNF, badge vérifié) ;
+- le **double bouton** primaire/secondaire à la voix de l'original (« Voir les offres » / « Un besoin ? Discutons-en ») ;
+- le **chip WhatsApp** ;
+- le **compteur Fraunces** des pages cabinet ;
+- le **surtitre manuscrit** qui rythme les sections comme chez l'original.
+
+Le rayon passe de 10 à 12 pixels et les ombres s'adoucissent d'un cran : deux réglages infimes qui baissent la température perçue sans casser la grille. Chaque composant est défini dans les deux modes et documenté avec ses états — c'est la condition pour que les dix pages existantes et les douze nouvelles s'habillent en une semaine, pas en un mois.
+
+---
+
+# 5. Architecture et arborescence 2.0
+
+Onze routes suffisent à un produit automatisé ; elles ne suffisent plus à un cabinet. L'original tire sa force de trois couches que le prototype n'a pas : une **couche cabinet** qui convertit les entreprises, une **couche contenu** qui attire les candidats par les moteurs, et une **couche service** qui accompagne les deux. L'arborescence 2.0 conserve l'intégralité du squelette produit existant — aucun parcours ne casse, aucune URL à réécrire — et greffe douze nouvelles routes organisées dans ces couches.
+
+```text
+Talent Forge 2.0 — talentforge.gn (next.js · app router · bimode)
+
+● COUCHE CANDIDAT — boucle sans compte
+   Offres ............................. /offres            [existant]
+   Fiche offre FR-style ............... /offres/[slug]
+   Candidature 3 min .................. /candidature/[slug] [existant]
+   Suivi privé ........................ /suivi-candidature   [existant]
+   Aide & FAQ ......................... /aide-candidatures   [existant]
+
+● COUCHE ENTREPRISES — conversion client
+   Proposer une offre ................. /proposer-une-offre  [existant]
+   Évaluation & bilan technique ....... /evaluation          [NOUVEAU]
+   Recruter avec nous ................. /je-recrute          [NOUVEAU]
+
+● COUCHE CABINET — l'ADN de confiance FR
+   Notre cabinet ...................... /notre-cabinet       [NOUVEAU]
+   À propos — manifeste ............... /a-propos            [existant]
+   Témoignages & réussites ............ /temoignages         [NOUVEAU]
+
+● COUCHE CONTENUS SEO — le moteur d'acquisition FR
+   Fiches métiers ..................... /fiches-metiers      [NOUVEAU]
+   Blog & actualités .................. /actualites          [NOUVEAU]
+   Guides candidat / RH ............... /guides              [NOUVEAU]
+
+● SOCLE — conversion & conformité
+   Contact ............................ /contact             [existant]
+   Conditions · Confidentialité · Cookies
+   Administration ..................... /admin               [existant]
+```
+
+## 5.1 — La taxonomie des offres : re-territorialiser
+
+Les six catégories actuelles — Ingénierie, Énergie, Design, Développement, Maintenance, Stage — décrivent le marché français de la tech, pas celui de Conakry. La taxonomie 2.0 les remplace par **huit catégories** calibrées sur les segments porteurs du marché guinéen :
+
+1. BTP & immobilier
+2. Mines & énergie
+3. Banque & microfinance
+4. Commerce & distribution
+5. Transport & logistique
+6. Télécommunications
+7. ONG & développement
+8. Administration & supports
+
+Les types de contrat suivent la même logique : le CDI reste, l'intérim disparaît (marginal localement), le **CDD devient le filtre principal**, et stage, vacation et mission de consultance complètent la grille. Les salaires, enfin, s'expriment en **francs guinéens par mois** avec des fourchettes indicatives par secteur — la transparence salariale de l'original, son actif de confiance le plus visible, transposée à la monnaie locale.
+
+## 5.2 — Les gabarits : la mécanique industrielle de l'original
+
+La leçon la plus précieuse de l'original n'est pas son volume, c'est son industrialisation : sept gabarits remplis semi-automatiquement produisent 645 pages cohérentes. Le plan 2.0 transpose cette mécanique sur le design system Next.js. La **fiche d'offre FR-style** reprend la structure éditoriale complète de l'original (voir chapitre 6). La **fiche métier** nouvelle est le gabarit informationnel : missions, compétences, formation, fourchettes salariales locales — et surtout, contrairement à l'original, un bloc « offres actives de ce métier » qui transforme le trafic informationnel en candidatures. Le **gabarit article** structure le blog à venir. Chaque gabarit embarque ses métadonnées uniques et son balisage JobPosting ou Article : le SEO se construit dans le moule, pas après.
+
+**Tableau 4 — Les gabarits de production éditoriale et leurs cibles**
+
+| Gabarit | Source | Volume cible 6 mois | Rôle |
+|---|---|---|---|
+| Fiche d'offre FR-style | Nouveau (sur gabarit offre existante) | 30 puis 15-20/mois | Conversion candidat + SEO transactionnel |
+| Fiche métier | Nouveau | 10 puis +5/mois | Trafic informationnel, autorité |
+| Article de blog | Nouveau | 2/mois | Longue traîne, crédibilité |
+| Page institutionnelle | Nouveau (cabinet, évaluation, je recrute, témoignages) | 4 | Conversion entreprise |
+| Page service/légale | Existant conservé | 7 (déjà en ligne) | Socle de conformité |
+| Listing filtrable | Existant enrichi (catégories, communes) | 2 (offres, métiers) | Navigation, découverte |
+
+## 5.3 — Navigation et pied de page
+
+La navigation principale passe de quatre à cinq entrées — **Offres, Cabinet, Évaluation, Métiers, À propos** — et le bouton d'action change de message : « Proposer une offre », orienté produit, devient « **Un besoin ? Discutons-en** », orienté relation, à la voix de l'original ; le dépôt d'offre reste accessible en un clic dans le menu. Le pied de page conserve ses quatre zones et en gagne deux : les dernières offres (le maillage interne dense de l'original) et la newsletter double — une alerte candidat par WhatsApp/SMS, une lettre entreprise par e-mail. Le bouton WhatsApp flottant, présent sur toutes les pages dès le seuil mobile, complète le dispositif : à Conakry, c'est le téléphone du cabinet posé en permanence sur l'écran.
+
+---
+
+# 6. Pages clés : avant / après
+
+Ce chapitre applique le design system et l'arborescence aux quatre pages qui portent l'essentiel de la conversion. Chaque point met en regard l'état actuel du prototype et l'état cible 2.0, avec la liste des changements et leur justification. (Wireframes détaillés : `download/wireframes_tf2/tf2_wire_*.html`.)
+
+## 6.1 — La page d'accueil : incarner la promesse
+
+L'accueil actuel est un bijou d'architecture convertie en vitrine froide : le H1 bicolore « Recrutez sans friction. Candidatez sans compte. » est excellent, mais il parle produit, pas personnes. La version 2.0 conserve la promesse et change la voix :
+
+- le **surtitre manuscrit** « le cabinet qui recrute autrement à Conakry » pose immédiatement le lieu et le ton ;
+- le H1 devient « **Le bon poste, la bonne personne — on s'occupe du reste** » ;
+- le **double appel à l'action** rétablit le couloir entreprise que le prototype oublie ;
+- les réassurances s'ancrent dans le réel local (vérification RCCM, salaires en francs guinéens) ;
+- le **témoignage nominatif d'une DRH partenaire** remplace les tuiles abstraites ;
+- le **bandeau WhatsApp** entre dans la première demi-page : à Conakry, c'est l'équivalent du numéro de téléphone du cabinet lillois en pied de page.
+
+## 6.2 — Le module offres : la fiche à la voix de l'original
+
+À gauche, l'état actuel : un catalogue vide aux filtres corrects mais génériques. À droite, l'état cible : des cartes d'offres vivantées — titre, commune, contrat, salaire en GNF, badge « entreprise vérifiée » — et surtout la fiche d'offre qui adopte la structure éditoriale de l'original :
+
+1. « **Votre mission** »
+2. « **Votre profil** »
+3. « **Nous vous proposons** »
+4. encadré « **Résumé de l'annonce** » regroupant les métadonnées ;
+5. bouton **POSTULER** à la candidature pré-remplie ;
+6. bouton « **Postuler par WhatsApp** » ;
+7. l'**engagement de confidentialité** en clôture.
+
+Cette structure n'est pas décorative : c'est elle qui a permis au cabinet lillois de publier 482 offres homogènes, et elle est directement reproductible dans un composant React unique alimenté par les champs structurés de la base.
+
+## 6.3 — La page cabinet : la machine à confiance transplantée
+
+La page « À propos » actuelle fait le travail d'un manifeste mais pas celui d'une preuve : personne n'y a de nom, de visage, de chiffre. La page « Notre cabinet » 2.0 applique le schéma de l'original :
+
+- **compteurs** adaptés au stade de la marque : 48 h de modération, 3 min de candidature, 100 % d'entreprises vérifiées, support 6 j/7 ;
+- **atouts différenciants** en accordéon ;
+- **parole donnée à la direction** avec photo et citation ;
+- les **deux encadrés symétriques d'engagement** envers le candidat et l'entreprise.
+
+L'exigence est non négociable : coordonnées réelles, identités réelles, chiffres vérifiables. C'est la page que lira un DRH d'entreprise avant de déposer une offre — et c'est elle qui transformera la note crédibilité du prototype de 4 à 8.
+
+## 6.4 — Suivi et contact : deux canaux, un statut lisible
+
+Le formulaire de suivi actuel est le talon d'Achille observable du prototype : deux champs bien pensés, mais une « Erreur interne » à la soumission et un statut de dossier invisible. La version 2.0 :
+
+- **branche le backend** ;
+- accepte le **numéro de téléphone** à côté de l'e-mail — l'identifiant réellement universel à Conakry ;
+- remplace la référence `APP-XXXX-XXXX` par une **référence courte dictable au téléphone** ;
+- propose l'**envoi du lien privé par WhatsApp ou SMS** ;
+- affiche le **statut du dossier en quatre étapes visibles** — reçue, conforme, transmise, entretien.
+
+La page contact passe aux coordonnées réelles de Conakry avec horaires locaux. L'expérience « sans compte » est intacte ; elle devient simplement tenable et lisible.
+
+---
+
+# 7. Contenus et copywriting
+
+Le design donne la température ; les textes donnent la voix. Ce chapitre fournit le guide de voix, les microcopies prêtes à l'emploi des pages clés et le plan de production éditoriale. La règle générale tient en une phrase : **partout où le prototype décrit une fonctionnalité, la version 2.0 adresse une personne.** Les exemples ci-dessous sont rédigés en français clair, à la voix de l'original (« on »), avec les ancrages locaux nécessaires au marché de Conakry ; ils sont directement utilisables tels quels dans les gabarits du chapitre 5.
+
+## 7.1 — Le guide de voix en cinq règles
+
+1. **On parle avec « on », jamais de « la plateforme ».** La plateforme n'a pas d'opinion ; l'équipe, si. « On vérifie chaque entreprise avant de publier » plutôt que « Les offres sont soumises à un processus de modération ».
+2. **On adresse, on ne décrit pas.** Chaque titre porte un « vous » ou un « votre » : « Où en est ma candidature ? » plutôt que « Suivi des candidatures ».
+3. **On promet ce qu'on peut tenir, chiffré.** « Validation sous 48 h ouvrées », « candidature en trois minutes » — l'honnêteté des zéros du prototype devient une exigence de vérifiabilité.
+4. **On rassure avec des preuves, pas des adjectifs.** Pas de « leader », pas d'« excellence » : un badge RCCM, un témoignage nominatif, une fourchette salariale.
+5. **On écrit comme on parle à Conakry.** Phrases courtes, français clair, noms de communes et métiers locaux, chiffres en francs guinéens. Le manuscrit (Caveat) signe les surtitres, jamais le corps de texte.
+
+## 7.2 — Les microcopies des pages clés
+
+Les textes ci-dessous remplacent leurs équivalents actuels dans les gabarits définis au chapitre 5. Ils sont calibrés sur les zones des wireframes du chapitre 6.
+
+> **Hero accueil** — Surtitre manuscrit : « le cabinet qui recrute autrement à Conakry » · H1 : « Le bon poste, la bonne personne — on s'occupe du reste. » · Sous-titre : « Offres vérifiées à Conakry et en régions. Candidature en trois minutes, sans compte, dossier suivi en privé. » · CTA : « Voir les offres » / « Vous recrutez ? Discutons-en ».
+
+> **Réassurance hero** — « Chaque entreprise vérifiée (RCCM) avant publication » · « Salaires affichés en francs guinéens » · « Aucune création de compte, jamais » — reprise quasi mot pour mot de la promesse du prototype, à la voix de l'original.
+
+> **Page entreprise (ex-« Proposer une offre »)** — Surtitre : « votre offre en ligne en cinq minutes » · H1 : « Vous recrutez ? On s'en occupe. » · Corps : « Décrivez votre besoin en huit champs, on le met en forme, on vérifie votre entreprise, et votre offre est en ligne sous 48 heures ouvrées. Aucune commission, jamais. » · Alternative : « Ou envoyez votre offre directement sur WhatsApp — on la rédige pour vous. »
+
+> **Clôture de fiche d'offre** — « Candidature confidentielle : votre CV n'est jamais partagé sans votre accord. On vous répond dans tous les cas, même sans suite — promis. »
+
+> **Page cabinet** — Surtitre : « une équipe qui répond, toujours » · Citation direction : « Notre valeur ajoutée, c'est notre accompagnement sur mesure — pour le candidat comme pour l'entreprise. » · Encadrés : « Au candidat : confidentialité stricte, préparation aux entretiens, suivi par lien privé » / « À l'entreprise : audit du besoin, vérification RCCM, process validé ensemble ».
+
+## 7.3 — Le plan de production éditoriale
+
+Le calendrier reprend la mécanique de l'original à l'échelle du lancement. **Avant l'ouverture** : les trente offres fondatrices, négociées une à une avec les premières entreprises partenaires — banques et microfinance, télécoms, BTP et mines, ONG — pour que le catalogue s'ouvre vivant. **Au lancement** : les dix premières fiches métiers locales (comptable, chef de chantier, chargé de clientèle microfinance, logisticien, développeur…), rédigées sur le gabarit du chapitre 5 avec fourchettes salariales en francs guinéens. **En continu** : deux articles de blog par mois, en alternance utilité candidat (« Comment postuler par WhatsApp sans se faire arnaquer ») et autorité thématique (« Ce que vaut un comptable à Conakry en 2026 »), plus une page « réussites » nourrie par les placements. L'ensemble est tenable par une seule personne à mi-temps, ce qui est précisément la force du gabarit.
+
+**Tableau 5 — Calendrier éditorial des six premiers mois**
+
+| Support | Cadence | Volume 6 mois | Objectif principal |
+|---|---|---|---|
+| Offres fondatrices | Avant lancement | 30 | Catalogue vivant au jour 1 |
+| Fiches métiers | 10 au lancement, +5/mois | 40 | Trafic informationnel + autorité |
+| Articles de blog | 2/mois | 12 | Longue traîne + preuve d'activité |
+| Témoignages / réussites | 1/mois dès le mois 2 | 5 | Preuve sociale nominative |
+| Guides (candidat, entreprise) | 1 par trimestre | 2 | Conversion et réassurance |
+
+---
+
+# 8. SEO technique 2.0
+
+Le référencement est le domaine où « la version améliorée » se joue le plus nettement, parce que les deux sites ont échoué chacun à leur manière. L'original a construit un capital colossal — 645 URL en silos propres — puis l'a plombé par trois négligences de fabrication : pas de H1 sur ses trois pages stratégiques, une meta description unique pour tout le site, et aucune donnée structurée. Le prototype a les fondations on-page propres mais rien à indexer : pas de sitemap, pas de JSON-LD, zéro contenu. La version 2.0 hérite des deux leçons : elle construit le capital de contenu (chapitres 5 et 7) sans reproduire aucune des négligences, parce que dans Next.js, chaque correction est une ligne de gabarit qui se propage automatiquement à toutes les pages générées.
+
+## 8.1 — Les quatre défauts hérités, corrigés par conception
+
+La colonne de droite est volontairement technique : ce sont des décisions d'implémentation Next.js, transposables telles quelles dans le code. Toutes relèvent de la phase P0 — elles sont posées avant le contenu, jamais après.
+
+**Tableau 6 — Les défauts SEO des deux parents et leur traitement par conception**
+
+| Défaut hérité | Qui l'a | Traitement 2.0 dans Next.js |
+|---|---|---|
+| H1 absents sur pages stratégiques | L'original (accueil, entreprise, cabinet) | Un composant `PageHeader` imposé par le gabarit : impossible de publier une page sans H1 unique |
+| Meta description unique partout | Les deux sites | API metadata par route + gabarit `generateMetadata` qui compose la description depuis les champs structurés de l'offre |
+| Pas de données structurées JobPosting | L'original | JSON-LD Schema.org `JobPosting` injecté dans chaque fiche (titre, date, lieu, emploi, salaire, entreprise) + `Organization` sur le site |
+| Pas de sitemap | Le prototype | `app/sitemap.ts` généré dynamiquement depuis la base (offres, fiches métiers, articles) — il se met à jour tout seul |
+| Title dupliqué (/offres) et H1 absent (/suivi) | Le prototype | Audit on-page automatisé dans la CI : title et H1 obligatoires par route, échec de build sinon |
+| Pages types en concurrence sémantique | L'original (37 pages types vs sous-espaces) | Une seule couche : catégories + fiches métiers + offres, sans doublon d'intention ; canonical explicite partout |
+| Maillage fiche métier → offres absent | L'original | Bloc « offres actives de ce métier » obligatoire dans le gabarit fiche métier (dès qu'une offre existe) |
+
+## 8.2 — Le SEO local de Conakry
+
+Au-delà de la mécanique technique, la visibilité locale se joue sur trois fronts que ni l'original ni le prototype n'abordent.
+
+1. **La fiche Google Business Profile** de l'activité physique à Conakry, soignée comme une page du site — adresse réelle, horaires, photos, avis sollicités systématiquement après chaque placement.
+2. **Les requêtes cibles**, qui s'écrivent « emploi + métier + Conakry » ou « recrutement + secteur + Guinée » — la taxonomie du chapitre 5 et les fiches métiers sont calibrées exactement sur ces formulations, et les titres d'offres doivent reprendre l'intitulé usuel du poste à Conakry, pas une traduction élégante.
+3. **Les canaux hors Google** — groupes Facebook d'emploi guinéens, annuaires locaux, communautés WhatsApp — où chaque offre publiée est relayée avec son lien : le partage est planifié comme partie intégrante de la publication, pas comme une option.
+
+Ces trois fronts coûtent peu et, sur un marché où la concurrence SEO francophone est faible, ils composent l'essentiel du jeu.
+
+---
+
+# 9. Fonctionnalités 2.0
+
+Les fonctionnalités nouvelles servent une seule stratégie : supprimer les frictions propres au terrain — pas celles du produit, qui sont déjà bien traitées — et apporter les services qui font d'une plateforme un cabinet. Quatre chantiers structurent le chapitre : brancher le backend, alléger le formulaire entreprise, intégrer WhatsApp dans les trois parcours, et greffer le service d'évaluation technique, le joyau de la couronne de l'original. La vérification des entreprises et la monétisation en mobile money complètent l'ensemble.
+
+## 9.1 — Brancher le backend
+
+C'est le chantier zéro, sans lequel tout le reste est décoratif. Il comprend la base de données (offres, candidatures, entreprises, statuts, journal d'audit), les e-mails transactionnels — lien privé de suivi au candidat, notification à l'entreprise à chaque nouvelle candidature, confirmation de publication — et le rejeu complet des tests des trois formulaires : dépôt d'offre, candidature, suivi. La règle d'acceptation est simple : **chaque parcours se termine par un message de succès vérifiable et un état en base consultable.** Ce chantier est l'essentiel de la phase P0 et se mesure en jours, pas en semaines — la logique métier est déjà écrite dans les Server Actions, seule la persistance et l'envoi manquent.
+
+## 9.2 — Le formulaire entreprise : de vingt à huit champs
+
+Le formulaire actuel est le paradoxe du produit : il prêche le sans-friction et ouvre avec vingt champs en cinq sections, dont des doublons (entreprise et contact demandent chacun e-mail et téléphone) et des anticipations inutiles (vingt tags de compétences avant même la première conversation). La version 2.0 descend à **huit champs en trois étapes** :
+
+- **Étape 1 — le besoin** : intitulé, commune, contrat, description ;
+- **Étape 2 — l'entreprise** : raison sociale, numéro RCCM — qui alimente la vérification ;
+- **Étape 3 — le contact** : nom, téléphone WhatsApp.
+
+Les champs retirés ne disparaissent pas : ils sont complétés par l'équipe lors de la relecture sous 48 heures — exactement le service « main chaude » qu'un cabinet rend à ses clients, et que le dépôt WhatsApp formalise en parallèle pour les entreprises qui préfèrent dicter plutôt que rédiger. (Wireframe : `download/wireframes_tf2/tf2_wire_form.html`.)
+
+## 9.3 — WhatsApp dans les trois parcours
+
+WhatsApp n'est pas un bouton de plus : c'est le canal dominant du marché visé, là où l'original a le téléphone et la newsletter, le prototype n'a encore rien. L'intégration couvre les trois parcours.
+
+- **Côté candidat** : un bouton « Postuler par WhatsApp » sur chaque fiche (message prérempli avec l'intitulé et la référence), et des alertes d'offres par métier et par commune, envoyées via WhatsApp Business API avec repli SMS.
+- **Côté entreprise** : dépôt d'offre par WhatsApp avec mise en forme par l'équipe, et notification des candidatures reçues.
+- **Côté suivi** : envoi du lien privé par WhatsApp ou SMS, avec la référence courte du chapitre 6.
+
+La version P1 peut s'appuyer sur les liens `wa.me` et les réponses manuelles de l'équipe ; la version P2 bascule sur WhatsApp Business API pour l'automatisation — l'important est que le canal soit présent dès le premier jour, même manuel.
+
+## 9.4 — L'évaluation technique : le joyau de l'original
+
+Le dispositif propriétaire de Finance Recrutement — mise en situation sur mesure, bilan technique remis au candidat, instrument de décision pour l'employeur, coaching d'intégration — est ce qui le distingue d'un job board : **c'est un service, pas une liste.** La version 2.0 le greffe sous une page « Évaluation & bilan technique » desservie depuis la navigation et la page cabinet, avec un process documenté en quatre temps (audit du besoin, mise en situation, bilan, accompagnement) et deux études de cas chiffrées dès que les premiers placements le permettront.
+
+C'est aussi la réponse à la question commerciale du modèle : la plateforme publie gratuitement pour construire la masse critique, et l'évaluation — facturée aux entreprises en mobile money — devient le premier revenu, avant la mise en avant d'offres et l'accès abonné à la CVthèque.
+
+**Tableau 7 — Les douze fonctionnalités du plan, par priorité**
+
+| Fonctionnalité | Prio. | Contenu | Dépendance |
+|---|---|---|---|
+| Backend complet | P0 | Base de données, e-mails transactionnels, tests des 3 formulaires | Choix SGBD, service d'e-mail |
+| Identité réelle | P0 | Domaine définitif, e-mail pro, adresse Conakry, mentions légales | Enregistrement de l'activité |
+| SEO par conception | P0 | Sitemap dynamique, JSON-LD, H1/meta uniques, audit CI | Backend (données à indexer) |
+| Design system 2.0 | P1 | Palette, typos, composants, bimode — appliqués aux 11 pages | Rien — parallélisable |
+| Formulaire 8 champs + vérification RCCM | P1 | 3 étapes, statut « vérification entreprise » dans l'admin | Backend |
+| WhatsApp v1 | P1 | Boutons wa.me sur fiches et contact, dépôt manuel, alertes manuelles | Numéro Business dédié |
+| Pages cabinet + évaluation | P1 | Wireframes du chapitre 6, copies du chapitre 7 | Design system, identité réelle |
+| Contenu fondateur | P1 | 30 offres, 10 fiches métiers, témoignages partenaires | Relations entreprises |
+| WhatsApp API + alertes | P2 | Automatisation dépôt/alertes/suivi, repli SMS | WhatsApp v1, volume justifiant l'API |
+| Études de cas chiffrées | P2 | 2 placements documentés (délai, rétention à 6 mois) | Premiers placements |
+| Monétisation mobile money | P2 | Évaluation facturée, mise en avant d'offre, CVthèque abonnée | Orange Money / MTN MoMo, trafic |
+| PWA légère 3G | P2 | Pages sous 100 Ko, cache offline des offres vues, économie de données | Design system, contenu stable |
+
+---
+
+# 10. Feuille de route P0 · P1 · P2
+
+La transformation se pilote en trois phases qui s'enchaînent sans se chevaucher dangereusement : **P0 rend le site vrai** (backend, identité, SEO de conception), **P1 le rend sien** (design system, pages, contenus, WhatsApp v1), **P2 le rend dominant** (automatisation WhatsApp, preuves chiffrées, monétisation, légèreté 3G). Les durées supposent une petite équipe — un développeur, une personne contenu/opérations à mi-temps — et un lancement public visé en fin de P1, soit environ deux mois et demi après le démarrage. Chaque phase se clôt par un jalon vérifiable ; aucun contenu ne se produit avant que P0 soit fermé, car indexer un site faux serait détruire son capital de départ.
+
+**Tableau 8 — Les trois phases de la transformation, leurs livrables et jalons**
+
+| Phase | Semaines | Livrables | Jalon de clôture |
+|---|---|---|---|
+| **P0 — rendre vrai** | S1-S2 | Backend branché et testé ; identité réelle (domaine, e-mail, adresse, mentions) ; sitemap + JSON-LD + H1/meta par gabarit ; title et H1 corrigés ; audit CI en place | Les 3 formulaires passent de bout en bout ; un lien de suivi arrive vraiment par e-mail |
+| **P1 — rendre sien** | S3-S10 | Design system 2.0 appliqué aux 11 pages ; 12 nouvelles routes publiées (cabinet, évaluation, je recrute, témoignages, fiches métiers, blog) ; formulaire 8 champs + vérification RCCM ; WhatsApp v1 (wa.me) ; 30 offres fondatrices ; 10 fiches métiers ; copies rédigées déployées | Lancement public : catalogue vivant, double couloir opérationnel, bouton WhatsApp sur chaque page |
+| **P2 — rendre dominant** | S11-S16+ | WhatsApp API (alertes automatisées, dépôt assisté) ; 2 études de cas chiffrées ; monétisation mobile money (évaluation, mise en avant, CVthèque) ; PWA légère 3G ; page réussites nourrie en continu | Premier revenu encaissé en mobile money ; 300 offres cumulées et 3 000 candidats visés à 12 mois |
+
+> **Dépendance critique.** Le chemin critique n'est pas technique : c'est la collecte des trente offres fondatrices et des témoignages partenaires. La P1 peut être terminée côté développement à S8 et attendre son contenu ; mieux vaut donc démarrer les relations entreprises dès la semaine 1, en parallèle du backend.
+
+---
+
+# 11. KPIs et checklist de lancement
+
+Un plan sans mesure est une intention. Ce dernier chapitre fixe les indicateurs qui diront si la transformation atteint son but — être la version améliorée — et la checklist qui verrouille la qualité au jour du lancement. Les KPIs sont volontairement peu nombreux et directement reliés aux deux couloirs : ce que le candidat réussit à faire, ce que l'entreprise accepte de confier, et ce que les moteurs reconnaissent. Chaque indicateur a une cible à 90 jours après le lancement public.
+
+**Tableau 9 — Les neuf KPIs de la transformation et leurs cibles à 90 jours**
+
+| Indicateur | Définition | Départ | Cible 90 j |
+|---|---|---|---|
+| Offres en ligne vérifiées | Offres publiées avec badge vérifié | 0 | 60+ |
+| Candidatures complétées | Parcours 3 champs terminé jusqu'à confirmation | 0 | 250+ |
+| Taux de complétion formulaire entreprise | Dépôts terminés / dépôts commencés | Non mesuré | ≥ 55 % |
+| Délai de modération | Publication après dépôt (jours ouvrés) | Promesse 48 h | ≤ 48 h tenu à 95 % |
+| Candidatures via WhatsApp | Part du canal WhatsApp dans les candidatures | 0 % | ≥ 30 % |
+| Suivis ouverts | Liens privés de suivi ouverts au moins une fois | 0 | ≥ 60 % des candidats |
+| Pages indexées | URL dans l'index Google (offres + métiers + articles) | ≈ 0 | ≥ 120 |
+| Trafic organique Conakry | Sessions « emploi + métier + Conakry » | 0 | 500+/mois |
+| Entreprises partenaires | Entreprises vérifiées actives | 4 | 15+ |
+
+## 11.1 — La checklist de lancement
+
+La liste ci-dessous se parcourt intégralement le jour J ; chaque item a un responsable unique et un test concret. Elle reprend les exigences dispersées dans les chapitres précédents et les condense en un instrument d'exploitation.
+
+- [ ] **Produit :** les trois formulaires testés sur vraies données ; les e-mails transactionnels reçus (boîte principale ET indésirables vérifiés) ; le lien de suivi expire et se régénère correctement.
+- [ ] **Identité :** domaine en production, certificat actif, adresse e-mail professionnelle, adresse physique affichée à Conakry, mentions légales nominatives, téléphone et WhatsApp vérifiés.
+- [ ] **Design :** design system 2.0 appliqué à l'intégralité des pages ; mode sombre transposé ; surtitres manuscrits en place ; portraits et témoignages réels intégrés.
+- [ ] **Contenu :** 30 offres fondatrices publiées et vérifiées ; 10 fiches métiers avec fourchettes GNF ; pages cabinet, évaluation et je recrute complètes ; FAQ relue à la voix « on ».
+- [ ] **SEO :** sitemap soumis à Google Search Console ; JSON-LD JobPosting validé sur 3 fiches au moins ; title et meta uniques sur 100 % des pages ; fiche Google Business Profile créée.
+- [ ] **Canaux :** bouton WhatsApp sur toutes les pages ; numéro Business actif avec message d'accueil ; relais planifié dans 3 groupes Facebook et 5 communautés WhatsApp.
+- [ ] **Mesure :** plan de marquage distinguant les deux couloirs ; objectifs de conversion posés sur les 9 KPIs ; revue hebdomadaire calée à date fixe.
+
+---
+
+# A. Matrice de migration FR → Talent Forge
+
+Cette matrice condense l'ensemble du plan en une table de décision élément par élément : pour chaque trait observable de l'original, elle tranche entre **transplanter** (reprendre, éventuellement adapté), **s'en inspirer** (garder le principe, changer l'exécution), **conserver TalentForge** (l'original n'a rien de mieux à offrir) ou **écarter** (ne pas reproduire, défaut ou surcharge). Elle sert de contrat de revue : toute divergence d'implémentation par rapport à cette table doit être discutée, pas découverte.
+
+**Tableau A.1 — Matrice de migration : vingt décisions élément par élément**
+
+| Élément (source) | Décision | Traitement dans Talent Forge 2.0 |
+|---|---|---|
+| Palette #202020 / #4a52a8 / #fbf9f7 / #ececfa | Transplanter (adapté) | Encre #23211F, indigo #4A52A8 inchangé, crème #FAF8F5, lavande #EFECF7 + bimode |
+| Trois typos (Nunito Sans, Gochi Hand, Sailors_Rough) | S'en inspirer | Nunito Sans conservée ; Caveat remplace Gochi Hand ; logo 2.0 dessiné (Fraunces pour les titres) |
+| Voix « on » et formules (« Discutons-en ») | Transplanter | Guide de voix + microcopies du chapitre 7, appliquées à toutes les pages |
+| Compteurs de preuve (15 ans, 25 200 candidats…) | S'en inspirer | Compteurs réels au stade de la marque (48 h, 3 min, 100 %, 6 j/7) sur « Notre cabinet » |
+| Témoignages Google + citation fondatrice | Transplanter (adapté) | Témoignages partenaires nominatifs + parole de la direction avec photo |
+| Adresse + téléphone en pied de page | Transplanter (adapté) | Adresse Conakry réelle + WhatsApp Business + horaires locaux |
+| Engagement de confidentialité par offre | Transplanter | Bandeau de clôture sur chaque fiche (copywriting chapitre 7) |
+| 482 offres, silos métier × contrat | S'en inspirer | 30 offres fondatrices puis 15-20/mois ; catégories locales, CDD principal |
+| Fiches métiers (40) + blog (61) | S'en inspirer | Gabarits fiche métier + article ; 10 fiches au lancement, 2 articles/mois |
+| Maillage fiche métier → offres | Transplanter (corrigé) | Bloc « offres actives du métier » obligatoire — mieux que l'original |
+| Pages types d'offres (37) | Écarter | Doublon sémantique chez l'original ; une seule couche catégories + fiches |
+| WordPress + Elementor + 8 plugins | Conserver TalentForge | Next.js + Vercel, Server Actions, Tailwind — 5× plus léger |
+| Bimode clair/sombre absent | Conserver TalentForge | next-themes conservé, palette transposée aux deux modes |
+| Candidature sans compte + suivi lien privé | Conserver TalentForge | Intact ; enrichi du téléphone, de la référence courte et du statut en 4 étapes |
+| Formulaire Gravity Forms (contact, offre) | Conserver TalentForge (allégé) | Server Actions 8 champs 3 étapes + couloir WhatsApp |
+| Feed Instagram Smash Balloon | Écarter (adapté) | Lourd et tiers ; page Facebook reliée + contenus relais WhatsApp/Facebook |
+| Newsletter Mailjet | S'en inspirer | Double liste : alertes candidat WhatsApp/SMS + lettre entreprise e-mail |
+| Absence de H1 / meta unique / 0 JSON-LD | Écarter | Corrigés par conception : gabarits imposants H1, metadata par route, sitemap dynamique |
+| 123 requêtes / DOM 1,6 s | Conserver TalentForge | 25 requêtes / TTFB 0,3 s conservés ; cible PWA sous 100 Ko en 3G |
+| Zéro tracker tiers (prototype) | Conserver TalentForge | Hygiène conservée ; mesure analytique sobre sans cookies publicitaires |
+
+
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-09-10T19:13:25Z.
+</ADDITIONAL_METADATA>
