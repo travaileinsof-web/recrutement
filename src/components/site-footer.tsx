@@ -9,7 +9,6 @@ const FOOTER_LINKS = [
       { href: '/je-recrute', label: 'Je recrute' },
       { href: '/suivi-candidature', label: 'Suivre ma candidature' },
       { href: '/fiches-metiers', label: 'Fiches Métiers' },
-      { href: '/tarifs', label: 'Tarifs & Options' },
     ],
   },
   {
