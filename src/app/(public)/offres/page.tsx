@@ -11,6 +11,11 @@ import type { PaginatedJobs } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
 
+export const metadata = {
+  title: "Offres d'emploi",
+  description: "Parcourez nos offres d'emploi et postulez en quelques clics sans inscription.",
+}
+
 interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }

@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: PageProps) {
     title: job.seoTitle ?? job.title,
     description:
       job.seoDescription ??
-      `${job.title} · ${job.company?.legalName ?? ''} · ${job.location ?? 'France'}`.trim(),
+      `${job.title} · ${job.company?.legalName ?? ''} · ${job.location ?? 'Guinée'}`.trim(),
   }
 }
 
@@ -58,7 +58,7 @@ function JobPostingJsonLd({ job }: { job: PublicJob }) {
           address: {
             '@type': 'PostalAddress',
             addressLocality: job.location,
-            addressCountry: job.country ?? 'France',
+            addressCountry: job.country ?? 'Guinée',
           },
         }
       : undefined,

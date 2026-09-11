@@ -90,7 +90,7 @@ export async function submitJobOffer(input: unknown, ip: string, userAgent?: str
 
   // Notify admins
   await enqueueNotification({
-    recipientEmail: 'admins@internal',
+    recipientEmail: settings.contactEmail,
     type: 'NEW_SUBMISSION',
     subject: 'Nouvelle proposition d’offre à examiner',
     payload: { reference: publicRef, title: data.title },

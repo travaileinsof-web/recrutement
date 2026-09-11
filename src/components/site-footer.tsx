@@ -46,17 +46,17 @@ export function SiteFooter() {
             <ul className="mt-6 space-y-2.5 text-sm text-muted-foreground">
               <li className="flex items-center gap-2.5">
                 <Mail className="size-4 text-primary" strokeWidth={1.75} />
-                <a href="mailto:contact@talentforge.local" className="transition-colors hover:text-foreground">
-                  contact@talentforge.local
+                <a href="mailto:contact@talentforge.gn" className="transition-colors hover:text-foreground">
+                  contact@talentforge.gn
                 </a>
               </li>
               <li className="flex items-center gap-2.5">
                 <Phone className="size-4 text-primary" strokeWidth={1.75} />
-                <span>+33 1 84 80 00 00</span>
+                <span>+224 620 00 00 00</span>
               </li>
               <li className="flex items-center gap-2.5">
                 <MapPin className="size-4 text-primary" strokeWidth={1.75} />
-                <span>Paris, France</span>
+                <span>Conakry, Guin�e</span>
               </li>
             </ul>
           </div>
@@ -114,3 +114,4 @@ export function SiteFooter() {
     </footer>
   )
 }
+

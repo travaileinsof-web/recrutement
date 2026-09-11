@@ -9,7 +9,7 @@ export default function ConfidentialitePage() {
       description="Conforme au RGPD. Cette page décrit comment TalentForge collecte, utilise et protège vos données."
     >
       <p>
-        TalentForge est éditée en France. La présente politique de
+        TalentForge est éditée en Guin�e. La présente politique de
         confidentialité décrit la manière dont nous collectons, traitons,
         conservons et protégeons les données personnelles des utilisateurs de
         notre plateforme, conformément au Règlement Général sur la Protection
@@ -20,7 +20,7 @@ export default function ConfidentialitePage() {
       <p>
         Le responsable du traitement des données est l’équipe interne
         TalentForge, joignable à l’adresse{' '}
-        <a href="mailto:contact@talentforge.local">contact@talentforge.local</a>.
+        <a href="mailto:contact@talentforge.gn">contact@talentforge.gn</a>.
         Aucun sous-traitant tiers n’a accès à vos données personnelles en dehors
         de notre infrastructure d’hébergement.
       </p>
@@ -78,7 +78,7 @@ export default function ConfidentialitePage() {
         Conformément au RGPD, vous disposez d’un droit d’accès, de
         rectification, d’effacement, d’opposition, à la limitation et à la
         portabilité de vos données. Pour les exercer, écrivez-nous à{' '}
-        <a href="mailto:contact@talentforge.local">contact@talentforge.local</a>{' '}
+        <a href="mailto:contact@talentforge.gn">contact@talentforge.gn</a>{' '}
         en indiquant votre référence de candidature ou l’e-mail utilisé. Nous
         répondons sous 30 jours maximum.
       </p>
@@ -109,3 +109,4 @@ export default function ConfidentialitePage() {
     </ProsePage>
   )
 }
+

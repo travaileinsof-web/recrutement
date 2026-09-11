@@ -43,7 +43,7 @@ export default function ConditionsPage() {
 
       <h2>Engagements de l’entreprise</h2>
       <ul>
-        <li>Soumettre des offres conformes à la réglementation française du travail ;</li>
+        <li>Soumettre des offres conformes à la réglementation guinéenne du travail ;</li>
         <li>Garantir l’exactitude des informations fournies ;</li>
         <li>Respecter les candidats et répondre dans des délais raisonnables ;</li>
         <li>Ne pas demander aux candidats d’informations sensibles (religion, santé, orientation sexuelle, etc.) en dehors des cas légalement autorisés.</li>
@@ -79,23 +79,24 @@ export default function ConditionsPage() {
       <p>
         Vous pouvez à tout moment demander la suppression de vos données en
         écrivant à{' '}
-        <a href="mailto:contact@talentforge.local">contact@talentforge.local</a>.
+        <a href="mailto:contact@talentforge.gn">contact@talentforge.gn</a>.
         Les offres publiées ayant déjà reçu des candidatures ne sont pas
         supprimées physiquement mais archivées afin de préserver la traçabilité.
       </p>
 
       <h2>Droit applicable</h2>
       <p>
-        Les présentes conditions sont régies par le droit français. Tout litige
-        relèvera de la compétence des tribunaux français.
+        Les présentes conditions sont régies par le droit guinéen. Tout litige
+        relèvera de la compétence des tribunaux guinéens.
       </p>
 
       <h2>Contact</h2>
       <p>
         Pour toute question relative aux présentes conditions, contactez-nous à
         l’adresse{' '}
-        <a href="mailto:contact@talentforge.local">contact@talentforge.local</a>.
+        <a href="mailto:contact@talentforge.gn">contact@talentforge.gn</a>.
       </p>
     </ProsePage>
   )
 }
+

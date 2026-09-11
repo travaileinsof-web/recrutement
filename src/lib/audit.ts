@@ -38,9 +38,11 @@ function toJsonSafe(value: unknown): unknown {
   return value
 }
 
-function encode(value: unknown): string | null {
-  if (value === undefined) return null
-  return JSON.stringify(toJsonSafe(value))
+import { encodeJsonField } from '@/lib/db-compat'
+
+function encode(value: unknown): unknown {
+  if (value === undefined || value === null) return null
+  return encodeJsonField(toJsonSafe(value)) as any
 }
 
 export async function audit(entry: AuditContext): Promise<void> {

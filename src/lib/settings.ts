@@ -13,7 +13,7 @@ export interface PlatformSettings {
 
 const DEFAULTS: PlatformSettings = {
   appName: 'TalentForge',
-  contactEmail: 'contact@talentforge.local',
+  contactEmail: 'contact@talentforge.gn',
   trackingLinkTtlHours: 24 * 30, // 30 days
   maxFileSizeMb: 10,
   consentVersion: '1.0.0',

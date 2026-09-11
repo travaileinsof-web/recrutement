@@ -162,7 +162,7 @@ export function ApplyForm({ job }: { job: PublicJob }) {
             id="candidatePhone"
             type="tel"
             autoComplete="tel"
-            placeholder="+33 6 12 34 56 78"
+            placeholder="+224 622 33 44 55"
             {...register('candidatePhone')}
           />
         </div>
@@ -171,7 +171,7 @@ export function ApplyForm({ job }: { job: PublicJob }) {
           <Input
             id="candidateCity"
             autoComplete="address-level2"
-            placeholder="Paris"
+            placeholder="Conakry"
             {...register('candidateCity')}
           />
         </div>
@@ -336,3 +336,4 @@ function FileField({
     </div>
   )
 }
+

@@ -14,6 +14,7 @@ export default function TrackingLandingPage() {
   return (
     <div className="container mx-auto px-4 py-16">
       <div className="mx-auto max-w-lg">
+        <h1 className="sr-only">Suivre ma candidature</h1>
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 font-serif text-lg">

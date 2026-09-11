@@ -118,7 +118,7 @@ export default function AdminLoginPage() {
                   autoComplete="username"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@talentforge.local"
+                  placeholder="admin@talentforge.gn"
                   className="h-10"
                 />
               </div>
@@ -171,7 +171,7 @@ export default function AdminLoginPage() {
                 <div className="mt-2 space-y-1 text-xs">
                   <div className="flex justify-between gap-2">
                     <span className="text-muted-foreground">E-mail</span>
-                    <code className="font-mono text-foreground">admin@talentforge.local</code>
+                    <code className="font-mono text-foreground">admin@talentforge.gn</code>
                   </div>
                   <div className="flex justify-between gap-2">
                     <span className="text-muted-foreground">Mot de passe</span>

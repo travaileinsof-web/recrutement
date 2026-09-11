@@ -66,7 +66,7 @@ export function JobForm() {
       companyId: '',
       description: '',
       location: '',
-      country: 'France',
+      country: 'Guin�e',
       contractType: '',
       experienceLevel: '',
       salaryText: '',
@@ -162,12 +162,12 @@ export function JobForm() {
 
             <div className="space-y-1.5">
               <Label>Localisation</Label>
-              <Input {...register('location')} placeholder="Paris (75) — hybride" />
+              <Input {...register('location')} placeholder="Conakry — hybride" />
             </div>
 
             <div className="space-y-1.5">
               <Label>Pays</Label>
-              <Input {...register('country')} defaultValue="France" />
+              <Input {...register('country')} defaultValue="Guin�e" />
             </div>
 
             <div className="space-y-1.5">
@@ -341,3 +341,4 @@ export function JobForm() {
     </form>
   )
 }
+

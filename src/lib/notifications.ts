@@ -4,6 +4,7 @@
 
 import { db } from '@/lib/db'
 import { sendEmail, EmailPayload } from '@/lib/email-provider'
+import { encodeJsonField, decodeJsonField } from '@/lib/db-compat'
 
 export interface NotificationPayload {
   recipientEmail: string
@@ -12,9 +13,9 @@ export interface NotificationPayload {
   payload: Record<string, unknown>
 }
 
-function encodePayload(payload: Record<string, unknown> | undefined): string {
-  if (!payload) return '{}'
-  // Convert Dates to ISO strings recursively so JSON.stringify produces a clean value.
+function safePayload(payload: Record<string, unknown> | undefined): unknown {
+  if (!payload) return {}
+  // Convert Dates to ISO strings recursively.
   const seen = new WeakSet()
   const safe = (v: unknown): unknown => {
     if (v === null || typeof v !== 'object') return v
@@ -28,7 +29,7 @@ function encodePayload(payload: Record<string, unknown> | undefined): string {
     }
     return out
   }
-  return JSON.stringify(safe(payload))
+  return safe(payload)
 }
 
 export async function enqueueNotification(n: NotificationPayload): Promise<void> {
@@ -37,7 +38,7 @@ export async function enqueueNotification(n: NotificationPayload): Promise<void>
       recipientEmail: n.recipientEmail,
       type: n.type,
       subject: n.subject,
-      payload: encodePayload(n.payload ?? {}),
+      payload: encodeJsonField(safePayload(n.payload ?? {})) as any,
       status: 'PENDING',
     },
   })
@@ -54,13 +55,7 @@ export async function flushNotifications(limit = 25): Promise<number> {
 
   let count = 0
   for (const n of pending) {
-    const payloadStr = (n.payload as unknown as string) ?? '{}'
-    let payload: Record<string, unknown> = {}
-    try {
-      payload = JSON.parse(payloadStr)
-    } catch {
-      payload = {}
-    }
+    const payload = decodeJsonField<Record<string, unknown>>(n.payload, {})
     const email: EmailPayload = {
       to: n.recipientEmail,
       subject: n.subject,

@@ -198,7 +198,7 @@ export async function submitApplication(
 
   // Notify admins
   await enqueueNotification({
-    recipientEmail: 'admins@internal',
+    recipientEmail: settings.contactEmail,
     type: 'NEW_APPLICATION',
     subject: 'Nouvelle candidature reçue',
     payload: { reference: publicRef, jobTitle: job.title },

@@ -22,8 +22,8 @@ export default function ContactPage() {
               <span>
                 <span className="font-medium">E-mail</span>
                 <br />
-                <a href="mailto:contact@talentforge.local" className="text-primary hover:underline">
-                  contact@talentforge.local
+                <a href="mailto:contact@talentforge.gn" className="text-primary hover:underline">
+                  contact@talentforge.gn
                 </a>
               </span>
             </p>
@@ -32,7 +32,7 @@ export default function ContactPage() {
               <span>
                 <span className="font-medium">Téléphone</span>
                 <br />
-                +33 1 84 80 00 00
+                +224 620 00 00 00
               </span>
             </p>
             <p className="flex items-start gap-3">
@@ -42,7 +42,7 @@ export default function ContactPage() {
                 <br />
                 12 rue de l’Innovation
                 <br />
-                75011 Paris, France
+                Kaloum, Conakry, Guin�e
               </span>
             </p>
             <p className="flex items-start gap-3">
@@ -79,3 +79,4 @@ export default function ContactPage() {
     </ProsePage>
   )
 }
+

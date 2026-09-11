@@ -22,7 +22,7 @@ export function SettingsPanel({ initial }: { initial: Settings | null }) {
   const [form, setForm] = React.useState<Settings>(
     initial ?? {
       appName: 'TalentForge',
-      contactEmail: 'contact@talentforge.local',
+      contactEmail: 'contact@talentforge.gn',
       trackingLinkTtlHours: 720,
       maxFileSizeMb: 10,
       consentVersion: '1.0.0',

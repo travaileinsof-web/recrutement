@@ -71,7 +71,7 @@ export function SubmissionForm() {
       website: '',
       sector: '',
       city: '',
-      country: 'France',
+      country: 'Guin�e',
       address: '',
       contactName: '',
       contactEmail: '',
@@ -230,7 +230,7 @@ export function SubmissionForm() {
             <Input
               type="tel"
               {...register('companyPhone')}
-              placeholder="+33 1 23 45 67 89"
+              placeholder="+224 621 11 22 33"
             />
           </Field>
           <Field
@@ -252,20 +252,20 @@ export function SubmissionForm() {
           <Field label="Ville">
             <Input
               {...register('city')}
-              placeholder="Paris"
+              placeholder="Conakry"
             />
           </Field>
           <Field label="Pays">
             <Input
               {...register('country')}
-              defaultValue="France"
-              placeholder="France"
+              defaultValue="Guin�e"
+              placeholder="Guin�e"
             />
           </Field>
           <Field label="Adresse" className="sm:col-span-2">
             <Input
               {...register('address')}
-              placeholder="12 rue de l’Innovation, 75011 Paris"
+              placeholder="Avenue de la République, Kaloum, Conakry"
             />
           </Field>
         </div>
@@ -305,7 +305,7 @@ export function SubmissionForm() {
             <Input
               type="tel"
               {...register('contactPhone')}
-              placeholder="+33 6 12 34 56 78"
+              placeholder="+224 622 33 44 55"
             />
           </Field>
         </div>
@@ -348,7 +348,7 @@ export function SubmissionForm() {
             <Field label="Localisation">
               <Input
                 {...register('location')}
-                placeholder="Paris (75) — hybride"
+                placeholder="Conakry — hybride"
               />
             </Field>
             <Field
@@ -574,3 +574,4 @@ function Field({
     </div>
   )
 }
+

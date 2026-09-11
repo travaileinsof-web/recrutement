@@ -93,7 +93,7 @@ export function JobDetail({
   const [companyId, setCompanyId] = React.useState(initialJob?.companyId ?? '')
   const [description, setDescription] = React.useState(initialJob?.description ?? '')
   const [location, setLocation] = React.useState(initialJob?.location ?? '')
-  const [country, setCountry] = React.useState(initialJob?.country ?? 'France')
+  const [country, setCountry] = React.useState(initialJob?.country ?? 'Guin�e')
   const [contractType, setContractType] = React.useState(initialJob?.contractType ?? '')
   const [experienceLevel, setExperienceLevel] = React.useState(initialJob?.experienceLevel ?? '')
   const [salaryText, setSalaryText] = React.useState(initialJob?.salaryText ?? '')
@@ -118,7 +118,7 @@ export function JobDetail({
       setCompanyId(j.companyId)
       setDescription(j.description)
       setLocation(j.location ?? '')
-      setCountry(j.country ?? 'France')
+      setCountry(j.country ?? 'Guin�e')
       setContractType(j.contractType ?? '')
       setExperienceLevel(j.experienceLevel ?? '')
       setSalaryText(j.salaryText ?? '')
@@ -504,3 +504,4 @@ export function JobDetail({
     </div>
   )
 }
+

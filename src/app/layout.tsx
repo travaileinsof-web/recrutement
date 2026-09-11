@@ -47,8 +47,23 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const orgJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'TalentForge',
+    url: 'https://talentforge.gn',
+    logo: 'https://talentforge.gn/logo.svg',
+    sameAs: [],
+  }
+
   return (
     <html lang="fr" suppressHydrationWarning>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+        />
+      </head>
       <body
         className={`${inter.variable} ${playfair.variable} antialiased bg-background text-foreground`}
       >

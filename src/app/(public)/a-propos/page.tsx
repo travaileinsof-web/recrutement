@@ -34,7 +34,7 @@ export default function AboutPage() {
       description="La plateforme de recrutement qui simplifie la mise en relation entre entreprises et talents, sans jamais demander de compte."
     >
       <p>
-        TalentForge est une plateforme de recrutement française née d’un
+        TalentForge est une plateforme de recrutement guinéenne née d’un
         constat simple : la plupart des sites d’emploi imposent aux candidats
         comme aux entreprises de créer un compte, de remplir des profils
         interminables, puis de subir un quotidien fait d’e-mails non sollicités
@@ -97,3 +97,4 @@ export default function AboutPage() {
     </ProsePage>
   )
 }
+

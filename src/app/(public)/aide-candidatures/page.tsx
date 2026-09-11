@@ -40,7 +40,7 @@ const FAQ = [
   },
   {
     q: 'Puis-je modifier ma candidature après l’envoi ?',
-    a: 'Pour des raisons de sécurité et de traçabilité, une candidature envoyée ne peut pas être modifiée. Si vous devez corriger une information importante, contactez-nous à contact@talentforge.local en indiquant votre référence.',
+    a: 'Pour des raisons de sécurité et de traçabilité, une candidature envoyée ne peut pas être modifiée. Si vous devez corriger une information importante, contactez-nous à contact@talentforge.gn en indiquant votre référence.',
   },
   {
     q: 'Combien de temps ma candidature est-elle conservée ?',
@@ -82,7 +82,7 @@ export default function AideCandidaturesPage() {
       <h2>Vous ne trouvez pas votre réponse ?</h2>
       <p>
         Notre équipe est joignable à l’adresse{' '}
-        <a href="mailto:contact@talentforge.local" className="text-primary hover:underline">contact@talentforge.local</a>{' '}
+        <a href="mailto:contact@talentforge.gn" className="text-primary hover:underline">contact@talentforge.gn</a>{' '}
         ou via notre <Link href="/contact" className="text-primary hover:underline">formulaire de contact</Link>.
         Pour toute question relative à une candidature en cours, merci d’indiquer
         votre numéro de référence (APP-XXXX-XXXX).

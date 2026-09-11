@@ -82,7 +82,7 @@ function resolveProvider(): EmailProvider {
   if (cachedProvider) return cachedProvider
 
   const apiKey = process.env.RESEND_API_KEY
-  const from = process.env.EMAIL_FROM || 'TalentForge <noreply@talentforge.local>'
+  const from = process.env.EMAIL_FROM || 'TalentForge <noreply@talentforge.gn>'
 
   if (apiKey && apiKey.length > 0) {
     console.log('[email] Using Resend provider')
