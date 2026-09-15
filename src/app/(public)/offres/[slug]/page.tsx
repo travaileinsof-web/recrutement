@@ -202,14 +202,15 @@ export default async function JobDetailPage({ params }: PageProps) {
             <Separator className="mb-8" />
 
             {/* Description */}
-            <section>
-              <h2 className="mb-4 font-serif text-xl font-semibold tracking-tight">
-                Description du poste
-              </h2>
-              <div className="space-y-3 whitespace-pre-wrap text-[0.95rem] leading-relaxed text-foreground/90">
-                {job.description}
-              </div>
-            </section>
+              <section>
+                <h2 className="mb-4 font-serif text-xl font-semibold tracking-tight">
+                  Description du poste
+                </h2>
+                <div 
+                  className="prose prose-sm md:prose-base prose-neutral max-w-none text-foreground/90 space-y-3"
+                  dangerouslySetInnerHTML={{ __html: job.description }}
+                />
+              </section>
           </article>
 
           {/* SIDEBAR — premium sticky card */}

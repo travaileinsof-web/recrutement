@@ -55,24 +55,24 @@
 --------------------------------------------------------------------------- */
 
 :root {
-  /* Mode Clair - Épuré et Finance */
-  --background: #FFFFFF; /* Blanc pur et tranchant */
-  --foreground: #111827; /* Gris très profond, presque noir */
+  /* Mode Clair - Épuré et Finance (avec une subtile touche de bleu/indigo) */
+  --background: #FBFCFE; /* Blanc avec une infime goutte de bleu */
+  --foreground: #0F172A; /* Slate 900 */
 
   --card: #FFFFFF;
-  --card-foreground: #111827;
+  --card-foreground: #0F172A;
 
   --popover: #FFFFFF;
-  --popover-foreground: #111827;
+  --popover-foreground: #0F172A;
 
   --primary: #4A52A8; /* Indigo cabinet */
   --primary-foreground: #FFFFFF;
 
-  --secondary: #F3F4F6; /* Gris perle très léger */
-  --secondary-foreground: #374151; /* Gris ardoise */
+  --secondary: #F1F4FA; /* Gris-bleu très léger */
+  --secondary-foreground: #334155; /* Slate 700 */
 
-  --muted: #F9FAFB;
-  --muted-foreground: #6B7280;
+  --muted: #F8FAFC; /* Slate 50 */
+  --muted-foreground: #64748B; /* Slate 500 */
 
   --accent: #C96F3B; /* Terre de Guinée */
   --accent-foreground: #ffffff;
@@ -215,9 +215,9 @@
     position: relative;
     background-color: var(--background);
     background-image:
-      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(74, 82, 168, 0.03), transparent),
-      radial-gradient(ellipse 60% 50% at 80% 50%, rgba(201, 111, 59, 0.015), transparent),
-      radial-gradient(ellipse 60% 50% at 20% 80%, rgba(74, 82, 168, 0.015), transparent);
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(74, 82, 168, 0.06), transparent),
+      radial-gradient(ellipse 60% 50% at 80% 50%, rgba(201, 111, 59, 0.02), transparent),
+      radial-gradient(ellipse 60% 50% at 20% 80%, rgba(74, 82, 168, 0.03), transparent);
   }
   .dark .aurora-bg {
     background-color: var(--background);
