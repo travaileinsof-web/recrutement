@@ -3,16 +3,19 @@
 import * as React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu, Briefcase, Send, Eye, Home } from 'lucide-react'
+import { Menu, Briefcase, Send, Eye, Home, Star, Newspaper, Mail, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose, SheetDescription } from '@/components/ui/sheet'
 import { cn } from '@/lib/utils'
 
 const NAV = [
-  { href: '/a-propos', label: 'Le Cabinet', icon: Home },
-  { href: '/offres', label: 'Offres d\'emploi', icon: Briefcase },
-  { href: '/fiches-metiers', label: 'Fiches Métiers', icon: Eye },
-  { href: '/je-recrute', label: 'Je recrute', icon: Send },
+  { href: '/offres',        label: 'Offres d\'emploi',  icon: Briefcase },
+  { href: '/je-recrute',   label: 'Je recrute',         icon: Users },
+  { href: '/a-propos',     label: 'Notre cabinet',      icon: Home },
+  { href: '/evaluation',   label: 'Évaluation',         icon: Star },
+  { href: '/blog',         label: 'Actualités',         icon: Newspaper },
+  { href: '/fiches-metiers', label: 'Fiches Métiers',   icon: Eye },
+  { href: '/contact',      label: 'Contact',            icon: Mail },
 ] as const
 
 export function SiteHeader() {
