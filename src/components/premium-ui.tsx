@@ -17,7 +17,7 @@ export function HandwrittenSubtitle({
   return (
     <div
       className={cn(
-        'font-script text-2xl tracking-wide text-accent -rotate-2 mb-3',
+        'font-script text-4xl tracking-wide text-accent -rotate-2 mb-3',
         className
       )}
     >

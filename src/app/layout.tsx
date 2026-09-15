@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Inter, Cormorant_Garamond, Caveat } from 'next/font/google'
+import { Inter, Cormorant_Garamond, Pinyon_Script } from 'next/font/google'
 import './globals.css'
 import { Toaster } from '@/components/ui/sonner'
 import { ThemeProvider } from '@/components/theme-provider'
@@ -18,9 +18,10 @@ const cormorant = Cormorant_Garamond({
   weight: ['300', '400', '500', '600', '700'],
 })
 
-const caveat = Caveat({
+const pinyon = Pinyon_Script({
   variable: '--font-script',
   subsets: ['latin'],
+  weight: ['400'],
   display: 'swap',
 })
 
@@ -91,7 +92,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.variable} ${cormorant.variable} ${caveat.variable} antialiased bg-background text-foreground`}
+        className={`${inter.variable} ${cormorant.variable} ${pinyon.variable} antialiased bg-background text-foreground`}
       >
         <ThemeProvider
           attribute="class"
