@@ -1,21 +1,21 @@
 import type { Metadata } from 'next'
-import { Nunito_Sans, Fraunces, Caveat } from 'next/font/google'
+import { Inter, Cormorant_Garamond, Caveat } from 'next/font/google'
 import './globals.css'
 import { Toaster } from '@/components/ui/sonner'
 import { ThemeProvider } from '@/components/theme-provider'
 import { FloatingWhatsApp } from '@/components/floating-whatsapp'
 
-const nunito = Nunito_Sans({
+const inter = Inter({
   variable: '--font-sans',
   subsets: ['latin'],
   display: 'swap',
 })
 
-const fraunces = Fraunces({
+const cormorant = Cormorant_Garamond({
   variable: '--font-serif',
   subsets: ['latin'],
   display: 'swap',
-  axes: ['opsz', 'SOFT', 'WONK'],
+  weight: ['300', '400', '500', '600', '700'],
 })
 
 const caveat = Caveat({
@@ -91,7 +91,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${nunito.variable} ${fraunces.variable} ${caveat.variable} antialiased bg-background text-foreground`}
+        className={`${inter.variable} ${cormorant.variable} ${caveat.variable} antialiased bg-background text-foreground`}
       >
         <ThemeProvider
           attribute="class"
